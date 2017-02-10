@@ -1,0 +1,1 @@
+Licensed under an ISC-style license.  See LICENSE for details.

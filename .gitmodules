@@ -1,0 +1,3 @@
+[submodule "libcubeb-sys/libcubeb"]
+	path = libcubeb-sys/libcubeb
+	url = https://github.com/kinetiknz/cubeb

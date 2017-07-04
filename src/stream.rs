@@ -1,8 +1,10 @@
 //! Stream Functions
 //!
 //! # Example
-//! ```no run
-//! extern crate cubeb
+//! ```
+//! extern crate cubeb;
+//! use std::time::Duration;
+//! use std::thread;
 //!
 //! struct SquareWave {
 //!     phase_inc: f32,
@@ -10,7 +12,58 @@
 //!     volume: f32
 //! }
 //!
-//! impl cubeb::StreamCallbacks for SquareWave {
+//! impl cubeb::StreamCallback for SquareWave {
+//!    type Frame = cubeb::MonoFrame<f32>;
+//!
+//!    fn data_callback(&mut self, _: &[cubeb::MonoFrame<f32>], output: &mut [cubeb::MonoFrame<f32>]) -> isize {
+//!        // Generate a square wave
+//!        for x in output.iter_mut() {
+//!            x.m = if self.phase < 0.5 {
+//!                self.volume
+//!            } else {
+//!                -self.volume
+//!            };
+//!            self.phase = (self.phase + self.phase_inc) % 1.0;
+//!        }
+//!
+//!        output.len() as isize
+//!    }
+//!
+//!    fn state_callback(&mut self, state: cubeb::State) { println!("stream {:?}", state); }
+//! }
+//!
+//! fn main() {
+//!     let ctx = cubeb::Context::init("Cubeb tone example", None).unwrap();
+//!
+//!     let params = cubeb::StreamParamsBuilder::new()
+//!         .format(cubeb::SampleFormat::Float32LE)
+//!         .rate(44100)
+//!         .channels(1)
+//!         .layout(cubeb::ChannelLayout::Mono)
+//!         .take();
+//!
+//!     let stream_init_opts = cubeb::StreamInitOptionsBuilder::new()
+//!         .stream_name("Cubeb Square Wave")
+//!         .output_stream_param(&params)
+//!         .latency(4096)
+//!         .take();
+//!
+//!     let stream = ctx.stream_init(
+//!         &stream_init_opts,
+//!         SquareWave {
+//!             phase_inc: 440.0 / 44100.0,
+//!             phase: 0.0,
+//!             volume: 0.25
+//!         }).unwrap();
+//!
+//!     // Start playback
+//!     stream.start().unwrap();
+//!
+//!     // Play for 1/2 second
+//!     thread::sleep(Duration::from_millis(500));
+//!
+//!     // Shutdown
+//!     stream.stop().unwrap();
 //! }
 //! ```
 

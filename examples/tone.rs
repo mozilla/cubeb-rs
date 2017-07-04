@@ -6,6 +6,8 @@
 //! libcubeb api/function test. Plays a simple tone.
 extern crate cubeb;
 
+mod common;
+
 use cubeb::SampleType;
 use std::f32::consts::PI;
 use std::thread;
@@ -44,12 +46,7 @@ impl cubeb::StreamCallback for Tone {
 }
 
 fn main() {
-    let ctx = cubeb::Context::init("Cubeb tone example", None).expect("Failed to create cubeb context");
-
-    // std::unique_ptr<cb_user_data> user_data(new cb_user_data());
-    // ASSERT_TRUE(!!user_data) << "Error allocating user data";
-
-    // user_data->position = 0;
+    let ctx = common::init("Cubeb tone example").expect("Failed to create cubeb context");
 
     let params = cubeb::StreamParamsBuilder::new()
         .format(STREAM_FORMAT)

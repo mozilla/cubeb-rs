@@ -89,7 +89,7 @@ impl StreamParams {
     }
 
     pub fn channels(&self) -> u32 {
-        self.raw.rate as u32
+        self.raw.channels as u32
     }
 
     pub fn layout(&self) -> ChannelLayout {
@@ -224,9 +224,18 @@ impl StreamParamsBuilder {
     }
 
     pub fn take(&self) -> StreamParams {
+        // Convert native endian types to matching format
+        let raw_sample_format = match self.format {
+            SampleFormat::S16LE => raw::CUBEB_SAMPLE_S16LE,
+            SampleFormat::S16BE => raw::CUBEB_SAMPLE_S16BE,
+            SampleFormat::S16NE => raw::CUBEB_SAMPLE_S16NE,
+            SampleFormat::Float32LE => raw::CUBEB_SAMPLE_FLOAT32LE,
+            SampleFormat::Float32BE => raw::CUBEB_SAMPLE_FLOAT32BE,
+            SampleFormat::Float32NE => raw::CUBEB_SAMPLE_FLOAT32NE,
+        };
         unsafe {
             Binding::from_raw(&raw::cubeb_stream_params {
-                format: self.format as raw::cubeb_sample_format,
+                format: raw_sample_format,
                 rate: self.rate,
                 channels: self.channels,
                 layout: self.layout as raw::cubeb_channel_layout

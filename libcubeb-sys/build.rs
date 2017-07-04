@@ -42,18 +42,17 @@ fn main() {
         .build();
 
     if windows {
+        // TBD
         println!("cargo:rustc-link-lib=static=cubeb");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
-
-    // TBD
     } else if darwin {
         println!("cargo:rustc-link-lib=static=cubeb");
-        println!("cargo:rustc-link-lib=dylib=stdc++");
+        println!("cargo:rustc-link-lib=framework=AudioUnit");
+        println!("cargo:rustc-link-lib=framework=CoreAudio");
+        println!("cargo:rustc-link-lib=framework=CoreServices");
+        println!("cargo:rustc-link-lib=dylib=c++");
         println!("cargo:rustc-link-search=native={}", dst.display());
-
-    // TBD
     } else {
-
         println!("cargo:rustc-link-lib=static=cubeb");
         println!("cargo:rustc-link-lib=dylib=stdc++");
         println!("cargo:rustc-link-search=native={}", dst.display());

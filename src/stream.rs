@@ -509,3 +509,283 @@ impl StreamInitOptionsBuilder {
         replace(&mut self.opts, Default::default())
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use StreamParamsBuilder;
+    use raw;
+    use std::mem;
+    use util::Binding;
+
+    #[test]
+    fn stream_params_raw_channels() {
+        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.channels = 2;
+        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+        assert_eq!(params.channels(), 2);
+    }
+
+    #[test]
+    fn stream_params_raw_format() {
+        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        macro_rules! check(
+            ($($raw:ident => $real:ident),*) => (
+                $(raw.format = raw::$raw;
+                  let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+                  assert_eq!(params.format(), super::SampleFormat::$real);
+                )*
+            ) );
+
+        check!(CUBEB_SAMPLE_S16LE => S16LE,
+               CUBEB_SAMPLE_S16BE => S16BE,
+               CUBEB_SAMPLE_FLOAT32LE => Float32LE,
+               CUBEB_SAMPLE_FLOAT32BE => Float32BE);
+    }
+
+    #[test]
+    fn stream_params_raw_format_native_endian() {
+        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.format = raw::CUBEB_SAMPLE_S16NE;
+        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+        assert_eq!(
+            params.format(),
+            if cfg!(target_endian = "little") {
+                super::SampleFormat::S16LE
+            } else {
+                super::SampleFormat::S16BE
+            }
+        );
+
+        raw.format = raw::CUBEB_SAMPLE_FLOAT32NE;
+        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+        assert_eq!(
+            params.format(),
+            if cfg!(target_endian = "little") {
+                super::SampleFormat::Float32LE
+            } else {
+                super::SampleFormat::Float32BE
+            }
+        );
+    }
+
+    #[test]
+    fn stream_params_raw_layout() {
+        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        macro_rules! check(
+            ($($raw:ident => $real:ident),*) => (
+                $(raw.layout = raw::$raw;
+                  let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+                  assert_eq!(params.layout(), super::ChannelLayout::$real);
+                )*
+            ) );
+
+        check!(CUBEB_LAYOUT_UNDEFINED => Undefined,
+               CUBEB_LAYOUT_DUAL_MONO => DualMono,
+               CUBEB_LAYOUT_DUAL_MONO_LFE => DualMonoLfe,
+               CUBEB_LAYOUT_MONO => Mono,
+               CUBEB_LAYOUT_MONO_LFE => MonoLfe,
+               CUBEB_LAYOUT_STEREO => Stereo,
+               CUBEB_LAYOUT_STEREO_LFE => StereoLfe,
+               CUBEB_LAYOUT_3F => Layout3F,
+               CUBEB_LAYOUT_3F_LFE => Layout3FLfe,
+               CUBEB_LAYOUT_2F1 => Layout2F1,
+               CUBEB_LAYOUT_2F1_LFE => Layout2F1Lfe,
+               CUBEB_LAYOUT_3F1 => Layout3F1,
+               CUBEB_LAYOUT_3F1_LFE => Layout3F1Lfe,
+               CUBEB_LAYOUT_2F2 => Layout2F2,
+               CUBEB_LAYOUT_2F2_LFE => Layout2F2Lfe,
+               CUBEB_LAYOUT_3F2 => Layout3F2,
+               CUBEB_LAYOUT_3F2_LFE => Layout3F2Lfe,
+               CUBEB_LAYOUT_3F3R_LFE => Layout3F3RLfe,
+               CUBEB_LAYOUT_3F4_LFE => Layout3F4Lfe);
+    }
+
+    #[test]
+    fn stream_params_raw_rate() {
+        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.rate = 44100;
+        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+        assert_eq!(params.rate(), 44100);
+    }
+
+    #[test]
+    fn stream_params_builder_channels() {
+        let params = StreamParamsBuilder::new().channels(2).take();
+        assert_eq!(params.channels(), 2);
+    }
+
+    #[test]
+    fn stream_params_builder_format() {
+        macro_rules! check(
+            ($($real:ident),*) => (
+                $(let params = StreamParamsBuilder::new()
+                  .format(super::SampleFormat::$real)
+                  .take();
+                assert_eq!(params.format(), super::SampleFormat::$real);
+                )*
+            ) );
+
+        check!(S16LE, S16BE, Float32LE, Float32BE);
+    }
+
+    #[test]
+    fn stream_params_builder_format_native_endian() {
+        let params = StreamParamsBuilder::new()
+            .format(super::SampleFormat::S16NE)
+            .take();
+        assert_eq!(
+            params.format(),
+            if cfg!(target_endian = "little") {
+                super::SampleFormat::S16LE
+            } else {
+                super::SampleFormat::S16BE
+            }
+        );
+
+        let params = StreamParamsBuilder::new()
+            .format(super::SampleFormat::Float32NE)
+            .take();
+        assert_eq!(
+            params.format(),
+            if cfg!(target_endian = "little") {
+                super::SampleFormat::Float32LE
+            } else {
+                super::SampleFormat::Float32BE
+            }
+        );
+    }
+
+    #[test]
+    fn stream_params_builder_layout() {
+        macro_rules! check(
+            ($($real:ident),*) => (
+                $(let params = StreamParamsBuilder::new()
+                  .layout(super::ChannelLayout::$real)
+                  .take();
+                assert_eq!(params.layout(), super::ChannelLayout::$real);
+                )*
+            ) );
+
+        check!(
+            Undefined,
+            DualMono,
+            DualMonoLfe,
+            Mono,
+            MonoLfe,
+            Stereo,
+            StereoLfe,
+            Layout3F,
+            Layout3FLfe,
+            Layout2F1,
+            Layout2F1Lfe,
+            Layout3F1,
+            Layout3F1Lfe,
+            Layout2F2,
+            Layout2F2Lfe,
+            Layout3F2,
+            Layout3F3RLfe,
+            Layout3F4Lfe
+        );
+    }
+
+    #[test]
+    fn stream_params_builder_rate() {
+        let params = StreamParamsBuilder::new().rate(44100).take();
+        assert_eq!(params.rate(), 44100);
+    }
+
+    #[test]
+    fn stream_params_builder_to_raw_channels() {
+        let params = StreamParamsBuilder::new().channels(2).take();
+        let raw = unsafe { &*params.raw() };
+        assert_eq!(raw.channels, 2);
+    }
+
+    #[test]
+    fn stream_params_builder_to_raw_format() {
+        macro_rules! check(
+            ($($real:ident => $raw:ident),*) => (
+                $(let params = super::StreamParamsBuilder::new()
+                  .format(super::SampleFormat::$real)
+                  .take();
+                  let raw = unsafe { &*params.raw() };
+                  assert_eq!(raw.format, raw::$raw);
+                )*
+            ) );
+
+        check!(S16LE => CUBEB_SAMPLE_S16LE,
+               S16BE => CUBEB_SAMPLE_S16BE,
+               Float32LE => CUBEB_SAMPLE_FLOAT32LE,
+               Float32BE => CUBEB_SAMPLE_FLOAT32BE);
+    }
+
+    #[test]
+    fn stream_params_builder_format_to_raw_native_endian() {
+        let params = StreamParamsBuilder::new()
+            .format(super::SampleFormat::S16NE)
+            .take();
+        let raw = unsafe { &*params.raw() };
+        assert_eq!(
+            raw.format,
+            if cfg!(target_endian = "little") {
+                raw::CUBEB_SAMPLE_S16LE
+            } else {
+                raw::CUBEB_SAMPLE_S16BE
+            }
+        );
+
+        let params = StreamParamsBuilder::new()
+            .format(super::SampleFormat::Float32NE)
+            .take();
+        let raw = unsafe { &*params.raw() };
+        assert_eq!(
+            raw.format,
+            if cfg!(target_endian = "little") {
+                raw::CUBEB_SAMPLE_FLOAT32LE
+            } else {
+                raw::CUBEB_SAMPLE_FLOAT32BE
+            }
+        );
+    }
+
+    #[test]
+    fn stream_params_builder_to_raw_layout() {
+        macro_rules! check(
+            ($($real:ident => $raw:ident),*) => (
+                $(let params = super::StreamParamsBuilder::new()
+                  .layout(super::ChannelLayout::$real)
+                  .take();
+                  let raw = unsafe { &*params.raw() };
+                  assert_eq!(raw.layout, raw::$raw);
+                )*
+            ) );
+
+        check!(Undefined => CUBEB_LAYOUT_UNDEFINED,
+               DualMono => CUBEB_LAYOUT_DUAL_MONO,
+               DualMonoLfe => CUBEB_LAYOUT_DUAL_MONO_LFE,
+               Mono => CUBEB_LAYOUT_MONO,
+               MonoLfe => CUBEB_LAYOUT_MONO_LFE,
+               Stereo => CUBEB_LAYOUT_STEREO,
+               StereoLfe => CUBEB_LAYOUT_STEREO_LFE,
+               Layout3F => CUBEB_LAYOUT_3F,
+               Layout3FLfe => CUBEB_LAYOUT_3F_LFE,
+               Layout2F1 => CUBEB_LAYOUT_2F1,
+               Layout2F1Lfe => CUBEB_LAYOUT_2F1_LFE,
+               Layout3F1 => CUBEB_LAYOUT_3F1,
+               Layout3F1Lfe => CUBEB_LAYOUT_3F1_LFE,
+               Layout2F2 => CUBEB_LAYOUT_2F2,
+               Layout2F2Lfe => CUBEB_LAYOUT_2F2_LFE,
+               Layout3F2 => CUBEB_LAYOUT_3F2,
+               Layout3F2Lfe => CUBEB_LAYOUT_3F2_LFE,
+               Layout3F3RLfe => CUBEB_LAYOUT_3F3R_LFE,
+               Layout3F4Lfe => CUBEB_LAYOUT_3F4_LFE);
+    }
+
+    #[test]
+    fn stream_params_builder_to_raw_rate() {
+        let params = StreamParamsBuilder::new().rate(44100).take();
+        let raw = unsafe { &*params.raw() };
+        assert_eq!(raw.rate, 44100);
+    }
+}

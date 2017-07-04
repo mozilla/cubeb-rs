@@ -1,7 +1,7 @@
 //! Stream Functions
 //!
 //! # Example
-//! ```
+//! ```no run
 //! extern crate cubeb
 //!
 //! struct SquareWave {

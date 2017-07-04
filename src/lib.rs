@@ -21,6 +21,7 @@ mod call;
 mod context;
 mod dev_coll;
 mod devices;
+mod frame;
 mod stream;
 mod util;
 
@@ -28,9 +29,10 @@ pub use context::Context;
 pub use dev_coll::{DeviceCollection, DeviceInfo};
 pub use devices::Device;
 pub use error::Error;
+pub use frame::{Frame, MonoFrame, StereoFrame};
 use std::ptr;
-pub use stream::{MonoFrame, SampleType, StereoFrame, Stream, StreamCallback, StreamInitOptions,
-                 StreamInitOptionsBuilder, StreamParams, StreamParamsBuilder};
+pub use stream::{SampleType, Stream, StreamCallback, StreamInitOptions, StreamInitOptionsBuilder, StreamParams,
+                 StreamParamsBuilder};
 use util::Binding;
 
 /// An enumeration of possible errors that can happen when working with cubeb.

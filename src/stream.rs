@@ -14,7 +14,7 @@
 //! }
 //! ```
 
-use {ChannelLayout, Context, Device, DeviceId, Error, Result, SampleFormat, State, raw};
+use {ChannelLayout, Context, Device, DeviceId, Error, Frame, Result, SampleFormat, State, raw};
 use std::{marker, ptr, str};
 use std::ffi::CString;
 use std::os::raw::{c_long, c_void};
@@ -48,41 +48,9 @@ impl SampleType for f32 {
     }
 }
 
-pub trait FrameType {
-    //    type Sample: SampleType;
-    fn layout() -> ChannelLayout;
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct MonoFrame<T> {
-    pub m: T
-}
-
-// I don't believe it's necessay for T to be a sample type. It's advantageous but not a requirement.
-// impl<T> FrameType for MonoFrame<T> where T: SampleType,
-impl<T> FrameType for MonoFrame<T> {
-    //    type Sample = T;
-    fn layout() -> ChannelLayout {
-        ChannelLayout::Mono
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct StereoFrame<T> {
-    pub l: T,
-    pub r: T
-}
-
-impl<T> FrameType for StereoFrame<T> {
-    //    type Sample = T;
-    fn layout() -> ChannelLayout {
-        ChannelLayout::Stereo
-    }
-}
-
 pub trait StreamCallback: Send + 'static
 where
-    Self::Frame: FrameType,
+    Self::Frame: Frame,
 {
     type Frame;
 

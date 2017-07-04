@@ -281,7 +281,7 @@ impl<'ctx, CB> Stream<'ctx, CB>
 where
     CB: StreamCallback,
 {
-    fn init(context: &Context, opts: &StreamInitOptions, cb: CB) -> Result<Self> {
+    fn init(context: &'ctx Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<'ctx, CB>> {
         let mut stream: *mut raw::cubeb_stream = ptr::null_mut();
 
         let cbs = Box::new(cb);

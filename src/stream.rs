@@ -338,8 +338,8 @@ where
                 opts.output_device.raw(),
                 output_stream_params,
                 opts.latency_frames,
-                data_cb_c::<CB>,
-                state_cb_c::<CB>,
+                Stream::<CB>::data_cb_c,
+                Stream::<CB>::state_cb_c,
                 user_ptr
             ));
         }
@@ -422,6 +422,46 @@ where
         Ok(())
     }
 */
+
+    // C callable callbacks
+    extern "C" fn data_cb_c(
+        _: *mut raw::cubeb_stream,
+        user_ptr: *mut c_void,
+        input_buffer: *const c_void,
+        output_buffer: *mut c_void,
+        nframes: c_long,
+    ) -> c_long {
+        use std::slice::{from_raw_parts, from_raw_parts_mut};
+
+        unsafe {
+            let cbs = &mut *(user_ptr as *mut CB);
+            let input: &[CB::Frame] = if input_buffer.is_null() {
+                &[]
+            } else {
+                from_raw_parts(input_buffer as *const _, nframes as usize)
+            };
+            let mut output: &mut [CB::Frame] = if output_buffer.is_null() {
+                &mut []
+            } else {
+                from_raw_parts_mut(output_buffer as *mut _, nframes as usize)
+            };
+            cbs.data_callback(input, output) as c_long
+        }
+    }
+
+    extern "C" fn state_cb_c(_: *mut raw::cubeb_stream, user_ptr: *mut c_void, state: raw::cubeb_state) {
+        let state = match state {
+            raw::CUBEB_STATE_STARTED => State::Started,
+            raw::CUBEB_STATE_STOPPED => State::Stopped,
+            raw::CUBEB_STATE_DRAINED => State::Drained,
+            raw::CUBEB_STATE_ERROR => State::Error,
+            n => panic!("unknown state: {}", n),
+        };
+        unsafe {
+            let cbs = &mut *(user_ptr as *mut CB);
+            cbs.state_callback(state);
+        };
+    }
 }
 
 impl<'ctx, CB> Drop for Stream<'ctx, CB>
@@ -433,50 +473,6 @@ where
             raw::cubeb_stream_destroy(self.raw);
         }
     }
-}
-
-// C callable callbacks
-extern "C" fn data_cb_c<CB: StreamCallback>(
-    _: *mut raw::cubeb_stream,
-    user_ptr: *mut c_void,
-    input_buffer: *const c_void,
-    output_buffer: *mut c_void,
-    nframes: c_long,
-) -> c_long {
-    use std::slice::{from_raw_parts, from_raw_parts_mut};
-
-    unsafe {
-        let cbs = &mut *(user_ptr as *mut CB);
-        let input: &[CB::Frame] = if input_buffer.is_null() {
-            &[]
-        } else {
-            from_raw_parts(input_buffer as *const _, nframes as usize)
-        };
-        let mut output: &mut [CB::Frame] = if output_buffer.is_null() {
-            &mut []
-        } else {
-            from_raw_parts_mut(output_buffer as *mut _, nframes as usize)
-        };
-        cbs.data_callback(input, output) as c_long
-    }
-}
-
-extern "C" fn state_cb_c<CB: StreamCallback>(
-    _: *mut raw::cubeb_stream,
-    user_ptr: *mut c_void,
-    state: raw::cubeb_state,
-) {
-    let state = match state {
-        raw::CUBEB_STATE_STARTED => State::Started,
-        raw::CUBEB_STATE_STOPPED => State::Stopped,
-        raw::CUBEB_STATE_DRAINED => State::Drained,
-        raw::CUBEB_STATE_ERROR => State::Error,
-        n => panic!("unknown state: {}", n),
-    };
-    unsafe {
-        let cbs = &mut *(user_ptr as *mut CB);
-        cbs.state_callback(state);
-    };
 }
 
 #[doc(hidden)]

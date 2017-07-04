@@ -1,5 +1,6 @@
 use {ChannelLayout, DeviceCollection, DeviceType, Result};
 use {Stream, StreamInitOptions, StreamParams};
+use dev_coll;
 use raw;
 use std::{ptr, str};
 use std::ffi::CString;
@@ -107,25 +108,8 @@ impl Context {
         stream_init(self, opts, cb)
     }
 
-    pub fn enumerate_devices(&self, devtype: DeviceType, collection: &mut DeviceCollection) -> Result<()> {
-        unsafe {
-            try_call!(raw::cubeb_enumerate_devices(
-                self.raw,
-                devtype.bits(),
-                collection.raw()
-            ));
-        }
-        Ok(())
-    }
-
-    pub fn cubeb_device_collection_destroy(&self, collection: &mut DeviceCollection) -> Result<()> {
-        unsafe {
-            try_call!(raw::cubeb_device_collection_destroy(
-                self.raw,
-                collection.raw()
-            ));
-        }
-        Ok(())
+    pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection> {
+        dev_coll::enumerate(self, devtype)
     }
 
     /*

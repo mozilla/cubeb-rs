@@ -19,12 +19,14 @@ mod error;
 #[macro_use]
 mod call;
 mod context;
+mod dev_coll;
+mod devices;
 mod stream;
 mod util;
-mod devices;
 
 pub use context::Context;
-pub use devices::{Device, DeviceCollection, DeviceInfo};
+pub use dev_coll::{DeviceCollection, DeviceInfo};
+pub use devices::Device;
 pub use error::Error;
 use std::ptr;
 pub use stream::{MonoFrame, SampleType, StereoFrame, Stream, StreamCallback, StreamInitOptions,

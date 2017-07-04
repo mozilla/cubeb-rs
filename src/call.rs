@@ -81,6 +81,7 @@ mod impls {
     }
 
     impl Convert<raw::cubeb_sample_format> for SampleFormat {
+        #[cfg_attr(feature = "cargo-clippy", allow(match_same_arms))]
         fn convert(&self) -> raw::cubeb_sample_format {
             match *self {
                 SampleFormat::S16LE => raw::CUBEB_SAMPLE_S16LE,

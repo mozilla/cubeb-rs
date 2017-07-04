@@ -78,7 +78,7 @@ impl IntoCString for CString {
     }
 }
 
-pub unsafe fn opt_bytes<'a, T>(_anchor: &'a T, c: *const c_char) -> Option<&'a [u8]> {
+pub unsafe fn opt_bytes<T>(_anchor: &T, c: *const c_char) -> Option<&[u8]> {
     if c.is_null() {
         None
     } else {

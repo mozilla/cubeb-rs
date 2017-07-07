@@ -19,4 +19,5 @@ appveyor = { repository = "djg/cubeb-rs" }
 
 [dependencies]
 bitflags = "0.9"
-libcubeb-sys = { path = "libcubeb-sys", version = "0.1.0" }
+cubeb-core = { path = "../cubeb-core" }
+libcubeb-sys = { path = "libcubeb-sys" }

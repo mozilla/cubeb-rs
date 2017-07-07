@@ -67,7 +67,7 @@
 //! }
 //! ```
 
-use {ChannelLayout, Context, Device, DeviceId, Error, Frame, Result, SampleFormat, State, raw};
+use {ChannelLayout, Context, Device, DeviceId, Error, Frame, Result, SampleFormat, State, ffi, sys};
 use std::{marker, ptr, str};
 use std::ffi::CString;
 use std::os::raw::{c_long, c_void};
@@ -115,13 +115,13 @@ where
 ///
 #[derive(Clone, Copy)]
 pub struct StreamParams {
-    raw: raw::cubeb_stream_params
+    raw: ffi::cubeb_stream_params
 }
 
 impl StreamParams {
     pub fn format(&self) -> SampleFormat {
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.format == raw::$raw {
+            $(if self.raw.format == ffi::$raw {
                 super::SampleFormat::$real
             }) else *
             else {
@@ -147,7 +147,7 @@ impl StreamParams {
 
     pub fn layout(&self) -> ChannelLayout {
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.layout == raw::$raw {
+            $(if self.raw.layout == ffi::$raw {
                 super::ChannelLayout::$real
             }) else *
             else {
@@ -202,14 +202,14 @@ impl StreamParams {
 }
 
 impl Binding for StreamParams {
-    type Raw = *const raw::cubeb_stream_params;
-    unsafe fn from_raw(raw: *const raw::cubeb_stream_params) -> Self {
+    type Raw = *const ffi::cubeb_stream_params;
+    unsafe fn from_raw(raw: *const ffi::cubeb_stream_params) -> Self {
         Self {
             raw: *raw
         }
     }
-    fn raw(&self) -> *const raw::cubeb_stream_params {
-        &self.raw as *const raw::cubeb_stream_params
+    fn raw(&self) -> Self::Raw {
+        &self.raw as Self::Raw
     }
 }
 
@@ -279,19 +279,19 @@ impl StreamParamsBuilder {
     pub fn take(&self) -> StreamParams {
         // Convert native endian types to matching format
         let raw_sample_format = match self.format {
-            SampleFormat::S16LE => raw::CUBEB_SAMPLE_S16LE,
-            SampleFormat::S16BE => raw::CUBEB_SAMPLE_S16BE,
-            SampleFormat::S16NE => raw::CUBEB_SAMPLE_S16NE,
-            SampleFormat::Float32LE => raw::CUBEB_SAMPLE_FLOAT32LE,
-            SampleFormat::Float32BE => raw::CUBEB_SAMPLE_FLOAT32BE,
-            SampleFormat::Float32NE => raw::CUBEB_SAMPLE_FLOAT32NE,
+            SampleFormat::S16LE => ffi::CUBEB_SAMPLE_S16LE,
+            SampleFormat::S16BE => ffi::CUBEB_SAMPLE_S16BE,
+            SampleFormat::S16NE => ffi::CUBEB_SAMPLE_S16NE,
+            SampleFormat::Float32LE => ffi::CUBEB_SAMPLE_FLOAT32LE,
+            SampleFormat::Float32BE => ffi::CUBEB_SAMPLE_FLOAT32BE,
+            SampleFormat::Float32NE => ffi::CUBEB_SAMPLE_FLOAT32NE,
         };
         unsafe {
-            Binding::from_raw(&raw::cubeb_stream_params {
+            Binding::from_raw(&ffi::cubeb_stream_params {
                 format: raw_sample_format,
                 rate: self.rate,
                 channels: self.channels,
-                layout: self.layout as raw::cubeb_channel_layout
+                layout: self.layout as ffi::cubeb_channel_layout
             } as *const _)
         }
     }
@@ -302,7 +302,7 @@ pub struct Stream<'ctx, CB>
 where
     CB: StreamCallback,
 {
-    raw: *mut raw::cubeb_stream,
+    raw: *mut ffi::cubeb_stream,
     cbs: Box<CB>,
     _marker: marker::PhantomData<&'ctx Context>
 }
@@ -312,7 +312,7 @@ where
     CB: StreamCallback,
 {
     fn init(context: &'ctx Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<'ctx, CB>> {
-        let mut stream: *mut raw::cubeb_stream = ptr::null_mut();
+        let mut stream: *mut ffi::cubeb_stream = ptr::null_mut();
 
         let cbs = Box::new(cb);
 
@@ -329,7 +329,7 @@ where
 
             let user_ptr: *mut c_void = &*cbs as *const _ as *mut _;
 
-            try_call!(raw::cubeb_stream_init(
+            try_call!(sys::cubeb_stream_init(
                 context.raw(),
                 &mut stream,
                 opts.stream_name,
@@ -354,7 +354,7 @@ where
     // start playback.
     pub fn start(&self) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_stream_start(self.raw));
+            try_call!(sys::cubeb_stream_start(self.raw));
         }
         Ok(())
     }
@@ -362,7 +362,7 @@ where
     // Stop playback.
     pub fn stop(&self) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_stream_stop(self.raw));
+            try_call!(sys::cubeb_stream_stop(self.raw));
         }
         Ok(())
     }
@@ -371,7 +371,7 @@ where
     pub fn position(&self) -> Result<u64> {
         let mut position: u64 = 0;
         unsafe {
-            try_call!(raw::cubeb_stream_get_position(self.raw, &mut position));
+            try_call!(sys::cubeb_stream_get_position(self.raw, &mut position));
         }
         Ok(position)
     }
@@ -379,53 +379,53 @@ where
     pub fn latency(&self) -> Result<u32> {
         let mut latency: u32 = 0;
         unsafe {
-            try_call!(raw::cubeb_stream_get_latency(self.raw, &mut latency));
+            try_call!(sys::cubeb_stream_get_latency(self.raw, &mut latency));
         }
         Ok(latency)
     }
 
     pub fn set_volume(&self, volume: f32) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_stream_set_volume(self.raw, volume));
+            try_call!(sys::cubeb_stream_set_volume(self.raw, volume));
         }
         Ok(())
     }
 
     pub fn set_panning(&self, panning: f32) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_stream_set_panning(self.raw, panning));
+            try_call!(sys::cubeb_stream_set_panning(self.raw, panning));
         }
         Ok(())
     }
 
     pub fn current_device(&self) -> Result<Device> {
-        let mut device_ptr: *const raw::cubeb_device = ptr::null();
+        let mut device_ptr: *const ffi::cubeb_device = ptr::null();
         unsafe {
-            try_call!(raw::cubeb_stream_get_current_device(
+            try_call!(sys::cubeb_stream_get_current_device(
                 self.raw,
                 &mut device_ptr
             ));
-            Binding::from_raw_opt(device_ptr).ok_or(Error::from_raw(raw::CUBEB_ERROR))
+            Binding::from_raw_opt(device_ptr).ok_or(Error::from_raw(ffi::CUBEB_ERROR))
         }
     }
 
     pub fn destroy_device(&self, device: Device) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_stream_device_destroy(self.raw, device.raw()));
+            try_call!(sys::cubeb_stream_device_destroy(self.raw, device.raw()));
         }
         Ok(())
     }
 
     /*
     pub fn register_device_changed_callback(&self, device_changed_cb: &mut DeviceChangedCb) -> Result<(), Error> {
-        unsafe { try_call!(raw::cubeb_stream_register_device_changed_callback(self.raw, ...)); }
+        unsafe { try_call!(sys::cubeb_stream_register_device_changed_callback(self.raw, ...)); }
         Ok(())
     }
 */
 
     // C callable callbacks
     extern "C" fn data_cb_c(
-        _: *mut raw::cubeb_stream,
+        _: *mut ffi::cubeb_stream,
         user_ptr: *mut c_void,
         input_buffer: *const c_void,
         output_buffer: *mut c_void,
@@ -449,12 +449,12 @@ where
         }
     }
 
-    extern "C" fn state_cb_c(_: *mut raw::cubeb_stream, user_ptr: *mut c_void, state: raw::cubeb_state) {
+    extern "C" fn state_cb_c(_: *mut ffi::cubeb_stream, user_ptr: *mut c_void, state: ffi::cubeb_state) {
         let state = match state {
-            raw::CUBEB_STATE_STARTED => State::Started,
-            raw::CUBEB_STATE_STOPPED => State::Stopped,
-            raw::CUBEB_STATE_DRAINED => State::Drained,
-            raw::CUBEB_STATE_ERROR => State::Error,
+            ffi::CUBEB_STATE_STARTED => State::Started,
+            ffi::CUBEB_STATE_STOPPED => State::Stopped,
+            ffi::CUBEB_STATE_DRAINED => State::Drained,
+            ffi::CUBEB_STATE_ERROR => State::Error,
             n => panic!("unknown state: {}", n),
         };
         unsafe {
@@ -470,7 +470,7 @@ where
 {
     fn drop(&mut self) {
         unsafe {
-            raw::cubeb_stream_destroy(self.raw);
+            sys::cubeb_stream_destroy(self.raw);
         }
     }
 }
@@ -570,15 +570,13 @@ impl StreamInitOptionsBuilder {
 
 #[cfg(test)]
 mod tests {
-
-    use StreamParamsBuilder;
-    use raw;
+    use {StreamParamsBuilder, ffi};
     use std::mem;
     use util::Binding;
 
     #[test]
     fn stream_params_raw_channels() {
-        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
         raw.channels = 2;
         let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
         assert_eq!(params.channels(), 2);
@@ -586,10 +584,10 @@ mod tests {
 
     #[test]
     fn stream_params_raw_format() {
-        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
         macro_rules! check(
             ($($raw:ident => $real:ident),*) => (
-                $(raw.format = raw::$raw;
+                $(raw.format = ffi::$raw;
                   let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
                   assert_eq!(params.format(), super::SampleFormat::$real);
                 )*
@@ -603,8 +601,8 @@ mod tests {
 
     #[test]
     fn stream_params_raw_format_native_endian() {
-        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
-        raw.format = raw::CUBEB_SAMPLE_S16NE;
+        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.format = ffi::CUBEB_SAMPLE_S16NE;
         let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
         assert_eq!(
             params.format(),
@@ -615,7 +613,7 @@ mod tests {
             }
         );
 
-        raw.format = raw::CUBEB_SAMPLE_FLOAT32NE;
+        raw.format = ffi::CUBEB_SAMPLE_FLOAT32NE;
         let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
         assert_eq!(
             params.format(),
@@ -629,10 +627,10 @@ mod tests {
 
     #[test]
     fn stream_params_raw_layout() {
-        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
         macro_rules! check(
             ($($raw:ident => $real:ident),*) => (
-                $(raw.layout = raw::$raw;
+                $(raw.layout = ffi::$raw;
                   let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
                   assert_eq!(params.layout(), super::ChannelLayout::$real);
                 )*
@@ -661,7 +659,7 @@ mod tests {
 
     #[test]
     fn stream_params_raw_rate() {
-        let mut raw: raw::cubeb_stream_params = unsafe { mem::zeroed() };
+        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
         raw.rate = 44100;
         let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
         assert_eq!(params.rate(), 44100);
@@ -768,7 +766,7 @@ mod tests {
                   .format(super::SampleFormat::$real)
                   .take();
                   let raw = unsafe { &*params.raw() };
-                  assert_eq!(raw.format, raw::$raw);
+                  assert_eq!(raw.format, ffi::$raw);
                 )*
             ) );
 
@@ -787,9 +785,9 @@ mod tests {
         assert_eq!(
             raw.format,
             if cfg!(target_endian = "little") {
-                raw::CUBEB_SAMPLE_S16LE
+                ffi::CUBEB_SAMPLE_S16LE
             } else {
-                raw::CUBEB_SAMPLE_S16BE
+                ffi::CUBEB_SAMPLE_S16BE
             }
         );
 
@@ -800,9 +798,9 @@ mod tests {
         assert_eq!(
             raw.format,
             if cfg!(target_endian = "little") {
-                raw::CUBEB_SAMPLE_FLOAT32LE
+                ffi::CUBEB_SAMPLE_FLOAT32LE
             } else {
-                raw::CUBEB_SAMPLE_FLOAT32BE
+                ffi::CUBEB_SAMPLE_FLOAT32BE
             }
         );
     }
@@ -815,7 +813,7 @@ mod tests {
                   .layout(super::ChannelLayout::$real)
                   .take();
                   let raw = unsafe { &*params.raw() };
-                  assert_eq!(raw.layout, raw::$raw);
+                  assert_eq!(raw.layout, ffi::$raw);
                 )*
             ) );
 

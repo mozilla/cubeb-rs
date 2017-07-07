@@ -2,14 +2,14 @@ use Error;
 use std::os::raw::c_int;
 
 macro_rules! call {
-    (raw::$p:ident ($($e:expr),*)) => (
-        raw::$p($(::call::convert(&$e)),*)
+    (sys::$p:ident ($($e:expr),*)) => (
+        sys::$p($(::call::convert(&$e)),*)
     )
 }
 
 macro_rules! try_call {
-    (raw::$p:ident ($($e:expr),*)) => ({
-        match ::call::try(raw::$p($(::call::convert(&$e)),*)) {
+    (sys::$p:ident ($($e:expr),*)) => ({
+        match ::call::try(sys::$p($(::call::convert(&$e)),*)) {
             Ok(o) => o,
             Err(e) => { return Err(e) }
         }
@@ -36,10 +36,11 @@ where
 }
 
 mod impls {
-    use {ChannelLayout, LogLevel, SampleFormat, State, raw};
+    use {ChannelLayout, LogLevel, SampleFormat, State};
     #[cfg(target_os = "android")]
     use StreamType;
     use call::Convert;
+    use ffi;
     use std::ffi::CString;
     use std::os::raw::c_char;
     use std::ptr;
@@ -80,16 +81,16 @@ mod impls {
         }
     }
 
-    impl Convert<raw::cubeb_sample_format> for SampleFormat {
+    impl Convert<ffi::cubeb_sample_format> for SampleFormat {
         #[cfg_attr(feature = "cargo-clippy", allow(match_same_arms))]
-        fn convert(&self) -> raw::cubeb_sample_format {
+        fn convert(&self) -> ffi::cubeb_sample_format {
             match *self {
-                SampleFormat::S16LE => raw::CUBEB_SAMPLE_S16LE,
-                SampleFormat::S16BE => raw::CUBEB_SAMPLE_S16BE,
-                SampleFormat::S16NE => raw::CUBEB_SAMPLE_S16NE,
-                SampleFormat::Float32LE => raw::CUBEB_SAMPLE_FLOAT32LE,
-                SampleFormat::Float32BE => raw::CUBEB_SAMPLE_FLOAT32BE,
-                SampleFormat::Float32NE => raw::CUBEB_SAMPLE_FLOAT32NE,
+                SampleFormat::S16LE => ffi::CUBEB_SAMPLE_S16LE,
+                SampleFormat::S16BE => ffi::CUBEB_SAMPLE_S16BE,
+                SampleFormat::S16NE => ffi::CUBEB_SAMPLE_S16NE,
+                SampleFormat::Float32LE => ffi::CUBEB_SAMPLE_FLOAT32LE,
+                SampleFormat::Float32BE => ffi::CUBEB_SAMPLE_FLOAT32BE,
+                SampleFormat::Float32NE => ffi::CUBEB_SAMPLE_FLOAT32NE,
             }
         }
     }
@@ -113,51 +114,51 @@ mod impls {
         }
     }
 
-    impl Convert<raw::cubeb_log_level> for LogLevel {
-        fn convert(&self) -> raw::cubeb_log_level {
+    impl Convert<ffi::cubeb_log_level> for LogLevel {
+        fn convert(&self) -> ffi::cubeb_log_level {
             match *self {
-                LogLevel::Disabled => raw::CUBEB_LOG_DISABLED,
-                LogLevel::Normal => raw::CUBEB_LOG_NORMAL,
-                LogLevel::Verbose => raw::CUBEB_LOG_VERBOSE,
+                LogLevel::Disabled => ffi::CUBEB_LOG_DISABLED,
+                LogLevel::Normal => ffi::CUBEB_LOG_NORMAL,
+                LogLevel::Verbose => ffi::CUBEB_LOG_VERBOSE,
             }
         }
     }
 
 
-    impl Convert<raw::cubeb_channel_layout> for ChannelLayout {
-        fn convert(&self) -> raw::cubeb_channel_layout {
+    impl Convert<ffi::cubeb_channel_layout> for ChannelLayout {
+        fn convert(&self) -> ffi::cubeb_channel_layout {
             match *self {
-                ChannelLayout::Undefined => raw::CUBEB_LAYOUT_UNDEFINED,
-                ChannelLayout::DualMono => raw::CUBEB_LAYOUT_DUAL_MONO,
-                ChannelLayout::DualMonoLfe => raw::CUBEB_LAYOUT_DUAL_MONO_LFE,
-                ChannelLayout::Mono => raw::CUBEB_LAYOUT_MONO,
-                ChannelLayout::MonoLfe => raw::CUBEB_LAYOUT_MONO_LFE,
-                ChannelLayout::Stereo => raw::CUBEB_LAYOUT_STEREO,
-                ChannelLayout::StereoLfe => raw::CUBEB_LAYOUT_STEREO_LFE,
-                ChannelLayout::Layout3F => raw::CUBEB_LAYOUT_3F,
-                ChannelLayout::Layout3FLfe => raw::CUBEB_LAYOUT_3F_LFE,
-                ChannelLayout::Layout2F1 => raw::CUBEB_LAYOUT_2F1,
-                ChannelLayout::Layout2F1Lfe => raw::CUBEB_LAYOUT_2F1_LFE,
-                ChannelLayout::Layout3F1 => raw::CUBEB_LAYOUT_3F1,
-                ChannelLayout::Layout3F1Lfe => raw::CUBEB_LAYOUT_3F1_LFE,
-                ChannelLayout::Layout2F2 => raw::CUBEB_LAYOUT_2F2,
-                ChannelLayout::Layout2F2Lfe => raw::CUBEB_LAYOUT_2F2_LFE,
-                ChannelLayout::Layout3F2 => raw::CUBEB_LAYOUT_3F2,
-                ChannelLayout::Layout3F2Lfe => raw::CUBEB_LAYOUT_3F2_LFE,
-                ChannelLayout::Layout3F3RLfe => raw::CUBEB_LAYOUT_3F3R_LFE,
-                ChannelLayout::Layout3F4Lfe => raw::CUBEB_LAYOUT_3F4_LFE,
+                ChannelLayout::Undefined => ffi::CUBEB_LAYOUT_UNDEFINED,
+                ChannelLayout::DualMono => ffi::CUBEB_LAYOUT_DUAL_MONO,
+                ChannelLayout::DualMonoLfe => ffi::CUBEB_LAYOUT_DUAL_MONO_LFE,
+                ChannelLayout::Mono => ffi::CUBEB_LAYOUT_MONO,
+                ChannelLayout::MonoLfe => ffi::CUBEB_LAYOUT_MONO_LFE,
+                ChannelLayout::Stereo => ffi::CUBEB_LAYOUT_STEREO,
+                ChannelLayout::StereoLfe => ffi::CUBEB_LAYOUT_STEREO_LFE,
+                ChannelLayout::Layout3F => ffi::CUBEB_LAYOUT_3F,
+                ChannelLayout::Layout3FLfe => ffi::CUBEB_LAYOUT_3F_LFE,
+                ChannelLayout::Layout2F1 => ffi::CUBEB_LAYOUT_2F1,
+                ChannelLayout::Layout2F1Lfe => ffi::CUBEB_LAYOUT_2F1_LFE,
+                ChannelLayout::Layout3F1 => ffi::CUBEB_LAYOUT_3F1,
+                ChannelLayout::Layout3F1Lfe => ffi::CUBEB_LAYOUT_3F1_LFE,
+                ChannelLayout::Layout2F2 => ffi::CUBEB_LAYOUT_2F2,
+                ChannelLayout::Layout2F2Lfe => ffi::CUBEB_LAYOUT_2F2_LFE,
+                ChannelLayout::Layout3F2 => ffi::CUBEB_LAYOUT_3F2,
+                ChannelLayout::Layout3F2Lfe => ffi::CUBEB_LAYOUT_3F2_LFE,
+                ChannelLayout::Layout3F3RLfe => ffi::CUBEB_LAYOUT_3F3R_LFE,
+                ChannelLayout::Layout3F4Lfe => ffi::CUBEB_LAYOUT_3F4_LFE,
             }
         }
     }
 
-    impl Convert<raw::cubeb_state> for State {
-        fn convert(&self) -> raw::cubeb_state {
+    impl Convert<ffi::cubeb_state> for State {
+        fn convert(&self) -> ffi::cubeb_state {
             {
                 match *self {
-                    State::Started => raw::CUBEB_STATE_STARTED,
-                    State::Stopped => raw::CUBEB_STATE_STOPPED,
-                    State::Drained => raw::CUBEB_STATE_DRAINED,
-                    State::Error => raw::CUBEB_STATE_ERROR,
+                    State::Started => ffi::CUBEB_STATE_STARTED,
+                    State::Stopped => ffi::CUBEB_STATE_STOPPED,
+                    State::Drained => ffi::CUBEB_STATE_DRAINED,
+                    State::Error => ffi::CUBEB_STATE_ERROR,
                 }
             }
         }

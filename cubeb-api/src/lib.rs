@@ -13,7 +13,8 @@
 
 #[macro_use]
 extern crate bitflags;
-extern crate libcubeb_sys as raw;
+extern crate cubeb_core;
+extern crate libcubeb_sys as sys;
 
 mod error;
 #[macro_use]
@@ -26,6 +27,7 @@ mod stream;
 mod util;
 
 pub use context::Context;
+use cubeb_core::ffi;
 pub use dev_coll::{DeviceCollection, DeviceInfo};
 pub use devices::Device;
 pub use error::Error;
@@ -161,10 +163,10 @@ pub enum State {
 }
 
 bitflags! {
-    pub struct DeviceType: raw::cubeb_device_type {
-        const DEVICE_TYPE_UNKNOWN = raw::CUBEB_DEVICE_TYPE_UNKNOWN as u32;
-        const DEVICE_TYPE_INPUT = raw::CUBEB_DEVICE_TYPE_INPUT as u32;
-        const DEVICE_TYPE_OUTPUT = raw::CUBEB_DEVICE_TYPE_OUTPUT as u32;
+    pub struct DeviceType: ffi::cubeb_device_type {
+        const DEVICE_TYPE_UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as u32;
+        const DEVICE_TYPE_INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as u32;
+        const DEVICE_TYPE_OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as u32;
     }
 }
 
@@ -180,21 +182,21 @@ pub enum DeviceState {
 }
 
 bitflags! {
-    pub struct DeviceFormat: raw::cubeb_device_fmt {
-        const DEVICE_FMT_S16LE = raw::CUBEB_DEVICE_FMT_S16LE;
-        const DEVICE_FMT_S16BE = raw::CUBEB_DEVICE_FMT_S16BE;
-        const DEVICE_FMT_F32LE = raw::CUBEB_DEVICE_FMT_F32LE;
-        const DEVICE_FMT_F32BE = raw::CUBEB_DEVICE_FMT_F32BE;
+    pub struct DeviceFormat: ffi::cubeb_device_fmt {
+        const DEVICE_FMT_S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
+        const DEVICE_FMT_S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;
+        const DEVICE_FMT_F32LE = ffi::CUBEB_DEVICE_FMT_F32LE;
+        const DEVICE_FMT_F32BE = ffi::CUBEB_DEVICE_FMT_F32BE;
     }
 }
 
 bitflags! {
-    pub struct DevicePref: raw::cubeb_device_pref {
-        const DEVICE_PREF_NONE = raw::CUBEB_DEVICE_PREF_NONE;
-        const DEVICE_PREF_MULTIMEDIA = raw::CUBEB_DEVICE_PREF_MULTIMEDIA;
-        const DEVICE_PREF_VOICE = raw::CUBEB_DEVICE_PREF_VOICE;
-        const DEVICE_PREF_NOTIFICATION = raw::CUBEB_DEVICE_PREF_NOTIFICATION;
-        const DEVICE_PREF_ALL = raw::CUBEB_DEVICE_PREF_ALL;
+    pub struct DevicePref: ffi::cubeb_device_pref {
+        const DEVICE_PREF_NONE = ffi::CUBEB_DEVICE_PREF_NONE;
+        const DEVICE_PREF_MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
+        const DEVICE_PREF_VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
+        const DEVICE_PREF_NOTIFICATION = ffi::CUBEB_DEVICE_PREF_NOTIFICATION;
+        const DEVICE_PREF_ALL = ffi::CUBEB_DEVICE_PREF_ALL;
     }
 }
 
@@ -203,18 +205,18 @@ pub type DeviceCollectionChangedCb<'a> = FnMut(Context) + 'a;
 
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
 pub struct DeviceId {
-    raw: raw::cubeb_devid
+    raw: ffi::cubeb_devid
 }
 
 impl Binding for DeviceId {
-    type Raw = raw::cubeb_devid;
+    type Raw = ffi::cubeb_devid;
 
-    unsafe fn from_raw(raw: raw::cubeb_devid) -> DeviceId {
+    unsafe fn from_raw(raw: Self::Raw) -> DeviceId {
         DeviceId {
             raw: raw
         }
     }
-    fn raw(&self) -> raw::cubeb_devid {
+    fn raw(&self) -> Self::Raw {
         self.raw
     }
 }

@@ -1,4 +1,4 @@
-use {Error, raw};
+use {Error, ffi};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
@@ -58,7 +58,7 @@ impl<'a> IntoCString for &'a str {
     fn into_c_string(self) -> Result<CString, Error> {
         match CString::new(self) {
             Ok(s) => Ok(s),
-            Err(_) => Err(unsafe { Error::from_raw(raw::CUBEB_ERROR) }),
+            Err(_) => Err(unsafe { Error::from_raw(ffi::CUBEB_ERROR) }),
         }
     }
 }
@@ -67,7 +67,7 @@ impl IntoCString for String {
     fn into_c_string(self) -> Result<CString, Error> {
         match CString::new(self.into_bytes()) {
             Ok(s) => Ok(s),
-            Err(_) => Err(unsafe { Error::from_raw(raw::CUBEB_ERROR) }),
+            Err(_) => Err(unsafe { Error::from_raw(ffi::CUBEB_ERROR) }),
         }
     }
 }

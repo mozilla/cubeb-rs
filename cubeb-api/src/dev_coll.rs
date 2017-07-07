@@ -1,6 +1,6 @@
 //! Bindings to libcubeb's raw `cubeb_device_collection` type
 
-use {Context, DeviceFormat, DeviceId, DevicePref, DeviceState, DeviceType, Result, raw};
+use {Context, DeviceFormat, DeviceId, DevicePref, DeviceState, DeviceType, Result, ffi, sys};
 use std::{ptr, slice, str};
 use std::ops::Deref;
 use util::{Binding, opt_bytes};
@@ -10,7 +10,7 @@ use util::{Binding, opt_bytes};
 /// returns these structures via `device_collection` and must be
 /// destroyed via `device_collection_destroy`.
 pub struct DeviceInfo {
-    raw: raw::cubeb_device_info
+    raw: ffi::cubeb_device_info
 }
 
 //impl<'coll, 'ctx> DeviceInfo<'coll, 'ctx> {
@@ -71,7 +71,7 @@ impl DeviceInfo {
     pub fn state(&self) -> DeviceState {
         let state = self.raw.state;
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if state == raw::$raw {
+            $(if state == ffi::$raw {
                 super::DeviceState::$real
             }) else *
             else {
@@ -138,12 +138,12 @@ pub struct DeviceCollection<'coll, 'ctx> {
 
 impl<'coll, 'ctx> DeviceCollection<'coll, 'ctx> {
     fn new(ctx: &'ctx Context, devtype: DeviceType) -> Result<DeviceCollection> {
-        let mut coll = raw::cubeb_device_collection {
+        let mut coll = ffi::cubeb_device_collection {
             device: ptr::null(),
             count: 0
         };
         let devices = unsafe {
-            try_call!(raw::cubeb_enumerate_devices(
+            try_call!(sys::cubeb_enumerate_devices(
                 ctx.raw(),
                 devtype.bits(),
                 &mut coll
@@ -166,12 +166,12 @@ impl<'coll, 'ctx> Deref for DeviceCollection<'coll, 'ctx> {
 
 impl<'coll, 'ctx> Drop for DeviceCollection<'coll, 'ctx> {
     fn drop(&mut self) {
-        let mut coll = raw::cubeb_device_collection {
+        let mut coll = ffi::cubeb_device_collection {
             device: self.coll.as_ptr() as *const _,
             count: self.coll.len()
         };
         unsafe {
-            call!(raw::cubeb_device_collection_destroy(
+            call!(sys::cubeb_device_collection_destroy(
                 self.ctx.raw(),
                 &mut coll
             ));

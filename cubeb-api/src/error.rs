@@ -1,4 +1,5 @@
-use {ErrorCode, raw};
+use ErrorCode;
+use ffi;
 use std::error;
 use std::ffi::NulError;
 use std::fmt;
@@ -18,20 +19,20 @@ impl Error {
 
     pub fn code(&self) -> ErrorCode {
         match self.raw_code() {
-            raw::CUBEB_ERROR => ErrorCode::Error,
-            raw::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
-            raw::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
-            raw::CUBEB_ERROR_NOT_SUPPORTED => ErrorCode::NotSupported,
-            raw::CUBEB_ERROR_DEVICE_UNAVAILABLE => ErrorCode::DeviceUnavailable,
+            ffi::CUBEB_ERROR => ErrorCode::Error,
+            ffi::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
+            ffi::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
+            ffi::CUBEB_ERROR_NOT_SUPPORTED => ErrorCode::NotSupported,
+            ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => ErrorCode::DeviceUnavailable,
             _ => super::ErrorCode::Error,
         }
     }
 
-    pub fn raw_code(&self) -> raw::cubeb_error_code {
+    pub fn raw_code(&self) -> ffi::cubeb_error_code {
         macro_rules! check(($($e:ident,)*) => (
-            $(if self.code == raw::$e as c_int { raw::$e }) else *
+            $(if self.code == ffi::$e as c_int { ffi::$e }) else *
             else {
-                raw::CUBEB_ERROR
+                ffi::CUBEB_ERROR
             }
         ));
         check!(
@@ -48,11 +49,11 @@ impl Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match self.code {
-            raw::CUBEB_ERROR => "Error",
-            raw::CUBEB_ERROR_INVALID_FORMAT => "Invalid format",
-            raw::CUBEB_ERROR_INVALID_PARAMETER => "Invalid parameter",
-            raw::CUBEB_ERROR_NOT_SUPPORTED => "Not supported",
-            raw::CUBEB_ERROR_DEVICE_UNAVAILABLE => "Device unavailable",
+            ffi::CUBEB_ERROR => "Error",
+            ffi::CUBEB_ERROR_INVALID_FORMAT => "Invalid format",
+            ffi::CUBEB_ERROR_INVALID_PARAMETER => "Invalid parameter",
+            ffi::CUBEB_ERROR_NOT_SUPPORTED => "Not supported",
+            ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => "Device unavailable",
             _ => panic!("Invalid cubeb error"),
         }
     }
@@ -67,6 +68,6 @@ impl fmt::Display for Error {
 
 impl From<NulError> for Error {
     fn from(_: NulError) -> Error {
-        unsafe { Error::from_raw(raw::CUBEB_ERROR) }
+        unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
     }
 }

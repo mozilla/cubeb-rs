@@ -1,23 +1,23 @@
 use {ChannelLayout, DeviceCollection, DeviceType, Result};
 use {Stream, StreamInitOptions, StreamParams};
+use {ffi, sys};
 use dev_coll;
-use raw;
 use std::{ptr, str};
 use std::ffi::CString;
 use stream::{StreamCallback, stream_init};
 use util::{Binding, opt_bytes, opt_cstr};
 
 pub struct Context {
-    raw: *mut raw::cubeb
+    raw: *mut ffi::cubeb
 }
 
 impl Context {
     pub fn init(context_name: &str, backend_name: Option<&str>) -> Result<Context> {
-        let mut context: *mut raw::cubeb = ptr::null_mut();
+        let mut context: *mut ffi::cubeb = ptr::null_mut();
         let context_name = try!(CString::new(context_name));
         let backend_name = try!(opt_cstr(backend_name));
         unsafe {
-            try_call!(raw::cubeb_init(&mut context, context_name, backend_name));
+            try_call!(sys::cubeb_init(&mut context, context_name, backend_name));
             Ok(Binding::from_raw(context))
         }
     }
@@ -26,13 +26,13 @@ impl Context {
         str::from_utf8(self.backend_id_bytes()).unwrap()
     }
     pub fn backend_id_bytes(&self) -> &[u8] {
-        unsafe { opt_bytes(self, call!(raw::cubeb_get_backend_id(self.raw))).unwrap() }
+        unsafe { opt_bytes(self, call!(sys::cubeb_get_backend_id(self.raw))).unwrap() }
     }
 
     pub fn max_channel_count(&self) -> Result<u32> {
         let mut channel_count = 0u32;
         unsafe {
-            try_call!(raw::cubeb_get_max_channel_count(
+            try_call!(sys::cubeb_get_max_channel_count(
                 self.raw,
                 &mut channel_count
             ));
@@ -43,7 +43,7 @@ impl Context {
     pub fn min_latency(&self, params: &StreamParams) -> Result<u32> {
         let mut latency = 0u32;
         unsafe {
-            try_call!(raw::cubeb_get_min_latency(
+            try_call!(sys::cubeb_get_min_latency(
                 self.raw,
                 params.raw(),
                 &mut latency
@@ -55,21 +55,21 @@ impl Context {
     pub fn preferred_sample_rate(&self) -> Result<u32> {
         let mut rate = 0u32;
         unsafe {
-            try_call!(raw::cubeb_get_preferred_sample_rate(self.raw, &mut rate));
+            try_call!(sys::cubeb_get_preferred_sample_rate(self.raw, &mut rate));
         }
         Ok(rate)
     }
 
     pub fn preferred_channel_layout(&self) -> Result<ChannelLayout> {
-        let mut layout: raw::cubeb_channel_layout = raw::CUBEB_LAYOUT_UNDEFINED;
+        let mut layout: ffi::cubeb_channel_layout = ffi::CUBEB_LAYOUT_UNDEFINED;
         unsafe {
-            try_call!(raw::cubeb_get_preferred_channel_layout(
+            try_call!(sys::cubeb_get_preferred_channel_layout(
                 self.raw,
                 &mut layout
             ));
         }
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if layout == raw::$raw {
+            $(if layout == ffi::$raw {
                 Ok(super::ChannelLayout::$real)
             }) else *
             else {
@@ -120,7 +120,7 @@ impl Context {
         user_ptr: *mut c_void,
     ) -> Result<()> {
         unsafe {
-            try_call!(raw::cubeb_register_device_collection_changed(self.raw, devtype, cb));
+            try_call!(sys::cubeb_register_device_collection_changed(self.raw, devtype, cb));
         }
 
         Ok(())
@@ -129,8 +129,8 @@ impl Context {
 }
 
 impl Binding for Context {
-    type Raw = *mut raw::cubeb;
-    unsafe fn from_raw(raw: *mut raw::cubeb) -> Self {
+    type Raw = *mut ffi::cubeb;
+    unsafe fn from_raw(raw: *mut ffi::cubeb) -> Self {
         Self {
             raw: raw
         }
@@ -142,6 +142,6 @@ impl Binding for Context {
 
 impl Drop for Context {
     fn drop(&mut self) {
-        unsafe { raw::cubeb_destroy(self.raw) }
+        unsafe { sys::cubeb_destroy(self.raw) }
     }
 }

@@ -1,12 +1,12 @@
-use raw;
+use ffi;
 use std::marker;
 use std::str;
 use util::{Binding, opt_bytes};
 
 /// Audio device description
 pub struct Device<'a> {
-    raw: *const raw::cubeb_device,
-    _marker: marker::PhantomData<&'a raw::cubeb_device>
+    raw: *const ffi::cubeb_device,
+    _marker: marker::PhantomData<&'a ffi::cubeb_device>
 }
 
 impl<'a> Device<'a> {
@@ -34,15 +34,15 @@ impl<'a> Device<'a> {
 }
 
 impl<'a> Binding for Device<'a> {
-    type Raw = *const raw::cubeb_device;
+    type Raw = *const ffi::cubeb_device;
 
-    unsafe fn from_raw(raw: *const raw::cubeb_device) -> Device<'a> {
+    unsafe fn from_raw(raw: *const ffi::cubeb_device) -> Device<'a> {
         Device {
             raw: raw,
             _marker: marker::PhantomData
         }
     }
-    fn raw(&self) -> *const raw::cubeb_device {
+    fn raw(&self) -> *const ffi::cubeb_device {
         self.raw
     }
 }

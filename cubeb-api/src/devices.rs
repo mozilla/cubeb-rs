@@ -1,7 +1,7 @@
 use ffi;
 use std::marker;
 use std::str;
-use util::{Binding, opt_bytes};
+use util::opt_bytes;
 
 /// Audio device description
 pub struct Device<'a> {

@@ -18,6 +18,5 @@ travis-ci = { repository = "djg/cubeb-rs" }
 appveyor = { repository = "djg/cubeb-rs" }
 
 [dependencies]
-bitflags = "0.9"
 cubeb-core = { path = "../cubeb-core" }
 libcubeb-sys = { path = "libcubeb-sys" }

@@ -36,10 +36,10 @@ where
 }
 
 mod impls {
-    use {ChannelLayout, LogLevel, SampleFormat, State};
-    #[cfg(target_os = "android")]
-    use StreamType;
     use call::Convert;
+    use cubeb_core::{ChannelLayout, LogLevel, SampleFormat, State};
+    #[cfg(target_os = "android")]
+    use cubeb_core::StreamType;
     use ffi;
     use std::ffi::CString;
     use std::os::raw::c_char;

@@ -1,9 +1,12 @@
 //! Bindings to libcubeb's raw `cubeb_device_collection` type
 
-use {Context, DeviceFormat, DeviceId, DevicePref, DeviceState, DeviceType, Result, ffi, sys};
+use {Binding, Context};
+use cubeb_core::{DeviceFormat, DeviceId, DevicePref, DeviceState, DeviceType, Result};
+use ffi;
 use std::{ptr, slice, str};
 use std::ops::Deref;
-use util::{Binding, opt_bytes};
+use sys;
+use util::opt_bytes;
 
 /// This structure holds the characteristicsc of an input or output
 /// audio device. It is obtained using `enumerate_devices`, which
@@ -72,7 +75,7 @@ impl DeviceInfo {
         let state = self.raw.state;
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
             $(if state == ffi::$raw {
-                super::DeviceState::$real
+                DeviceState::$real
             }) else *
             else {
                 panic!("unknown device state: {}", state)

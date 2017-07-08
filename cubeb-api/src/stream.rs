@@ -1,7 +1,7 @@
 //! Stream Functions
 //!
 //! # Example
-//! ```
+//! ```no_run
 //! extern crate cubeb;
 //! use std::time::Duration;
 //! use std::thread;
@@ -67,11 +67,14 @@
 //! }
 //! ```
 
-use {ChannelLayout, Context, Device, DeviceId, Error, Frame, Result, SampleFormat, State, ffi, sys};
+use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Frame, Result,
+     SampleFormat, State, StreamParams};
+use ffi;
 use std::{marker, ptr, str};
 use std::ffi::CString;
 use std::os::raw::{c_long, c_void};
-use util::{Binding, IntoCString};
+use sys;
+use util::IntoCString;
 
 /// An extension trait which allows the implementation of converting
 /// void* buffers from libcubeb-sys into rust slices of the appropriate
@@ -110,107 +113,6 @@ where
     // This should return a Result<usize,Error>
     fn data_callback(&mut self, &[Self::Frame], &mut [Self::Frame]) -> isize;
     fn state_callback(&mut self, state: State);
-}
-
-///
-#[derive(Clone, Copy)]
-pub struct StreamParams {
-    raw: ffi::cubeb_stream_params
-}
-
-impl StreamParams {
-    pub fn format(&self) -> SampleFormat {
-        macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.format == ffi::$raw {
-                super::SampleFormat::$real
-            }) else *
-            else {
-                panic!("unknown sample format: {}", self.raw.format)
-            }
-        ) );
-
-        check!(
-            CUBEB_SAMPLE_S16LE => S16LE,
-            CUBEB_SAMPLE_S16BE => S16BE,
-            CUBEB_SAMPLE_FLOAT32LE => Float32LE,
-            CUBEB_SAMPLE_FLOAT32BE => Float32BE
-        )
-    }
-
-    pub fn rate(&self) -> u32 {
-        self.raw.rate as u32
-    }
-
-    pub fn channels(&self) -> u32 {
-        self.raw.channels as u32
-    }
-
-    pub fn layout(&self) -> ChannelLayout {
-        macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.layout == ffi::$raw {
-                super::ChannelLayout::$real
-            }) else *
-            else {
-                panic!("unknown channel layout: {}", self.raw.layout)
-            }
-        ) );
-
-        check!(CUBEB_LAYOUT_UNDEFINED => Undefined,
-               CUBEB_LAYOUT_DUAL_MONO => DualMono,
-               CUBEB_LAYOUT_DUAL_MONO_LFE => DualMonoLfe,
-               CUBEB_LAYOUT_MONO => Mono,
-               CUBEB_LAYOUT_MONO_LFE => MonoLfe,
-               CUBEB_LAYOUT_STEREO => Stereo,
-               CUBEB_LAYOUT_STEREO_LFE => StereoLfe,
-               CUBEB_LAYOUT_3F => Layout3F,
-               CUBEB_LAYOUT_3F_LFE => Layout3FLfe,
-               CUBEB_LAYOUT_2F1 => Layout2F1,
-               CUBEB_LAYOUT_2F1_LFE => Layout2F1Lfe,
-               CUBEB_LAYOUT_3F1 => Layout3F1,
-               CUBEB_LAYOUT_3F1_LFE => Layout3F1Lfe,
-               CUBEB_LAYOUT_2F2 => Layout2F2,
-               CUBEB_LAYOUT_2F2_LFE => Layout2F2Lfe,
-               CUBEB_LAYOUT_3F2 => Layout3F2,
-               CUBEB_LAYOUT_3F2_LFE => Layout3F2Lfe,
-               CUBEB_LAYOUT_3F3R_LFE => Layout3F3RLfe,
-               CUBEB_LAYOUT_3F4_LFE => Layout3F4Lfe)
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn stream_type(&self) -> StreamType {
-        macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.stream_type == raw::$raw {
-                super::StreamType::$real
-            }) else *
-            else {
-                panic!("unknown stream type: {}", self.raw.stream_type)
-            }
-        ) );
-
-        check!(CUBEB_STREAM_TYPE_VOICE_CALL => VoiceCall,
-               CUBEB_STREAM_TYPE_SYSTEM => System,
-               CUBEB_STREAM_TYPE_RING => Ring,
-               CUBEB_STREAM_TYPE_MUSIC => Music,
-               CUBEB_STREAM_TYPE_ALARM => Alarm,
-               CUBEB_STREAM_TYPE_NOTIFICATION => Notification,
-               CUBEB_STREAM_TYPE_BLUETOOTH_SCO => BluetoothSco,
-               CUBEB_STREAM_TYPE_SYSTEM_ENFORCED => SystemEnforced,
-               CUBEB_STREAM_TYPE_DTMF => Dtmf,
-               CUBEB_STREAM_TYPE_TTS => Tts,
-               CUBEB_STREAM_TYPE_FM => Fm)
-    }
-}
-
-impl Binding for StreamParams {
-    type Raw = *const ffi::cubeb_stream_params;
-    unsafe fn from_raw(raw: *const ffi::cubeb_stream_params) -> Self {
-        Self {
-            raw: *raw
-        }
-    }
-    fn raw(&self) -> Self::Raw {
-        &self.raw as Self::Raw
-    }
 }
 
 ///
@@ -571,99 +473,7 @@ impl StreamInitOptionsBuilder {
 #[cfg(test)]
 mod tests {
     use {StreamParamsBuilder, ffi};
-    use std::mem;
-    use util::Binding;
-
-    #[test]
-    fn stream_params_raw_channels() {
-        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        raw.channels = 2;
-        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-        assert_eq!(params.channels(), 2);
-    }
-
-    #[test]
-    fn stream_params_raw_format() {
-        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        macro_rules! check(
-            ($($raw:ident => $real:ident),*) => (
-                $(raw.format = ffi::$raw;
-                  let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-                  assert_eq!(params.format(), super::SampleFormat::$real);
-                )*
-            ) );
-
-        check!(CUBEB_SAMPLE_S16LE => S16LE,
-               CUBEB_SAMPLE_S16BE => S16BE,
-               CUBEB_SAMPLE_FLOAT32LE => Float32LE,
-               CUBEB_SAMPLE_FLOAT32BE => Float32BE);
-    }
-
-    #[test]
-    fn stream_params_raw_format_native_endian() {
-        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        raw.format = ffi::CUBEB_SAMPLE_S16NE;
-        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-        assert_eq!(
-            params.format(),
-            if cfg!(target_endian = "little") {
-                super::SampleFormat::S16LE
-            } else {
-                super::SampleFormat::S16BE
-            }
-        );
-
-        raw.format = ffi::CUBEB_SAMPLE_FLOAT32NE;
-        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-        assert_eq!(
-            params.format(),
-            if cfg!(target_endian = "little") {
-                super::SampleFormat::Float32LE
-            } else {
-                super::SampleFormat::Float32BE
-            }
-        );
-    }
-
-    #[test]
-    fn stream_params_raw_layout() {
-        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        macro_rules! check(
-            ($($raw:ident => $real:ident),*) => (
-                $(raw.layout = ffi::$raw;
-                  let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-                  assert_eq!(params.layout(), super::ChannelLayout::$real);
-                )*
-            ) );
-
-        check!(CUBEB_LAYOUT_UNDEFINED => Undefined,
-               CUBEB_LAYOUT_DUAL_MONO => DualMono,
-               CUBEB_LAYOUT_DUAL_MONO_LFE => DualMonoLfe,
-               CUBEB_LAYOUT_MONO => Mono,
-               CUBEB_LAYOUT_MONO_LFE => MonoLfe,
-               CUBEB_LAYOUT_STEREO => Stereo,
-               CUBEB_LAYOUT_STEREO_LFE => StereoLfe,
-               CUBEB_LAYOUT_3F => Layout3F,
-               CUBEB_LAYOUT_3F_LFE => Layout3FLfe,
-               CUBEB_LAYOUT_2F1 => Layout2F1,
-               CUBEB_LAYOUT_2F1_LFE => Layout2F1Lfe,
-               CUBEB_LAYOUT_3F1 => Layout3F1,
-               CUBEB_LAYOUT_3F1_LFE => Layout3F1Lfe,
-               CUBEB_LAYOUT_2F2 => Layout2F2,
-               CUBEB_LAYOUT_2F2_LFE => Layout2F2Lfe,
-               CUBEB_LAYOUT_3F2 => Layout3F2,
-               CUBEB_LAYOUT_3F2_LFE => Layout3F2Lfe,
-               CUBEB_LAYOUT_3F3R_LFE => Layout3F3RLfe,
-               CUBEB_LAYOUT_3F4_LFE => Layout3F4Lfe);
-    }
-
-    #[test]
-    fn stream_params_raw_rate() {
-        let mut raw: ffi::cubeb_stream_params = unsafe { mem::zeroed() };
-        raw.rate = 44100;
-        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
-        assert_eq!(params.rate(), 44100);
-    }
+    use cubeb_core::binding::Binding;
 
     #[test]
     fn stream_params_builder_channels() {

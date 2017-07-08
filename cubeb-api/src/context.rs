@@ -1,11 +1,12 @@
-use {ChannelLayout, DeviceCollection, DeviceType, Result};
-use {Stream, StreamInitOptions, StreamParams};
+use {ChannelLayout, DeviceCollection, DeviceType, Result, Stream, StreamInitOptions, StreamParams};
 use {ffi, sys};
+use Binding;
+
 use dev_coll;
 use std::{ptr, str};
 use std::ffi::CString;
 use stream::{StreamCallback, stream_init};
-use util::{Binding, opt_bytes, opt_cstr};
+use util::{opt_bytes, opt_cstr};
 
 pub struct Context {
     raw: *mut ffi::cubeb
@@ -70,7 +71,7 @@ impl Context {
         }
         macro_rules! check( ($($raw:ident => $real:ident),*) => (
             $(if layout == ffi::$raw {
-                Ok(super::ChannelLayout::$real)
+                Ok(ChannelLayout::$real)
             }) else *
             else {
                 panic!("unknown channel layout: {}", layout)

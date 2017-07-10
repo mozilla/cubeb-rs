@@ -16,21 +16,6 @@ pub use error::Error;
 use std::{marker, ptr, str};
 use util::opt_bytes;
 
-/// An enumeration of possible errors that can happen when working with cubeb.
-#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-pub enum ErrorCode {
-    /// GenericError
-    Error,
-    /// Requested format is invalid
-    InvalidFormat,
-    /// Requested parameter is invalid
-    InvalidParameter,
-    /// Requested operation is not supported
-    NotSupported,
-    /// Requested device is unavailable
-    DeviceUnavailable
-}
-
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
 pub enum SampleFormat {
     S16LE,
@@ -58,8 +43,36 @@ pub enum StreamType {
     Fm
 }
 
-/// Level (verbosity) of logging for a particular cubeb context.
+/// An opaque handle used to refer to a particular input or output device
+/// across calls.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
+pub struct DeviceId {
+    raw: ffi::cubeb_devid
+}
+
+impl Binding for DeviceId {
+    type Raw = ffi::cubeb_devid;
+
+    unsafe fn from_raw(raw: Self::Raw) -> DeviceId {
+        DeviceId {
+            raw: raw
+        }
+    }
+    fn raw(&self) -> Self::Raw {
+        self.raw
+    }
+}
+
+impl Default for DeviceId {
+    fn default() -> Self {
+        DeviceId {
+            raw: ptr::null()
+        }
+    }
+}
+
+/// Level (verbosity) of logging for a particular cubeb context.
+#[derive(PartialEq, Eq, Clone, Debug, Copy, PartialOrd, Ord)]
 pub enum LogLevel {
     /// Logging disabled
     Disabled,
@@ -70,24 +83,29 @@ pub enum LogLevel {
 }
 
 /// SMPTE channel layout (also known as wave order)
-/// DUAL-MONO      L   R
-/// DUAL-MONO-LFE  L   R   LFE
-/// MONO           M
-/// MONO-LFE       M   LFE
-/// STEREO         L   R
-/// STEREO-LFE     L   R   LFE
-/// 3F             L   R   C
-/// 3F-LFE         L   R   C    LFE
-/// 2F1            L   R   S
-/// 2F1-LFE        L   R   LFE  S
-/// 3F1            L   R   C    S
-/// 3F1-LFE        L   R   C    LFE S
-/// 2F2            L   R   LS   RS
-/// 2F2-LFE        L   R   LFE  LS   RS
-/// 3F2            L   R   C    LS   RS
-/// 3F2-LFE        L   R   C    LFE  LS   RS
-/// 3F3R-LFE       L   R   C    LFE  RC   LS   RS
-/// 3F4-LFE        L   R   C    LFE  RLS  RRS  LS   RS
+///
+/// ---------------------------------------------------
+/// Name          | Channels
+/// ---------------------------------------------------
+/// DUAL-MONO     | L   R
+/// DUAL-MONO-LFE | L   R   LFE
+/// MONO          | M
+/// MONO-LFE      | M   LFE
+/// STEREO        | L   R
+/// STEREO-LFE    | L   R   LFE
+/// 3F            | L   R   C
+/// 3F-LFE        | L   R   C    LFE
+/// 2F1           | L   R   S
+/// 2F1-LFE       | L   R   LFE  S
+/// 3F1           | L   R   C    S
+/// 3F1-LFE       | L   R   C    LFE S
+/// 2F2           | L   R   LS   RS
+/// 2F2-LFE       | L   R   LFE  LS   RS
+/// 3F2           | L   R   C    LS   RS
+/// 3F2-LFE       | L   R   C    LFE  LS   RS
+/// 3F3R-LFE      | L   R   C    LFE  RC   LS   RS
+/// 3F4-LFE       | L   R   C    LFE  RLS  RRS  LS   RS
+/// ---------------------------------------------------
 ///
 /// The abbreviation of channel name is defined in following table:
 /// ---------------------------
@@ -286,6 +304,23 @@ pub enum State {
     Error
 }
 
+/// An enumeration of possible errors that can happen when working with cubeb.
+#[derive(PartialEq, Eq, Clone, Debug, Copy)]
+pub enum ErrorCode {
+    /// GenericError
+    Error,
+    /// Requested format is invalid
+    InvalidFormat,
+    /// Requested parameter is invalid
+    InvalidParameter,
+    /// Requested operation is not supported
+    NotSupported,
+    /// Requested device is unavailable
+    DeviceUnavailable
+}
+
+/// Whether a particular device is an input device (e.g. a microphone), or an
+/// output device (e.g. headphones).
 bitflags! {
     pub struct DeviceType: ffi::cubeb_device_type {
         const DEVICE_TYPE_UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as u32;
@@ -305,6 +340,7 @@ pub enum DeviceState {
     Enabled
 }
 
+/// Architecture specific sample type.
 bitflags! {
     pub struct DeviceFormat: ffi::cubeb_device_fmt {
         const DEVICE_FMT_S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
@@ -314,6 +350,9 @@ bitflags! {
     }
 }
 
+/// Channel type for a `cubeb_stream`. Depending on the backend and platform
+/// used, this can control inter-stream interruption, ducking, and volume
+/// control.
 bitflags! {
     pub struct DevicePref: ffi::cubeb_device_pref {
         const DEVICE_PREF_NONE = ffi::CUBEB_DEVICE_PREF_NONE;
@@ -324,29 +363,127 @@ bitflags! {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-pub struct DeviceId {
-    raw: ffi::cubeb_devid
+/// This structure holds the characteristicsc of an input or output
+/// audio device. It is obtained using `enumerate_devices`, which
+/// returns these structures via `device_collection` and must be
+/// destroyed via `device_collection_destroy`.
+pub struct DeviceInfo {
+    raw: ffi::cubeb_device_info
 }
 
-impl Binding for DeviceId {
-    type Raw = ffi::cubeb_devid;
-
-    unsafe fn from_raw(raw: Self::Raw) -> DeviceId {
-        DeviceId {
-            raw: raw
-        }
+impl DeviceInfo {
+    /// Device identifier handle.
+    pub fn devid(&self) -> DeviceId {
+        unsafe { Binding::from_raw(self.raw.devid) }
     }
-    fn raw(&self) -> Self::Raw {
-        self.raw
-    }
-}
 
-impl Default for DeviceId {
-    fn default() -> Self {
-        DeviceId {
-            raw: ptr::null()
-        }
+    /// Device identifier which might be presented in a UI.
+    pub fn device_id(&self) -> Option<&str> {
+        self.device_id_bytes().and_then(|s| str::from_utf8(s).ok())
+    }
+
+    fn device_id_bytes(&self) -> Option<&[u8]> {
+        unsafe { opt_bytes(self, self.raw.device_id) }
+    }
+
+    /// Friendly device name which might be presented in a UI.
+    pub fn friendly_name(&self) -> Option<&str> {
+        self.friendly_name_bytes().and_then(
+            |s| str::from_utf8(s).ok()
+        )
+    }
+
+    fn friendly_name_bytes(&self) -> Option<&[u8]> {
+        unsafe { opt_bytes(self, self.raw.friendly_name) }
+    }
+
+    /// Two devices have the same group identifier if they belong to
+    /// the same physical device; for example a headset and
+    /// microphone.
+    pub fn group_id(&self) -> Option<&str> {
+        self.group_id_bytes().and_then(|s| str::from_utf8(s).ok())
+    }
+
+    fn group_id_bytes(&self) -> Option<&[u8]> {
+        unsafe { opt_bytes(self, self.raw.group_id) }
+    }
+
+    /// Optional vendor name, may be NULL.
+    pub fn vendor_name(&self) -> Option<&str> {
+        self.vendor_name_bytes().and_then(
+            |s| str::from_utf8(s).ok()
+        )
+    }
+
+    fn vendor_name_bytes(&self) -> Option<&[u8]> {
+        unsafe { opt_bytes(self, self.raw.vendor_name) }
+    }
+
+    /// Type of device (Input/Output).
+    pub fn device_type(&self) -> DeviceType {
+        DeviceType::from_bits_truncate(self.raw.device_type)
+    }
+
+    /// State of device disabled/enabled/unplugged.
+    pub fn state(&self) -> DeviceState {
+        let state = self.raw.state;
+        macro_rules! check( ($($raw:ident => $real:ident),*) => (
+            $(if state == ffi::$raw {
+                DeviceState::$real
+            }) else *
+            else {
+                panic!("unknown device state: {}", state)
+            }
+        ));
+
+        check!(CUBEB_DEVICE_STATE_DISABLED => Disabled,
+               CUBEB_DEVICE_STATE_UNPLUGGED => Unplugged,
+               CUBEB_DEVICE_STATE_ENABLED => Enabled)
+    }
+
+    /// Preferred device.
+    pub fn preferred(&self) -> DevicePref {
+        DevicePref::from_bits(self.raw.preferred).unwrap()
+    }
+
+    /// Sample format supported.
+    pub fn format(&self) -> DeviceFormat {
+        DeviceFormat::from_bits(self.raw.format).unwrap()
+    }
+
+    /// The default sample format for this device.
+    pub fn default_format(&self) -> DeviceFormat {
+        DeviceFormat::from_bits(self.raw.default_format).unwrap()
+    }
+
+    /// Channels.
+    pub fn max_channels(&self) -> u32 {
+        self.raw.max_channels
+    }
+
+    /// Default/Preferred sample rate.
+    pub fn default_rate(&self) -> u32 {
+        self.raw.default_rate
+    }
+
+    /// Maximum sample rate supported.
+    pub fn max_rate(&self) -> u32 {
+        self.raw.max_rate
+    }
+
+    /// Minimum sample rate supported.
+    pub fn min_rate(&self) -> u32 {
+        self.raw.min_rate
+    }
+
+    /// Lowest possible latency in frames.
+    pub fn latency_lo(&self) -> u32 {
+        self.raw.latency_lo
+    }
+
+    /// Higest possible latency in frames.
+    pub fn latency_hi(&self) -> u32 {
+        self.raw.latency_hi
     }
 }
 

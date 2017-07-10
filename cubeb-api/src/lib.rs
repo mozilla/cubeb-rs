@@ -19,13 +19,15 @@ mod call;
 mod context;
 mod dev_coll;
 mod frame;
+mod log;
 mod stream;
 mod util;
 
 pub use context::Context;
-pub use cubeb_core::{ChannelLayout, Device, DeviceFormat, DeviceId, DeviceState,
-                     DeviceType, Error, ErrorCode, LogLevel, Result, SampleFormat,
-                     State, StreamParams};
+// Re-export cubeb_core types
+pub use cubeb_core::{ChannelLayout, Device, DeviceFormat, DeviceId, DeviceInfo,
+                     DeviceState, DeviceType, Error, ErrorCode, LogLevel, Result,
+                     SampleFormat, State, StreamParams};
 pub use cubeb_core::{DEVICE_FMT_F32BE, DEVICE_FMT_F32LE, DEVICE_FMT_S16BE,
                      DEVICE_FMT_S16LE};
 pub use cubeb_core::{DEVICE_PREF_ALL, DEVICE_PREF_MULTIMEDIA, DEVICE_PREF_NONE,
@@ -34,8 +36,9 @@ pub use cubeb_core::{DEVICE_TYPE_INPUT, DEVICE_TYPE_OUTPUT, DEVICE_TYPE_UNKNOWN}
 
 use cubeb_core::binding::Binding;
 use cubeb_core::ffi;
-pub use dev_coll::{DeviceCollection, DeviceInfo};
+pub use dev_coll::DeviceCollection;
 pub use frame::{Frame, MonoFrame, StereoFrame};
+pub use log::*;
 pub use stream::{SampleType, Stream, StreamCallback, StreamInitOptions,
                  StreamInitOptionsBuilder, StreamParamsBuilder};
 

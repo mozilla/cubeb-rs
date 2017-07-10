@@ -71,3 +71,9 @@ impl From<NulError> for Error {
         unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
     }
 }
+
+impl From<Error> for i32 {
+    fn from(e: Error) -> i32 {
+        -e.code
+    }
+}

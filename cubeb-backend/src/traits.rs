@@ -3,12 +3,13 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use cubeb_core::{ChannelLayout, Device, DeviceId, DeviceType, Result, StreamParams};
+use cubeb_core::{ChannelLayout, DeviceId, DeviceType, Result, StreamParams};
 use cubeb_core::ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 
 pub trait Context {
+    fn init(context_name: Option<&CStr>) -> Result<*mut ffi::cubeb>;
     fn backend_id(&self) -> &'static CStr;
     fn max_channel_count(&self) -> Result<u32>;
     fn min_latency(&self, params: &StreamParams) -> Result<u32>;
@@ -26,14 +27,14 @@ pub trait Context {
         &mut self,
         stream_name: Option<&CStr>,
         input_device: DeviceId,
-        input_stream_params: Option<&StreamParams>,
+        input_stream_params: Option<&ffi::cubeb_stream_params>,
         output_device: DeviceId,
-        output_stream_params: Option<&StreamParams>,
+        output_stream_params: Option<&ffi::cubeb_stream_params>,
         latency_frames: u32,
         data_callback: ffi::cubeb_data_callback,
         state_callback: ffi::cubeb_state_callback,
         user_ptr: *mut c_void,
-    ) -> Result<*mut Stream>;
+    ) -> Result<*mut ffi::cubeb_stream>;
     fn register_device_collection_changed(
         &mut self,
         devtype: DeviceType,
@@ -49,8 +50,8 @@ pub trait Stream {
     fn latency(&self) -> Result<u32>;
     fn set_volume(&mut self, volume: f32) -> Result<()>;
     fn set_panning(&mut self, panning: f32) -> Result<()>;
-    fn current_device(&mut self) -> Result<*const Device>;
-    fn device_destroy(&mut self, device: *const Device) -> Result<()>;
+    fn current_device(&mut self) -> Result<*const ffi::cubeb_device>;
+    fn device_destroy(&mut self, device: *const ffi::cubeb_device) -> Result<()>;
     fn register_device_changed_callback(
         &mut self,
         device_changed_callback: ffi::cubeb_device_changed_callback,

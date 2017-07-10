@@ -47,19 +47,19 @@ pub struct Ops {
         unsafe extern fn(context: *mut ffi::cubeb) -> *const c_char>,
     pub get_max_channel_count: Option<
         unsafe extern fn(context: *mut ffi::cubeb,
-                             max_channels: *mut u32)
-                             -> c_int>,
+                         max_channels: *mut u32)
+                         -> c_int>,
     pub get_min_latency: Option<
         unsafe extern fn(context: *mut ffi::cubeb,
-                             params: ffi::cubeb_stream_params,
-                             latency_ms: *mut u32)
-                             -> c_int>,
+                         params: *const ffi::cubeb_stream_params,
+                         latency_ms: *mut u32)
+                         -> c_int>,
     pub get_preferred_sample_rate: Option<
         unsafe extern fn(context: *mut ffi::cubeb, rate: *mut u32) -> c_int>,
     pub get_preferred_channel_layout: Option<
         unsafe extern fn(context: *mut ffi::cubeb,
-                                 layout: *mut ffi::cubeb_channel_layout)
-                                 -> c_int>,
+                         layout: *mut ffi::cubeb_channel_layout)
+                         -> c_int>,
     pub enumerate_devices: Option<
         unsafe extern fn(context: *mut ffi::cubeb,
                          devtype: ffi::cubeb_device_type,
@@ -108,7 +108,7 @@ pub struct Ops {
                          -> c_int>,
     pub stream_device_destroy: Option<
         unsafe extern fn(stream: *mut ffi::cubeb_stream,
-                         device: *mut ffi::cubeb_device)
+                         device: *const ffi::cubeb_device)
                          -> c_int>,
     pub stream_register_device_changed_callback: Option<
         unsafe extern fn(stream: *mut ffi::cubeb_stream,

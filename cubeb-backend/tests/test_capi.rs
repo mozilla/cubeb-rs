@@ -39,8 +39,8 @@ impl Context for TestContext {
     fn preferred_sample_rate(&mut self) -> Result<u32> {
         Ok(0u32)
     }
-    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout> {
-        Ok(ChannelLayout::Mono)
+    fn preferred_channel_layout(&mut self) -> Result<ffi::cubeb_channel_layout> {
+        Ok(ChannelLayout::Mono as _)
     }
     fn enumerate_devices(
         &mut self,

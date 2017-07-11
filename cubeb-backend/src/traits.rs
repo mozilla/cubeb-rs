@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use cubeb_core::{ChannelLayout, DeviceId, DeviceType, Result, StreamParams};
+use cubeb_core::{DeviceId, DeviceType, Result, StreamParams};
 use cubeb_core::ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
@@ -14,7 +14,7 @@ pub trait Context {
     fn max_channel_count(&mut self) -> Result<u32>;
     fn min_latency(&mut self, params: &StreamParams) -> Result<u32>;
     fn preferred_sample_rate(&mut self) -> Result<u32>;
-    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout>;
+    fn preferred_channel_layout(&mut self) -> Result<ffi::cubeb_channel_layout>;
     fn enumerate_devices(
         &mut self,
         devtype: DeviceType,

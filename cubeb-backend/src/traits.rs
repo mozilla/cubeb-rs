@@ -10,17 +10,17 @@ use std::os::raw::c_void;
 
 pub trait Context {
     fn init(context_name: Option<&CStr>) -> Result<*mut ffi::cubeb>;
-    fn backend_id(&self) -> &'static CStr;
-    fn max_channel_count(&self) -> Result<u32>;
-    fn min_latency(&self, params: &StreamParams) -> Result<u32>;
-    fn preferred_sample_rate(&self) -> Result<u32>;
-    fn preferred_channel_layout(&self) -> Result<ChannelLayout>;
+    fn backend_id(&mut self) -> &'static CStr;
+    fn max_channel_count(&mut self) -> Result<u32>;
+    fn min_latency(&mut self, params: &StreamParams) -> Result<u32>;
+    fn preferred_sample_rate(&mut self) -> Result<u32>;
+    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout>;
     fn enumerate_devices(
-        &self,
+        &mut self,
         devtype: DeviceType,
     ) -> Result<ffi::cubeb_device_collection>;
     fn device_collection_destroy(
-        &self,
+        &mut self,
         collection: *mut ffi::cubeb_device_collection,
     );
     fn stream_init(

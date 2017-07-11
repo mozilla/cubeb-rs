@@ -56,7 +56,7 @@ pub unsafe extern "C" fn capi_init<CTX: Context>(
 pub unsafe extern "C" fn capi_get_backend_id<CTX: Context>(
     c: *mut ffi::cubeb,
 ) -> *const c_char {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
     ctx.backend_id().as_ptr()
 }
 
@@ -64,7 +64,7 @@ pub unsafe extern "C" fn capi_get_max_channel_count<CTX: Context>(
     c: *mut ffi::cubeb,
     max_channels: *mut u32,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
 
     *max_channels = t!(ctx.max_channel_count());
     ffi::CUBEB_OK
@@ -75,7 +75,7 @@ pub unsafe extern "C" fn capi_get_min_latency<CTX: Context>(
     param: *const ffi::cubeb_stream_params,
     latency_frames: *mut u32,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
     let param = StreamParams::from_raw(param);
     *latency_frames = t!(ctx.min_latency(&param));
     ffi::CUBEB_OK
@@ -85,7 +85,7 @@ pub unsafe extern "C" fn capi_get_preferred_sample_rate<CTX: Context>(
     c: *mut ffi::cubeb,
     rate: *mut u32,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
 
     *rate = t!(ctx.preferred_sample_rate());
     ffi::CUBEB_OK
@@ -95,7 +95,7 @@ pub unsafe extern "C" fn capi_get_preferred_channel_layout<CTX: Context>(
     c: *mut ffi::cubeb,
     layout: *mut ffi::cubeb_channel_layout,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
 
     *layout = t!(ctx.preferred_channel_layout()) as _;
     ffi::CUBEB_OK
@@ -106,7 +106,7 @@ pub unsafe extern "C" fn capi_enumerate_devices<CTX: Context>(
     devtype: ffi::cubeb_device_type,
     collection: *mut ffi::cubeb_device_collection,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
     let devtype = DeviceType::from_bits_truncate(devtype);
     *collection = t!(ctx.enumerate_devices(devtype));
     ffi::CUBEB_OK
@@ -116,7 +116,7 @@ pub unsafe extern "C" fn capi_device_collection_destroy<CTX: Context>(
     c: *mut ffi::cubeb,
     collection: *mut ffi::cubeb_device_collection,
 ) -> c_int {
-    let ctx = &*(c as *mut CTX);
+    let ctx = &mut *(c as *mut CTX);
 
     ctx.device_collection_destroy(collection);
     ffi::CUBEB_OK

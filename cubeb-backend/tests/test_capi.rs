@@ -27,23 +27,23 @@ impl Context for TestContext {
         Ok(Box::into_raw(ctx) as *mut _)
     }
 
-    fn backend_id(&self) -> &'static CStr {
+    fn backend_id(&mut self) -> &'static CStr {
         unsafe { CStr::from_ptr(b"remote\0".as_ptr() as *const _) }
     }
-    fn max_channel_count(&self) -> Result<u32> {
+    fn max_channel_count(&mut self) -> Result<u32> {
         Ok(0u32)
     }
-    fn min_latency(&self, _params: &StreamParams) -> Result<u32> {
+    fn min_latency(&mut self, _params: &StreamParams) -> Result<u32> {
         Ok(0u32)
     }
-    fn preferred_sample_rate(&self) -> Result<u32> {
+    fn preferred_sample_rate(&mut self) -> Result<u32> {
         Ok(0u32)
     }
-    fn preferred_channel_layout(&self) -> Result<ChannelLayout> {
+    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout> {
         Ok(ChannelLayout::Mono)
     }
     fn enumerate_devices(
-        &self,
+        &mut self,
         _devtype: DeviceType,
     ) -> Result<ffi::cubeb_device_collection> {
         Ok(ffi::cubeb_device_collection {
@@ -52,7 +52,7 @@ impl Context for TestContext {
         })
     }
     fn device_collection_destroy(
-        &self,
+        &mut self,
         collection: *mut ffi::cubeb_device_collection,
     ) {
         let mut coll = unsafe { &mut *collection };

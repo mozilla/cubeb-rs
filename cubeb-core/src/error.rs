@@ -3,58 +3,64 @@ use ffi;
 use std::error;
 use std::ffi::NulError;
 use std::fmt;
-use std::os::raw::c_int;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Error {
-    code: c_int
+    code: ErrorCode
 }
 
 impl Error {
-    pub unsafe fn from_raw(code: c_int) -> Error {
+    pub fn new() -> Error {
         Error {
-            code: -code
+            code: ErrorCode::Error
         }
     }
 
-    pub fn code(&self) -> ErrorCode {
-        match self.raw_code() {
+    pub unsafe fn from_raw(code: ffi::cubeb_error_code) -> Error {
+        let code = match code {
             ffi::CUBEB_ERROR => ErrorCode::Error,
             ffi::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
             ffi::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
             ffi::CUBEB_ERROR_NOT_SUPPORTED => ErrorCode::NotSupported,
             ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => ErrorCode::DeviceUnavailable,
-            _ => super::ErrorCode::Error,
+            _ => ErrorCode::Error,
+        };
+
+        Error {
+            code: code
         }
     }
 
+    pub fn code(&self) -> ErrorCode {
+        self.code
+    }
+
+
     pub fn raw_code(&self) -> ffi::cubeb_error_code {
-        macro_rules! check(($($e:ident,)*) => (
-            $(if self.code == ffi::$e as c_int { ffi::$e }) else *
-            else {
-                ffi::CUBEB_ERROR
-            }
-        ));
-        check!(
-            CUBEB_OK,
-            CUBEB_ERROR,
-            CUBEB_ERROR_INVALID_FORMAT,
-            CUBEB_ERROR_INVALID_PARAMETER,
-            CUBEB_ERROR_NOT_SUPPORTED,
-            CUBEB_ERROR_DEVICE_UNAVAILABLE,
-        )
+        match self.code {
+            ErrorCode::Error => ffi::CUBEB_ERROR,
+            ErrorCode::InvalidFormat => ffi::CUBEB_ERROR_INVALID_FORMAT,
+            ErrorCode::InvalidParameter => ffi::CUBEB_ERROR_INVALID_PARAMETER,
+            ErrorCode::NotSupported => ffi::CUBEB_ERROR_NOT_SUPPORTED,
+            ErrorCode::DeviceUnavailable => ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE,
+        }
+    }
+}
+
+impl Default for Error {
+    fn default() -> Self {
+        Error::new()
     }
 }
 
 impl error::Error for Error {
     fn description(&self) -> &str {
         match self.code {
-            ffi::CUBEB_ERROR => "Error",
-            ffi::CUBEB_ERROR_INVALID_FORMAT => "Invalid format",
-            ffi::CUBEB_ERROR_INVALID_PARAMETER => "Invalid parameter",
-            ffi::CUBEB_ERROR_NOT_SUPPORTED => "Not supported",
-            ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => "Device unavailable",
-            _ => panic!("Invalid cubeb error"),
+            ErrorCode::Error => "Error",
+            ErrorCode::InvalidFormat => "Invalid format",
+            ErrorCode::InvalidParameter => "Invalid parameter",
+            ErrorCode::NotSupported => "Not supported",
+            ErrorCode::DeviceUnavailable => "Device unavailable",
         }
     }
 }
@@ -66,14 +72,61 @@ impl fmt::Display for Error {
     }
 }
 
+impl From<ErrorCode> for Error {
+    fn from(code: ErrorCode) -> Error {
+        Error {
+            code: code
+        }
+    }
+}
+
 impl From<NulError> for Error {
     fn from(_: NulError) -> Error {
         unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
     }
 }
 
-impl From<Error> for i32 {
-    fn from(e: Error) -> i32 {
-        -e.code
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ffi;
+
+    #[test]
+    fn test_from_raw() {
+        macro_rules! test {
+            ( $($raw:ident => $err:ident),* ) => {{
+                $(
+                    let e = unsafe { Error::from_raw(ffi::$raw) };
+                    assert_eq!(e.raw_code(), ffi::$raw);
+                    assert_eq!(e.code(), ErrorCode::$err);
+                )*
+            }};
+        }
+        test!(CUBEB_ERROR => Error,
+              CUBEB_ERROR_INVALID_FORMAT => InvalidFormat,
+              CUBEB_ERROR_INVALID_PARAMETER => InvalidParameter,
+              CUBEB_ERROR_NOT_SUPPORTED => NotSupported,
+              CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable
+        );
+    }
+
+    #[test]
+    fn test_from_error_code() {
+        macro_rules! test {
+            ( $($raw:ident => $err:ident),* ) => {{
+                $(
+                    let e = Error::from(ErrorCode::$err);
+                    assert_eq!(e.raw_code(), ffi::$raw);
+                    assert_eq!(e.code(), ErrorCode::$err);
+                )*
+            }};
+        }
+        test!(CUBEB_ERROR => Error,
+              CUBEB_ERROR_INVALID_FORMAT => InvalidFormat,
+              CUBEB_ERROR_INVALID_PARAMETER => InvalidParameter,
+              CUBEB_ERROR_NOT_SUPPORTED => NotSupported,
+              CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable
+        );
+
     }
 }

@@ -12,7 +12,7 @@ use std::os::raw::{c_char, c_int, c_void};
 macro_rules! t(
     ($e:expr) => (match $e {
         Ok(e) => e,
-        Err(e) => return e.into()
+        Err(e) => return e.raw_code()
     })
     );
 

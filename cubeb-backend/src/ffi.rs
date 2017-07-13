@@ -51,7 +51,7 @@ pub struct Ops {
                          -> c_int>,
     pub get_min_latency: Option<
         unsafe extern fn(context: *mut ffi::cubeb,
-                         params: *const ffi::cubeb_stream_params,
+                         params: ffi::cubeb_stream_params,
                          latency_ms: *mut u32)
                          -> c_int>,
     pub get_preferred_sample_rate: Option<

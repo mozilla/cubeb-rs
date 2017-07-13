@@ -46,8 +46,8 @@ pub trait Context {
 pub trait Stream {
     fn start(&mut self) -> Result<()>;
     fn stop(&mut self) -> Result<()>;
-    fn position(&self) -> Result<u64>;
-    fn latency(&self) -> Result<u32>;
+    fn position(&mut self) -> Result<u64>;
+    fn latency(&mut self) -> Result<u32>;
     fn set_volume(&mut self, volume: f32) -> Result<()>;
     fn set_panning(&mut self, panning: f32) -> Result<()>;
     fn current_device(&mut self) -> Result<*const ffi::cubeb_device>;

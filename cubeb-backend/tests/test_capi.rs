@@ -94,10 +94,10 @@ impl Stream for TestStream {
     fn stop(&mut self) -> Result<()> {
         Ok(())
     }
-    fn position(&self) -> Result<u64> {
+    fn position(&mut self) -> Result<u64> {
         Ok(0u64)
     }
-    fn latency(&self) -> Result<u32> {
+    fn latency(&mut self) -> Result<u32> {
         Ok(0u32)
     }
     fn set_volume(&mut self, volume: f32) -> Result<()> {

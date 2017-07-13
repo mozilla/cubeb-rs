@@ -187,7 +187,7 @@ pub unsafe extern "C" fn capi_stream_get_position<STM: Stream>(
     s: *mut ffi::cubeb_stream,
     position: *mut u64,
 ) -> c_int {
-    let stm = &*(s as *mut STM);
+    let stm = &mut *(s as *mut STM);
 
     *position = t!(stm.position());
     ffi::CUBEB_OK
@@ -197,7 +197,7 @@ pub unsafe extern "C" fn capi_stream_get_latency<STM: Stream>(
     s: *mut ffi::cubeb_stream,
     latency: *mut u32,
 ) -> c_int {
-    let stm = &*(s as *mut STM);
+    let stm = &mut *(s as *mut STM);
 
     *latency = t!(stm.latency());
     ffi::CUBEB_OK

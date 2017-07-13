@@ -149,7 +149,7 @@ fn test_ops_context_min_latency() {
     let params: ffi::cubeb_stream_params = unsafe { ::std::mem::zeroed() };
     let mut latency = u32::max_value();
     assert_eq!(
-        unsafe { OPS.get_min_latency.unwrap()(c, &params, &mut latency) },
+        unsafe { OPS.get_min_latency.unwrap()(c, params, &mut latency) },
         ffi::CUBEB_OK
     );
     assert_eq!(latency, 0);

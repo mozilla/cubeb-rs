@@ -72,11 +72,11 @@ pub unsafe extern "C" fn capi_get_max_channel_count<CTX: Context>(
 
 pub unsafe extern "C" fn capi_get_min_latency<CTX: Context>(
     c: *mut ffi::cubeb,
-    param: *const ffi::cubeb_stream_params,
+    param: ffi::cubeb_stream_params,
     latency_frames: *mut u32,
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
-    let param = StreamParams::from_raw(param);
+    let param = StreamParams::from_raw(&param);
     *latency_frames = t!(ctx.min_latency(&param));
     ffi::CUBEB_OK
 }

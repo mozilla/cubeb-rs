@@ -26,6 +26,19 @@ pub enum SampleFormat {
     Float32NE
 }
 
+impl From<ffi::cubeb_sample_format> for SampleFormat {
+    fn from(x: ffi::cubeb_sample_format) -> SampleFormat {
+        match x {
+            ffi::CUBEB_SAMPLE_S16LE => SampleFormat::S16LE,
+            ffi::CUBEB_SAMPLE_S16BE => SampleFormat::S16BE,
+            ffi::CUBEB_SAMPLE_FLOAT32LE => SampleFormat::Float32LE,
+            ffi::CUBEB_SAMPLE_FLOAT32BE => SampleFormat::Float32BE,
+            // TODO: Implement TryFrom
+            _ => SampleFormat::S16NE,
+        }
+    }
+}
+
 /// This maps to the underlying stream types on supported platforms, e.g. Android.
 #[cfg(target_os = "android")]
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -144,6 +157,34 @@ pub enum ChannelLayout {
     Layout3F2Lfe,
     Layout3F3RLfe,
     Layout3F4Lfe
+}
+
+impl From<ffi::cubeb_channel_layout> for ChannelLayout {
+    fn from(x: ffi::cubeb_channel_layout) -> ChannelLayout {
+        match x {
+            ffi::CUBEB_LAYOUT_UNDEFINED => ChannelLayout::Undefined,
+            ffi::CUBEB_LAYOUT_DUAL_MONO => ChannelLayout::DualMono,
+            ffi::CUBEB_LAYOUT_DUAL_MONO_LFE => ChannelLayout::DualMonoLfe,
+            ffi::CUBEB_LAYOUT_MONO => ChannelLayout::Mono,
+            ffi::CUBEB_LAYOUT_MONO_LFE => ChannelLayout::MonoLfe,
+            ffi::CUBEB_LAYOUT_STEREO => ChannelLayout::Stereo,
+            ffi::CUBEB_LAYOUT_STEREO_LFE => ChannelLayout::StereoLfe,
+            ffi::CUBEB_LAYOUT_3F => ChannelLayout::Layout3F,
+            ffi::CUBEB_LAYOUT_3F_LFE => ChannelLayout::Layout3FLfe,
+            ffi::CUBEB_LAYOUT_2F1 => ChannelLayout::Layout2F1,
+            ffi::CUBEB_LAYOUT_2F1_LFE => ChannelLayout::Layout2F1Lfe,
+            ffi::CUBEB_LAYOUT_3F1 => ChannelLayout::Layout3F1,
+            ffi::CUBEB_LAYOUT_3F1_LFE => ChannelLayout::Layout3F1Lfe,
+            ffi::CUBEB_LAYOUT_2F2 => ChannelLayout::Layout2F2,
+            ffi::CUBEB_LAYOUT_2F2_LFE => ChannelLayout::Layout2F2Lfe,
+            ffi::CUBEB_LAYOUT_3F2 => ChannelLayout::Layout3F2,
+            ffi::CUBEB_LAYOUT_3F2_LFE => ChannelLayout::Layout3F2Lfe,
+            ffi::CUBEB_LAYOUT_3F3R_LFE => ChannelLayout::Layout3F3RLfe,
+            ffi::CUBEB_LAYOUT_3F4_LFE => ChannelLayout::Layout3F4Lfe,
+            // TODO: Implement TryFrom
+            _ => ChannelLayout::Undefined,
+        }
+    }
 }
 
 /// Stream format initialization parameters.

@@ -303,7 +303,7 @@ impl<'a> Device<'a> {
         self.output_name_bytes().map(|b| str::from_utf8(b).unwrap())
     }
 
-    fn output_name_bytes(&self) -> Option<&[u8]> {
+    pub fn output_name_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, (*self.raw).output_name) }
     }
 
@@ -314,7 +314,7 @@ impl<'a> Device<'a> {
         self.input_name_bytes().map(|b| str::from_utf8(b).unwrap())
     }
 
-    fn input_name_bytes(&self) -> Option<&[u8]> {
+    pub fn input_name_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, (*self.raw).input_name) }
     }
 }
@@ -428,7 +428,7 @@ impl DeviceInfo {
         self.device_id_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    fn device_id_bytes(&self) -> Option<&[u8]> {
+    pub fn device_id_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, self.raw.device_id) }
     }
 
@@ -439,7 +439,7 @@ impl DeviceInfo {
         )
     }
 
-    fn friendly_name_bytes(&self) -> Option<&[u8]> {
+    pub fn friendly_name_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, self.raw.friendly_name) }
     }
 
@@ -450,7 +450,7 @@ impl DeviceInfo {
         self.group_id_bytes().and_then(|s| str::from_utf8(s).ok())
     }
 
-    fn group_id_bytes(&self) -> Option<&[u8]> {
+    pub fn group_id_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, self.raw.group_id) }
     }
 
@@ -461,7 +461,7 @@ impl DeviceInfo {
         )
     }
 
-    fn vendor_name_bytes(&self) -> Option<&[u8]> {
+    pub fn vendor_name_bytes(&self) -> Option<&[u8]> {
         unsafe { opt_bytes(self, self.raw.vendor_name) }
     }
 

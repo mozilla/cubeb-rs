@@ -289,6 +289,7 @@ impl Binding for StreamParams {
 }
 
 /// Audio device description
+#[derive(Copy, Clone, Debug)]
 pub struct Device<'a> {
     raw: *const ffi::cubeb_device,
     _marker: marker::PhantomData<&'a ffi::cubeb_device>

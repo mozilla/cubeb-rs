@@ -1,5 +1,10 @@
-use ffi;
+// Copyright © 2017 Mozilla Foundation
+//
+// This program is made available under an ISC-style license.  See the
+// accompanying file LICENSE for details.
+
 use cubeb_core::Error;
+use ffi;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
@@ -39,6 +44,12 @@ impl IntoCString for String {
 impl IntoCString for CString {
     fn into_c_string(self) -> Result<CString, Error> {
         Ok(self)
+    }
+}
+
+impl IntoCString for Vec<u8> {
+    fn into_c_string(self) -> Result<CString, Error> {
+        Ok(try!(CString::new(self)))
     }
 }
 

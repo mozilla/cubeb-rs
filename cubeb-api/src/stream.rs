@@ -67,7 +67,7 @@
 //! }
 //! ```
 
-use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Frame, Result,
+use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Result,
      SampleFormat, State, StreamParams};
 use ffi;
 use std::{marker, ptr, str};
@@ -105,8 +105,6 @@ impl SampleType for f32 {
 }
 
 pub trait StreamCallback: Send + 'static
-where
-    Self::Frame: Frame,
 {
     type Frame;
 

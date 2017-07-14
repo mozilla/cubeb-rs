@@ -413,6 +413,10 @@ pub struct DeviceInfo {
 }
 
 impl DeviceInfo {
+    pub fn raw(&self) -> &ffi::cubeb_device_info {
+        &self.raw
+    }
+
     /// Device identifier handle.
     pub fn devid(&self) -> DeviceId {
         unsafe { Binding::from_raw(self.raw.devid) }

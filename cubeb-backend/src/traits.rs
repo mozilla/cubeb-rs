@@ -10,21 +10,21 @@ use std::os::raw::c_void;
 
 pub trait Context {
     fn init(context_name: Option<&CStr>) -> Result<*mut ffi::cubeb>;
-    fn backend_id(&mut self) -> &'static CStr;
-    fn max_channel_count(&mut self) -> Result<u32>;
-    fn min_latency(&mut self, params: &StreamParams) -> Result<u32>;
-    fn preferred_sample_rate(&mut self) -> Result<u32>;
-    fn preferred_channel_layout(&mut self) -> Result<ffi::cubeb_channel_layout>;
+    fn backend_id(&self) -> &'static CStr;
+    fn max_channel_count(&self) -> Result<u32>;
+    fn min_latency(&self, params: &StreamParams) -> Result<u32>;
+    fn preferred_sample_rate(&self) -> Result<u32>;
+    fn preferred_channel_layout(&self) -> Result<ffi::cubeb_channel_layout>;
     fn enumerate_devices(
-        &mut self,
+        &self,
         devtype: DeviceType,
     ) -> Result<ffi::cubeb_device_collection>;
     fn device_collection_destroy(
-        &mut self,
+        &self,
         collection: *mut ffi::cubeb_device_collection,
     );
     fn stream_init(
-        &mut self,
+        &self,
         stream_name: Option<&CStr>,
         input_device: DeviceId,
         input_stream_params: Option<&ffi::cubeb_stream_params>,
@@ -36,7 +36,7 @@ pub trait Context {
         user_ptr: *mut c_void,
     ) -> Result<*mut ffi::cubeb_stream>;
     fn register_device_collection_changed(
-        &mut self,
+        &self,
         devtype: DeviceType,
         cb: ffi::cubeb_device_collection_changed_callback,
         user_ptr: *mut c_void,
@@ -44,16 +44,16 @@ pub trait Context {
 }
 
 pub trait Stream {
-    fn start(&mut self) -> Result<()>;
-    fn stop(&mut self) -> Result<()>;
-    fn position(&mut self) -> Result<u64>;
-    fn latency(&mut self) -> Result<u32>;
-    fn set_volume(&mut self, volume: f32) -> Result<()>;
-    fn set_panning(&mut self, panning: f32) -> Result<()>;
-    fn current_device(&mut self) -> Result<*const ffi::cubeb_device>;
-    fn device_destroy(&mut self, device: *const ffi::cubeb_device) -> Result<()>;
+    fn start(&self) -> Result<()>;
+    fn stop(&self) -> Result<()>;
+    fn position(&self) -> Result<u64>;
+    fn latency(&self) -> Result<u32>;
+    fn set_volume(&self, volume: f32) -> Result<()>;
+    fn set_panning(&self, panning: f32) -> Result<()>;
+    fn current_device(&self) -> Result<*const ffi::cubeb_device>;
+    fn device_destroy(&self, device: *const ffi::cubeb_device) -> Result<()>;
     fn register_device_changed_callback(
-        &mut self,
+        &self,
         device_changed_callback: ffi::cubeb_device_changed_callback,
     ) -> Result<()>;
 }

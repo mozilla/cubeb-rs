@@ -94,6 +94,9 @@ impl Stream for TestStream {
     fn stop(&self) -> Result<()> {
         Ok(())
     }
+    fn reset_default_device(&self) -> Result<()> {
+        Ok(())
+    }
     fn position(&self) -> Result<u64> {
         Ok(0u64)
     }

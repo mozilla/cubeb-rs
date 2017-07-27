@@ -33,6 +33,7 @@ macro_rules! capi_new(
             stream_destroy: Some($crate::capi::capi_stream_destroy::<$stm>),
             stream_start: Some($crate::capi::capi_stream_start::<$stm>),
             stream_stop: Some($crate::capi::capi_stream_stop::<$stm>),
+            stream_reset_default_device: Some($crate::capi::capi_stream_reset_default_device::<$stm>),
             stream_get_position: Some($crate::capi::capi_stream_get_position::<$stm>),
             stream_get_latency: Some($crate::capi::capi_stream_get_latency::<$stm>),
             stream_set_volume: Some($crate::capi::capi_stream_set_volume::<$stm>),
@@ -180,6 +181,15 @@ pub unsafe extern "C" fn capi_stream_stop<STM: Stream>(
     let stm = &*(s as *const STM);
 
     let _ = t!(stm.stop());
+    ffi::CUBEB_OK
+}
+
+pub unsafe extern "C" fn capi_stream_reset_default_device<STM: Stream>(
+    s: *mut ffi::cubeb_stream,
+) -> c_int {
+    let stm = &mut *(s as *mut STM);
+
+    let _ = t!(stm.reset_default_device());
     ffi::CUBEB_OK
 }
 

@@ -46,6 +46,7 @@ pub trait Context {
 pub trait Stream {
     fn start(&self) -> Result<()>;
     fn stop(&self) -> Result<()>;
+    fn reset_default_device(&self) -> Result<()>;
     fn position(&self) -> Result<u64>;
     fn latency(&self) -> Result<u32>;
     fn set_volume(&self, volume: f32) -> Result<()>;

@@ -405,7 +405,7 @@ bitflags! {
     }
 }
 
-/// This structure holds the characteristicsc of an input or output
+/// This structure holds the characteristics of an input or output
 /// audio device. It is obtained using `enumerate_devices`, which
 /// returns these structures via `device_collection` and must be
 /// destroyed via `device_collection_destroy`.

@@ -118,7 +118,7 @@ pub struct cubeb_stream_params {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub struct cubeb_device {
     pub output_name: *const c_char,
     pub input_name: *const c_char
@@ -193,7 +193,7 @@ cubeb_enum! {
 }
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug)]
 pub struct cubeb_device_info {
     pub devid: cubeb_devid,
     pub device_id: *const c_char,
@@ -217,7 +217,7 @@ pub struct cubeb_device_info {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub struct cubeb_device_collection {
     pub device: *const cubeb_device_info,
     pub count: usize

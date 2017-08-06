@@ -51,25 +51,6 @@ pub const CUBEB_SAMPLE_S16NE: cubeb_sample_format = CUBEB_SAMPLE_S16LE;
 #[cfg(target_endian = "little")]
 pub const CUBEB_SAMPLE_FLOAT32NE: cubeb_sample_format = CUBEB_SAMPLE_FLOAT32LE;
 
-#[cfg(target_os = "android")]
-cubeb_enum! {
-    pub enum cubeb_stream_type: c_int {
-        CUBEB_STREAM_TYPE_VOICE_CALL = 0,
-        CUBEB_STREAM_TYPE_SYSTEM = 1,
-        CUBEB_STREAM_TYPE_RING = 2,
-        CUBEB_STREAM_TYPE_MUSIC = 3,
-        CUBEB_STREAM_TYPE_ALARM = 4,
-        CUBEB_STREAM_TYPE_NOTIFICATION = 5,
-        CUBEB_STREAM_TYPE_BLUETOOTH_SCO = 6,
-        CUBEB_STREAM_TYPE_SYSTEM_ENFORCED = 7,
-        CUBEB_STREAM_TYPE_DTMF = 8,
-        CUBEB_STREAM_TYPE_TTS = 9,
-        CUBEB_STREAM_TYPE_FM = 10,
-
-        CUBEB_STREAM_TYPE_MAX
-    }
-}
-
 pub type cubeb_devid = *const c_void;
 
 cubeb_enum! {
@@ -112,9 +93,7 @@ pub struct cubeb_stream_params {
     pub format: cubeb_sample_format,
     pub rate: c_uint,
     pub channels: c_uint,
-    pub layout: cubeb_channel_layout,
-    #[cfg(target_os = "android")]
-    pub stream_type: cubeb_stream_type
+    pub layout: cubeb_channel_layout
 }
 
 #[repr(C)]

@@ -9,12 +9,15 @@ use cubeb_core::binding::Binding;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int, c_void};
 
-macro_rules! t(
+// Helper macro for unwrapping `Result` values from rust-api calls
+// while returning early with a c-api error code if the value of the
+// expression is `Err`.
+macro_rules! _try(
     ($e:expr) => (match $e {
         Ok(e) => e,
         Err(e) => return e.raw_code()
     })
-    );
+);
 
 #[macro_export]
 macro_rules! capi_new(
@@ -50,7 +53,7 @@ pub unsafe extern "C" fn capi_init<CTX: Context>(
 ) -> c_int {
     let anchor = &();
     let context_name = opt_cstr(anchor, context_name);
-    *c = t!(CTX::init(context_name));
+    *c = _try!(CTX::init(context_name));
     ffi::CUBEB_OK
 }
 
@@ -67,7 +70,7 @@ pub unsafe extern "C" fn capi_get_max_channel_count<CTX: Context>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
 
-    *max_channels = t!(ctx.max_channel_count());
+    *max_channels = _try!(ctx.max_channel_count());
     ffi::CUBEB_OK
 }
 
@@ -78,7 +81,7 @@ pub unsafe extern "C" fn capi_get_min_latency<CTX: Context>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
     let param = StreamParams::from_raw(&param);
-    *latency_frames = t!(ctx.min_latency(&param));
+    *latency_frames = _try!(ctx.min_latency(&param));
     ffi::CUBEB_OK
 }
 
@@ -88,7 +91,7 @@ pub unsafe extern "C" fn capi_get_preferred_sample_rate<CTX: Context>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
 
-    *rate = t!(ctx.preferred_sample_rate());
+    *rate = _try!(ctx.preferred_sample_rate());
     ffi::CUBEB_OK
 }
 
@@ -98,7 +101,7 @@ pub unsafe extern "C" fn capi_get_preferred_channel_layout<CTX: Context>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
 
-    *layout = t!(ctx.preferred_channel_layout()) as _;
+    *layout = _try!(ctx.preferred_channel_layout()) as _;
     ffi::CUBEB_OK
 }
 
@@ -109,7 +112,7 @@ pub unsafe extern "C" fn capi_enumerate_devices<CTX: Context>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
     let devtype = DeviceType::from_bits_truncate(devtype);
-    *collection = t!(ctx.enumerate_devices(devtype));
+    *collection = _try!(ctx.enumerate_devices(devtype));
     ffi::CUBEB_OK
 }
 
@@ -148,7 +151,7 @@ pub unsafe extern "C" fn capi_stream_init<CTX: Context>(
     let output_device = DeviceId::from_raw(output_device);
     let output_stream_params = output_stream_params.as_opt_ref();
 
-    *s = t!(ctx.stream_init(
+    *s = _try!(ctx.stream_init(
         opt_cstr(anchor, stream_name),
         input_device,
         input_stream_params,
@@ -171,7 +174,7 @@ pub unsafe extern "C" fn capi_stream_start<STM: Stream>(
 ) -> c_int {
     let stm = &*(s as *const STM);
 
-    let _ = t!(stm.start());
+    let _ = _try!(stm.start());
     ffi::CUBEB_OK
 }
 
@@ -180,7 +183,7 @@ pub unsafe extern "C" fn capi_stream_stop<STM: Stream>(
 ) -> c_int {
     let stm = &*(s as *const STM);
 
-    let _ = t!(stm.stop());
+    let _ = _try!(stm.stop());
     ffi::CUBEB_OK
 }
 
@@ -189,7 +192,7 @@ pub unsafe extern "C" fn capi_stream_reset_default_device<STM: Stream>(
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
 
-    let _ = t!(stm.reset_default_device());
+    let _ = _try!(stm.reset_default_device());
     ffi::CUBEB_OK
 }
 
@@ -199,7 +202,7 @@ pub unsafe extern "C" fn capi_stream_get_position<STM: Stream>(
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
 
-    *position = t!(stm.position());
+    *position = _try!(stm.position());
     ffi::CUBEB_OK
 }
 
@@ -209,7 +212,7 @@ pub unsafe extern "C" fn capi_stream_get_latency<STM: Stream>(
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
 
-    *latency = t!(stm.latency());
+    *latency = _try!(stm.latency());
     ffi::CUBEB_OK
 }
 
@@ -219,7 +222,7 @@ pub unsafe extern "C" fn capi_stream_set_volume<STM: Stream>(
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
 
-    let _ = t!(stm.set_volume(volume));
+    let _ = _try!(stm.set_volume(volume));
     ffi::CUBEB_OK
 }
 
@@ -229,7 +232,7 @@ pub unsafe extern "C" fn capi_stream_set_panning<STM: Stream>(
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
 
-    let _ = t!(stm.set_panning(panning));
+    let _ = _try!(stm.set_panning(panning));
     ffi::CUBEB_OK
 }
 
@@ -239,7 +242,7 @@ pub unsafe extern "C" fn capi_stream_get_current_device<STM: Stream>(
 ) -> i32 {
     let stm = &mut *(s as *mut STM);
 
-    *device = t!(stm.current_device());
+    *device = _try!(stm.current_device());
     ffi::CUBEB_OK
 }
 
@@ -260,7 +263,7 @@ pub unsafe extern "C" fn capi_register_device_collection_changed<CTX: Context>(
 ) -> i32 {
     let ctx = &*(c as *const CTX);
     let devtype = DeviceType::from_bits_truncate(devtype);
-    let _ = t!(ctx.register_device_collection_changed(
+    let _ = _try!(ctx.register_device_collection_changed(
         devtype,
         collection_changed_callback,
         user_ptr

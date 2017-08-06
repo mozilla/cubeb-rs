@@ -39,23 +39,6 @@ impl From<ffi::cubeb_sample_format> for SampleFormat {
     }
 }
 
-/// This maps to the underlying stream types on supported platforms, e.g. Android.
-#[cfg(target_os = "android")]
-#[derive(PartialEq, Eq, Clone, Debug, Copy)]
-pub enum StreamType {
-    VoiceCall,
-    System,
-    Ring,
-    Music,
-    Alarm,
-    Notification,
-    BluetoothSco,
-    SystemEnforced,
-    Dtmf,
-    Tts,
-    Fm
-}
-
 /// An opaque handle used to refer to a particular input or output device
 /// across calls.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -249,30 +232,6 @@ impl StreamParams {
                CUBEB_LAYOUT_3F2_LFE => Layout3F2Lfe,
                CUBEB_LAYOUT_3F3R_LFE => Layout3F3RLfe,
                CUBEB_LAYOUT_3F4_LFE => Layout3F4Lfe)
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn stream_type(&self) -> StreamType {
-        macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if self.raw.stream_type == raw::$raw {
-                super::StreamType::$real
-            }) else *
-            else {
-                panic!("unknown stream type: {}", self.raw.stream_type)
-            }
-        ) );
-
-        check!(CUBEB_STREAM_TYPE_VOICE_CALL => VoiceCall,
-               CUBEB_STREAM_TYPE_SYSTEM => System,
-               CUBEB_STREAM_TYPE_RING => Ring,
-               CUBEB_STREAM_TYPE_MUSIC => Music,
-               CUBEB_STREAM_TYPE_ALARM => Alarm,
-               CUBEB_STREAM_TYPE_NOTIFICATION => Notification,
-               CUBEB_STREAM_TYPE_BLUETOOTH_SCO => BluetoothSco,
-               CUBEB_STREAM_TYPE_SYSTEM_ENFORCED => SystemEnforced,
-               CUBEB_STREAM_TYPE_DTMF => Dtmf,
-               CUBEB_STREAM_TYPE_TTS => Tts,
-               CUBEB_STREAM_TYPE_FM => Fm)
     }
 }
 

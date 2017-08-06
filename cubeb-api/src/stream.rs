@@ -118,9 +118,7 @@ pub struct StreamParamsBuilder {
     format: SampleFormat,
     rate: u32,
     channels: u32,
-    layout: ChannelLayout,
-    #[cfg(target_os = "android")]
-    stream_type: StreamType
+    layout: ChannelLayout
 }
 
 impl Default for StreamParamsBuilder {
@@ -130,17 +128,6 @@ impl Default for StreamParamsBuilder {
 }
 
 impl StreamParamsBuilder {
-    #[cfg(target_os = "android")]
-    pub fn new() -> Self {
-        Self {
-            format: SampleFormat::S16NE,
-            rate: 0,
-            channels: 0,
-            layout: ChannelLayout::Undefined,
-            stream_type: StreamType::Music
-        }
-    }
-    #[cfg(not(target_os = "android"))]
     pub fn new() -> Self {
         Self {
             format: SampleFormat::S16NE,
@@ -167,12 +154,6 @@ impl StreamParamsBuilder {
 
     pub fn layout(&mut self, layout: ChannelLayout) -> &mut Self {
         self.layout = layout;
-        self
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn stream_type(&mut self, stream_type: StreamType) -> &mut Self {
-        self.stream_type = stream_type;
         self
     }
 

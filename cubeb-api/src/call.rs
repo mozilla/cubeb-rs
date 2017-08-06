@@ -38,8 +38,6 @@ where
 mod impls {
     use call::Convert;
     use cubeb_core::{ChannelLayout, LogLevel, SampleFormat, State};
-    #[cfg(target_os = "android")]
-    use cubeb_core::StreamType;
     use ffi;
     use std::ffi::CString;
     use std::os::raw::c_char;
@@ -91,25 +89,6 @@ mod impls {
                 SampleFormat::Float32LE => ffi::CUBEB_SAMPLE_FLOAT32LE,
                 SampleFormat::Float32BE => ffi::CUBEB_SAMPLE_FLOAT32BE,
                 SampleFormat::Float32NE => ffi::CUBEB_SAMPLE_FLOAT32NE,
-            }
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    impl Convert<raw::cubeb_stream_type> for StreamType {
-        fn convert(&self) -> raw::cubeb_stream_type {
-            match *self {
-                StreamType::VoiceCall => raw::CUBEB_STREAM_TYPE_VOICE_CALL,
-                StreamType::System => raw::CUBEB_STREAM_TYPE_SYSTEM,
-                StreamType::Ring => raw::CUBEB_STREAM_TYPE_RING,
-                StreamType::Music => raw::CUBEB_STREAM_TYPE_MUSIC,
-                StreamType::Alarm => raw::CUBEB_STREAM_TYPE_ALARM,
-                StreamType::Notification => raw::CUBEB_STREAM_TYPE_NOTIFICATION,
-                StreamType::BluetoothSco => raw::CUBEB_STREAM_TYPE_BLUETOOTH_SCO,
-                StreamType::SystemEnforced => raw::CUBEB_STREAM_TYPE_SYSTEM_ENFORCED,
-                StreamType::Dtmf => raw::CUBEB_STREAM_TYPE_DTMF,
-                StreamType::Tts => raw::CUBEB_STREAM_TYPE_TTS,
-                StreamType::Fm => raw::CUBEB_STREAM_TYPE_FM,
             }
         }
     }

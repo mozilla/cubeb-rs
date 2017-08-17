@@ -324,9 +324,9 @@ pub enum ErrorCode {
 /// output device (e.g. headphones).
 bitflags! {
     pub struct DeviceType: ffi::cubeb_device_type {
-        const DEVICE_TYPE_UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as u32;
-        const DEVICE_TYPE_INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as u32;
-        const DEVICE_TYPE_OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as u32;
+        const DEVICE_TYPE_UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as _;
+        const DEVICE_TYPE_INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as _;
+        const DEVICE_TYPE_OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as _;
     }
 }
 

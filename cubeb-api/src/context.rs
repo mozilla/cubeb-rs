@@ -102,7 +102,7 @@ impl Context {
     }
 
     /// Initialize a stream associated with the supplied application context.
-    pub fn stream_init<'ctx, CB>(&'ctx self, opts: &StreamInitOptions, cb: CB) -> Result<Stream<'ctx, CB>>
+    pub fn stream_init<CB>(&self, opts: &StreamInitOptions, cb: CB) -> Result<Stream<CB>>
     where
         CB: StreamCallback,
     {

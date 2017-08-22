@@ -70,7 +70,7 @@
 use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Result,
      SampleFormat, State, StreamParams};
 use ffi;
-use std::{marker, ptr, str};
+use std::{ptr, str};
 use std::ffi::CString;
 use std::os::raw::{c_long, c_void};
 use sys;
@@ -179,20 +179,19 @@ impl StreamParamsBuilder {
 }
 
 ///
-pub struct Stream<'ctx, CB>
+pub struct Stream<CB>
 where
     CB: StreamCallback,
 {
     raw: *mut ffi::cubeb_stream,
-    cbs: Box<CB>,
-    _marker: marker::PhantomData<&'ctx Context>
+    cbs: Box<CB>
 }
 
-impl<'ctx, CB> Stream<'ctx, CB>
+impl<CB> Stream<CB>
 where
     CB: StreamCallback,
 {
-    fn init(context: &'ctx Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<'ctx, CB>> {
+    fn init(context: &Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<CB>> {
         let mut stream: *mut ffi::cubeb_stream = ptr::null_mut();
 
         let cbs = Box::new(cb);
@@ -227,8 +226,7 @@ where
 
         Ok(Stream {
             raw: stream,
-            cbs: cbs,
-            _marker: marker::PhantomData
+            cbs: cbs
         })
     }
 
@@ -345,7 +343,7 @@ where
     }
 }
 
-impl<'ctx, CB> Drop for Stream<'ctx, CB>
+impl<CB> Drop for Stream<CB>
 where
     CB: StreamCallback,
 {
@@ -357,7 +355,7 @@ where
 }
 
 #[doc(hidden)]
-pub fn stream_init<'ctx, CB>(context: &'ctx Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<'ctx, CB>>
+pub fn stream_init<CB>(context: &Context, opts: &StreamInitOptions, cb: CB) -> Result<Stream<CB>>
 where
     CB: StreamCallback,
 {

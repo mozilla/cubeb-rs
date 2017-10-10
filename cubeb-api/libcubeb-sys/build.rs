@@ -43,22 +43,22 @@ fn main() {
 
     if windows {
         println!("cargo:rustc-link-lib=static=cubeb");
-        println!("cargo:rustc-link-search=native={}", dst.display());
         println!("cargo:rustc-link-lib=dylib=avrt");
         println!("cargo:rustc-link-lib=dylib=ole32");
         println!("cargo:rustc-link-lib=dylib=user32");
         println!("cargo:rustc-link-lib=dylib=winmm");
+        println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else if darwin {
         println!("cargo:rustc-link-lib=static=cubeb");
         println!("cargo:rustc-link-lib=framework=AudioUnit");
         println!("cargo:rustc-link-lib=framework=CoreAudio");
         println!("cargo:rustc-link-lib=framework=CoreServices");
         println!("cargo:rustc-link-lib=dylib=c++");
-        println!("cargo:rustc-link-search=native={}", dst.display());
+        println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else {
         println!("cargo:rustc-link-lib=static=cubeb");
         println!("cargo:rustc-link-lib=dylib=stdc++");
-        println!("cargo:rustc-link-search=native={}", dst.display());
+        println!("cargo:rustc-link-search=native={}/lib", dst.display());
 
         pkg_config::find_library("alsa").unwrap();
         pkg_config::find_library("libpulse").unwrap();

@@ -326,7 +326,7 @@ where
             } else {
                 from_raw_parts(input_buffer as *const _, nframes as usize)
             };
-            let mut output: &mut [CB::Frame] = if output_buffer.is_null() {
+            let output: &mut [CB::Frame] = if output_buffer.is_null() {
                 &mut []
             } else {
                 from_raw_parts_mut(output_buffer as *mut _, nframes as usize)

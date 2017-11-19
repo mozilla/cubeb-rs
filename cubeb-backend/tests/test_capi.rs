@@ -55,7 +55,7 @@ impl Context for TestContext {
         &self,
         collection: *mut ffi::cubeb_device_collection,
     ) {
-        let mut coll = unsafe { &mut *collection };
+        let coll = unsafe { &mut *collection };
         assert_eq!(coll.device, 0xDEADBEEF as *const _);
         assert_eq!(coll.count, usize::max_value());
         coll.device = ptr::null_mut();

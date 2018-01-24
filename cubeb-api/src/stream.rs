@@ -70,7 +70,7 @@
 use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Result,
      SampleFormat, State, StreamParams};
 use ffi;
-use std::{ptr, str};
+use std::ptr;
 use std::ffi::CString;
 use std::os::raw::{c_long, c_void};
 use sys;
@@ -91,7 +91,7 @@ impl SampleType for i16 {
         SampleFormat::S16NE
     }
     fn from_float(x: f32) -> i16 {
-        (x * i16::max_value() as f32) as i16
+        (x * f32::from(i16::max_value())) as i16
     }
 }
 
@@ -157,6 +157,7 @@ impl StreamParamsBuilder {
         self
     }
 
+    #[cfg_attr(feature = "cargo-clippy", allow(match_same_arms))]
     pub fn take(&self) -> StreamParams {
         // Convert native endian types to matching format
         let raw_sample_format = match self.format {
@@ -291,7 +292,7 @@ where
                 self.raw,
                 &mut device_ptr
             ));
-            Binding::from_raw_opt(device_ptr).ok_or(Error::from_raw(ffi::CUBEB_ERROR))
+            Binding::from_raw_opt(device_ptr).ok_or_else(|| Error::from_raw(ffi::CUBEB_ERROR))
         }
     }
 

@@ -13,7 +13,7 @@ use std::f32::consts::PI;
 use std::thread;
 use std::time::Duration;
 
-const SAMPLE_FREQUENCY: u32 = 48000;
+const SAMPLE_FREQUENCY: u32 = 48_000;
 const STREAM_FORMAT: cubeb::SampleFormat = cubeb::SampleFormat::S16LE;
 
 // store the phase of the generated waveform

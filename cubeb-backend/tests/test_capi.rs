@@ -3,6 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details
 
+#![cfg_attr(feature = "cargo-clippy", allow(float_cmp))]
+
 #[macro_use]
 extern crate cubeb_backend;
 extern crate cubeb_core;
@@ -47,7 +49,7 @@ impl Context for TestContext {
         _devtype: DeviceType,
     ) -> Result<ffi::cubeb_device_collection> {
         Ok(ffi::cubeb_device_collection {
-            device: 0xDEADBEEF as *const _,
+            device: 0xDEAD_BEEF as *const _,
             count: usize::max_value()
         })
     }
@@ -56,7 +58,7 @@ impl Context for TestContext {
         collection: *mut ffi::cubeb_device_collection,
     ) {
         let coll = unsafe { &mut *collection };
-        assert_eq!(coll.device, 0xDEADBEEF as *const _);
+        assert_eq!(coll.device, 0xDEAD_BEEF as *const _);
         assert_eq!(coll.count, usize::max_value());
         coll.device = ptr::null_mut();
         coll.count = 0;
@@ -112,10 +114,10 @@ impl Stream for TestStream {
         Ok(())
     }
     fn current_device(&self) -> Result<*const ffi::cubeb_device> {
-        Ok(0xDEADBEEF as *const _)
+        Ok(0xDEAD_BEEF as *const _)
     }
     fn device_destroy(&self, device: *const ffi::cubeb_device) -> Result<()> {
-        assert_eq!(device, 0xDEADBEEF as *const _);
+        assert_eq!(device, 0xDEAD_BEEF as *const _);
         Ok(())
     }
     fn register_device_changed_callback(
@@ -196,7 +198,7 @@ fn test_ops_context_enumerate_devices() {
         unsafe { OPS.enumerate_devices.unwrap()(c, 0, &mut coll) },
         ffi::CUBEB_OK
     );
-    assert_eq!(coll.device, 0xDEADBEEF as *const _);
+    assert_eq!(coll.device, 0xDEAD_BEEF as *const _);
     assert_eq!(coll.count, usize::max_value())
 }
 
@@ -204,7 +206,7 @@ fn test_ops_context_enumerate_devices() {
 fn test_ops_context_device_collection_destroy() {
     let c: *mut ffi::cubeb = ptr::null_mut();
     let mut coll = ffi::cubeb_device_collection {
-        device: 0xDEADBEEF as *const _,
+        device: 0xDEAD_BEEF as *const _,
         count: usize::max_value()
     };
     assert_eq!(
@@ -256,13 +258,13 @@ fn test_ops_stream_current_device() {
         unsafe { OPS.stream_get_current_device.unwrap()(s, &mut device) },
         ffi::CUBEB_OK
     );
-    assert_eq!(device, 0xDEADBEEF as *const _);
+    assert_eq!(device, 0xDEAD_BEEF as *const _);
 }
 
 #[test]
 fn test_ops_stream_device_destroy() {
     let s: *mut ffi::cubeb_stream = ptr::null_mut();
     unsafe {
-        OPS.stream_device_destroy.unwrap()(s, 0xDEADBEEF as *const _);
+        OPS.stream_device_destroy.unwrap()(s, 0xDEAD_BEEF as *const _);
     }
 }

@@ -145,7 +145,6 @@ pub enum ChannelLayout {
 impl From<ffi::cubeb_channel_layout> for ChannelLayout {
     fn from(x: ffi::cubeb_channel_layout) -> ChannelLayout {
         match x {
-            ffi::CUBEB_LAYOUT_UNDEFINED => ChannelLayout::Undefined,
             ffi::CUBEB_LAYOUT_DUAL_MONO => ChannelLayout::DualMono,
             ffi::CUBEB_LAYOUT_DUAL_MONO_LFE => ChannelLayout::DualMonoLfe,
             ffi::CUBEB_LAYOUT_MONO => ChannelLayout::Mono,
@@ -165,6 +164,7 @@ impl From<ffi::cubeb_channel_layout> for ChannelLayout {
             ffi::CUBEB_LAYOUT_3F3R_LFE => ChannelLayout::Layout3F3RLfe,
             ffi::CUBEB_LAYOUT_3F4_LFE => ChannelLayout::Layout3F4Lfe,
             // TODO: Implement TryFrom
+            // Everything else is just undefined.
             _ => ChannelLayout::Undefined,
         }
     }
@@ -292,7 +292,7 @@ impl<'a> Binding for Device<'a> {
     }
 }
 
-/// Stream states signaled via state_callback.
+/// Stream states signaled via `state_callback`.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
 pub enum State {
     /// Stream started.

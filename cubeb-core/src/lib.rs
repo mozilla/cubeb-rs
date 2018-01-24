@@ -170,6 +170,14 @@ impl From<ffi::cubeb_channel_layout> for ChannelLayout {
     }
 }
 
+/// Miscellaneous stream preferences.
+bitflags! {
+    pub struct StreamPrefs: ffi::cubeb_stream_prefs {
+        const STREAM_PREF_NONE = ffi::CUBEB_STREAM_PREF_NONE;
+        const STREAM_PREF_LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
+    }
+}
+
 /// Stream format initialization parameters.
 #[derive(Clone, Copy)]
 pub struct StreamParams {
@@ -232,6 +240,10 @@ impl StreamParams {
                CUBEB_LAYOUT_3F2_LFE => Layout3F2Lfe,
                CUBEB_LAYOUT_3F3R_LFE => Layout3F3RLfe,
                CUBEB_LAYOUT_3F4_LFE => Layout3F4Lfe)
+    }
+
+    pub fn prefs(&self) -> StreamPrefs {
+        StreamPrefs::from_bits(self.raw.prefs).unwrap()
     }
 }
 
@@ -594,4 +606,12 @@ mod tests {
         assert_eq!(params.rate(), 44100);
     }
 
+    #[test]
+    fn stream_params_raw_prefs() {
+        use STREAM_PREF_LOOPBACK;
+        let mut raw: super::ffi::cubeb_stream_params = unsafe { mem::zeroed() };
+        raw.prefs = STREAM_PREF_LOOPBACK.bits();
+        let params = unsafe { super::StreamParams::from_raw(&raw as *const _) };
+        assert_eq!(params.prefs(), STREAM_PREF_LOOPBACK);
+    }
 }

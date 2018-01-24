@@ -40,6 +40,7 @@
 //!         .rate(44100)
 //!         .channels(1)
 //!         .layout(cubeb::ChannelLayout::Mono)
+//!         .prefs(cubeb::STREAM_PREF_NONE)
 //!         .take();
 //!
 //!     let stream_init_opts = cubeb::StreamInitOptionsBuilder::new()
@@ -68,7 +69,8 @@
 //! ```
 
 use {Binding, ChannelLayout, Context, Device, DeviceId, Error, Result,
-     SampleFormat, State, StreamParams};
+     SampleFormat, State, StreamParams, StreamPrefs};
+use STREAM_PREF_NONE;
 use ffi;
 use std::ptr;
 use std::ffi::CString;
@@ -118,7 +120,8 @@ pub struct StreamParamsBuilder {
     format: SampleFormat,
     rate: u32,
     channels: u32,
-    layout: ChannelLayout
+    layout: ChannelLayout,
+    prefs: StreamPrefs
 }
 
 impl Default for StreamParamsBuilder {
@@ -133,7 +136,8 @@ impl StreamParamsBuilder {
             format: SampleFormat::S16NE,
             rate: 0,
             channels: 0,
-            layout: ChannelLayout::Undefined
+            layout: ChannelLayout::Undefined,
+            prefs: STREAM_PREF_NONE
         }
     }
 
@@ -157,6 +161,11 @@ impl StreamParamsBuilder {
         self
     }
 
+    pub fn prefs(&mut self, prefs: StreamPrefs) -> &mut Self {
+        self.prefs = prefs;
+        self
+    }
+
     #[cfg_attr(feature = "cargo-clippy", allow(match_same_arms))]
     pub fn take(&self) -> StreamParams {
         // Convert native endian types to matching format
@@ -173,7 +182,8 @@ impl StreamParamsBuilder {
                 format: raw_sample_format,
                 rate: self.rate,
                 channels: self.channels,
-                layout: self.layout as ffi::cubeb_channel_layout
+                layout: self.layout as ffi::cubeb_channel_layout,
+                prefs: self.prefs.bits()
             } as *const _)
         }
     }
@@ -638,5 +648,22 @@ mod tests {
         let params = StreamParamsBuilder::new().rate(44100).take();
         let raw = unsafe { &*params.raw() };
         assert_eq!(raw.rate, 44100);
+    }
+
+    #[test]
+    fn stream_params_builder_prefs_default() {
+        use cubeb_core::STREAM_PREF_NONE;
+        let params = StreamParamsBuilder::new().take();
+        assert_eq!(params.prefs(), STREAM_PREF_NONE);
+
+    }
+
+    #[test]
+    fn stream_params_builder_prefs() {
+        use cubeb_core::STREAM_PREF_LOOPBACK;
+        let params = StreamParamsBuilder::new()
+            .prefs(STREAM_PREF_LOOPBACK)
+            .take();
+        assert_eq!(params.prefs(), STREAM_PREF_LOOPBACK);
     }
 }

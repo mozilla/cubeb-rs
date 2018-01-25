@@ -1,6 +1,6 @@
 [package]
-name = "libcubeb-sys"
-version = "0.1.0"
+name = "cubeb-sys"
+version = "0.4.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 repository = "https://github.com/djg/cubeb-rs"
 license = "ISC"
@@ -8,13 +8,6 @@ description = "Native bindings to the cubeb library"
 
 links = "cubeb"
 build = "build.rs"
-
-[lib]
-name = "libcubeb_sys"
-path = "lib.rs"
-
-[dependencies]
-cubeb-core = { path = "../../cubeb-core" }
 
 [build-dependencies]
 pkg-config = "0.3"

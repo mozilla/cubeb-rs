@@ -19,4 +19,3 @@ appveyor = { repository = "djg/cubeb-rs" }
 
 [dependencies]
 cubeb-core = { path = "../cubeb-core" }
-libcubeb-sys = { path = "libcubeb-sys" }

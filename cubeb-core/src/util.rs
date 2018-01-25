@@ -6,7 +6,7 @@
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
-pub unsafe fn opt_bytes<T>(_anchor: &T, c: *const c_char) -> Option<&[u8]> {
+pub unsafe fn opt_bytes<'a>(c: *const c_char) -> Option<&'a [u8]> {
     if c.is_null() {
         None
     } else {

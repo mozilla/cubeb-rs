@@ -1,22 +1,38 @@
-use ErrorCode;
 use ffi;
-use std::error;
+use std::{error, fmt};
 use std::ffi::NulError;
-use std::fmt;
+use std::os::raw::c_int;
+
+pub type Result<T> = ::std::result::Result<T, Error>;
+
+/// An enumeration of possible errors that can happen when working with cubeb.
+#[derive(PartialEq, Eq, Clone, Debug, Copy)]
+pub enum ErrorCode {
+    /// GenericError
+    Error,
+    /// Requested format is invalid
+    InvalidFormat,
+    /// Requested parameter is invalid
+    InvalidParameter,
+    /// Requested operation is not supported
+    NotSupported,
+    /// Requested device is unavailable
+    DeviceUnavailable,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Error {
-    code: ErrorCode
+    code: ErrorCode,
 }
 
 impl Error {
-    pub fn new() -> Error {
-        Error {
-            code: ErrorCode::Error
-        }
-    }
+    pub fn error() -> Self { Error { code: ErrorCode::Error, } }
+    pub fn invalid_format() -> Self { Error { code: ErrorCode::InvalidFormat, } }
+    pub fn invalid_parameter() -> Self { Error { code: ErrorCode::InvalidParameter, } }
+    pub fn not_supported() -> Self { Error { code: ErrorCode::NotSupported, } }
+    pub fn device_unavailable() -> Self { Error { code: ErrorCode::DeviceUnavailable, } }
 
-    pub unsafe fn from_raw(code: ffi::cubeb_error_code) -> Error {
+    pub unsafe fn from_raw(code: c_int) -> Error {
         let code = match code {
             ffi::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
             ffi::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
@@ -26,17 +42,12 @@ impl Error {
             _ => ErrorCode::Error,
         };
 
-        Error {
-            code: code
-        }
+        Error { code: code }
     }
 
-    pub fn code(&self) -> ErrorCode {
-        self.code
-    }
+    pub fn code(&self) -> ErrorCode { self.code }
 
-
-    pub fn raw_code(&self) -> ffi::cubeb_error_code {
+    pub fn raw_code(&self) -> c_int {
         match self.code {
             ErrorCode::Error => ffi::CUBEB_ERROR,
             ErrorCode::InvalidFormat => ffi::CUBEB_ERROR_INVALID_FORMAT,
@@ -48,9 +59,7 @@ impl Error {
 }
 
 impl Default for Error {
-    fn default() -> Self {
-        Error::new()
-    }
+    fn default() -> Self { Error::error() }
 }
 
 impl error::Error for Error {
@@ -66,24 +75,21 @@ impl error::Error for Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self,
+           f: &mut fmt::Formatter)
+           -> fmt::Result
+    {
         use std::error::Error;
         write!(f, "{}", self.description())
     }
 }
 
 impl From<ErrorCode> for Error {
-    fn from(code: ErrorCode) -> Error {
-        Error {
-            code: code
-        }
-    }
+    fn from(code: ErrorCode) -> Error { Error { code: code } }
 }
 
 impl From<NulError> for Error {
-    fn from(_: NulError) -> Error {
-        unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
-    }
+    fn from(_: NulError) -> Error { unsafe { Error::from_raw(ffi::CUBEB_ERROR) } }
 }
 
 #[cfg(test)]
@@ -127,6 +133,5 @@ mod tests {
               CUBEB_ERROR_NOT_SUPPORTED => NotSupported,
               CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable
         );
-
     }
 }

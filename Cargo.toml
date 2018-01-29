@@ -3,5 +3,6 @@ members = [
     "cubeb-core",
     "cubeb-api",
     "cubeb-backend",
-    "cubeb-sys"
+    "cubeb-sys",
+    "cubeb-sys/systest"
 ]

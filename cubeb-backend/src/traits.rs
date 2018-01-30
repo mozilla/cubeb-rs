@@ -25,7 +25,7 @@ pub trait Context {
     );
     #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     fn stream_init(
-        &self,
+        &mut self,
         stream_name: Option<&CStr>,
         input_device: DeviceId,
         input_stream_params: Option<&ffi::cubeb_stream_params>,
@@ -37,7 +37,7 @@ pub trait Context {
         user_ptr: *mut c_void,
     ) -> Result<*mut ffi::cubeb_stream>;
     fn register_device_collection_changed(
-        &self,
+        &mut self,
         devtype: DeviceType,
         cb: ffi::cubeb_device_collection_changed_callback,
         user_ptr: *mut c_void,
@@ -45,13 +45,13 @@ pub trait Context {
 }
 
 pub trait Stream {
-    fn start(&self) -> Result<()>;
-    fn stop(&self) -> Result<()>;
-    fn reset_default_device(&self) -> Result<()>;
+    fn start(&mut self) -> Result<()>;
+    fn stop(&mut self) -> Result<()>;
+    fn reset_default_device(&mut self) -> Result<()>;
     fn position(&self) -> Result<u64>;
     fn latency(&self) -> Result<u32>;
-    fn set_volume(&self, volume: f32) -> Result<()>;
-    fn set_panning(&self, panning: f32) -> Result<()>;
+    fn set_volume(&mut self, volume: f32) -> Result<()>;
+    fn set_panning(&mut self, panning: f32) -> Result<()>;
     fn current_device(&self) -> Result<*const ffi::cubeb_device>;
     fn device_destroy(&self, device: *const ffi::cubeb_device) -> Result<()>;
     fn register_device_changed_callback(

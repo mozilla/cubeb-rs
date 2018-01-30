@@ -64,7 +64,7 @@ impl Context for TestContext {
         coll.count = 0;
     }
     fn stream_init(
-        &self,
+        &mut self,
         _stream_name: Option<&CStr>,
         _input_device: DeviceId,
         _input_stream_params: Option<&ffi::cubeb_stream_params>,
@@ -78,7 +78,7 @@ impl Context for TestContext {
         Ok(ptr::null_mut())
     }
     fn register_device_collection_changed(
-        &self,
+        &mut self,
         _dev_type: DeviceType,
         _collection_changed_callback: ffi::cubeb_device_collection_changed_callback,
         _user_ptr: *mut c_void,
@@ -90,13 +90,13 @@ impl Context for TestContext {
 struct TestStream {}
 
 impl Stream for TestStream {
-    fn start(&self) -> Result<()> {
+    fn start(&mut self) -> Result<()> {
         Ok(())
     }
-    fn stop(&self) -> Result<()> {
+    fn stop(&mut self) -> Result<()> {
         Ok(())
     }
-    fn reset_default_device(&self) -> Result<()> {
+    fn reset_default_device(&mut self) -> Result<()> {
         Ok(())
     }
     fn position(&self) -> Result<u64> {
@@ -105,11 +105,11 @@ impl Stream for TestStream {
     fn latency(&self) -> Result<u32> {
         Ok(0u32)
     }
-    fn set_volume(&self, volume: f32) -> Result<()> {
+    fn set_volume(&mut self, volume: f32) -> Result<()> {
         assert_eq!(volume, 0.5);
         Ok(())
     }
-    fn set_panning(&self, panning: f32) -> Result<()> {
+    fn set_panning(&mut self, panning: f32) -> Result<()> {
         assert_eq!(panning, 0.5);
         Ok(())
     }

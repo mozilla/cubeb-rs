@@ -143,7 +143,7 @@ pub unsafe extern "C" fn capi_stream_init<CTX: Context>(
     state_callback: ffi::cubeb_state_callback,
     user_ptr: *mut c_void,
 ) -> c_int {
-    let ctx = &*(c as *const CTX);
+    let ctx = &mut *(c as *mut CTX);
     let anchor = &(); // for lifetime of stream_name as CStr
 
     let input_device = DeviceId::from_raw(input_device);
@@ -172,7 +172,7 @@ pub unsafe extern "C" fn capi_stream_destroy<STM>(s: *mut ffi::cubeb_stream) {
 pub unsafe extern "C" fn capi_stream_start<STM: Stream>(
     s: *mut ffi::cubeb_stream,
 ) -> c_int {
-    let stm = &*(s as *const STM);
+    let stm = &mut *(s as *mut STM);
 
     _try!(stm.start());
     ffi::CUBEB_OK
@@ -181,7 +181,7 @@ pub unsafe extern "C" fn capi_stream_start<STM: Stream>(
 pub unsafe extern "C" fn capi_stream_stop<STM: Stream>(
     s: *mut ffi::cubeb_stream,
 ) -> c_int {
-    let stm = &*(s as *const STM);
+    let stm = &mut *(s as *mut STM);
 
     _try!(stm.stop());
     ffi::CUBEB_OK
@@ -261,7 +261,7 @@ pub unsafe extern "C" fn capi_register_device_collection_changed<CTX: Context>(
     collection_changed_callback: ffi::cubeb_device_collection_changed_callback,
     user_ptr: *mut c_void,
 ) -> i32 {
-    let ctx = &*(c as *const CTX);
+    let ctx = &mut *(c as *mut CTX);
     let devtype = DeviceType::from_bits_truncate(devtype);
     _try!(ctx.register_device_collection_changed(
         devtype,

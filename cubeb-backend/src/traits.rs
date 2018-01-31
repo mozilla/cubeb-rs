@@ -15,7 +15,6 @@ pub trait ContextOps {
     fn max_channel_count(&mut self) -> Result<u32>;
     fn min_latency(&mut self, params: StreamParams) -> Result<u32>;
     fn preferred_sample_rate(&mut self) -> Result<u32>;
-    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout>;
     fn enumerate_devices(
         &mut self,
         devtype: DeviceType,

@@ -76,17 +76,6 @@ impl ContextRef {
         Ok(rate)
     }
 
-    pub fn preferred_channel_layout(&self) -> Result<ChannelLayout> {
-        let mut layout: ffi::cubeb_channel_layout = ffi::CUBEB_LAYOUT_UNDEFINED;
-        unsafe {
-            let _ = try_call!(ffi::cubeb_get_preferred_channel_layout(
-                self.as_ptr(),
-                &mut layout
-            ));
-        }
-        Ok(ChannelLayout::from(layout))
-    }
-
     #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     pub unsafe fn stream_init(
         &self,

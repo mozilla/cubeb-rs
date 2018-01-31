@@ -41,9 +41,6 @@ impl ContextOps for TestContext {
     fn preferred_sample_rate(&mut self) -> Result<u32> {
         Ok(0u32)
     }
-    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout> {
-        Ok(ChannelLayout::Mono as _)
-    }
     fn enumerate_devices(
         &mut self,
         _devtype: DeviceType,
@@ -169,17 +166,6 @@ fn test_ops_context_preferred_sample_rate() {
         ffi::CUBEB_OK
     );
     assert_eq!(rate, 0);
-}
-
-#[test]
-fn test_ops_context_preferred_channel_layout() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
-    let mut layout = ChannelLayout::Undefined;
-    assert_eq!(
-        unsafe { OPS.get_preferred_channel_layout.unwrap()(c, &mut layout as *mut _ as *mut _) },
-        ffi::CUBEB_OK
-    );
-    assert_eq!(layout, ChannelLayout::Mono);
 }
 
 #[test]

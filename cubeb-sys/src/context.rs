@@ -25,10 +25,6 @@ extern "C" {
         latency_frames: *mut c_uint,
     ) -> c_int;
     pub fn cubeb_get_preferred_sample_rate(context: *mut cubeb, rate: *mut c_uint) -> c_int;
-    pub fn cubeb_get_preferred_channel_layout(
-        context: *mut cubeb,
-        layout: *mut cubeb_channel_layout,
-    ) -> c_int;
     pub fn cubeb_destroy(context: *mut cubeb);
     pub fn cubeb_stream_init(
         context: *mut cubeb,

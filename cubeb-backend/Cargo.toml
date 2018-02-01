@@ -1,7 +1,7 @@
 [package]
 
 name = "cubeb-backend"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"
 keywords = ["cubeb"]

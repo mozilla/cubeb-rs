@@ -7,10 +7,10 @@
 
 #[macro_use]
 extern crate cubeb_backend;
-extern crate cubeb_core;
 
-use cubeb_backend::{Context, Ops, Stream};
-use cubeb_core::{ChannelLayout, DeviceId, DeviceType, Result, StreamParams, ffi};
+use cubeb_backend::{ffi, ChannelLayout, Context, ContextOps, DeviceCollectionRef, DeviceId,
+                    DeviceRef, DeviceType, Ops, Result, Stream, StreamOps, StreamParams,
+                    StreamParamsRef};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
@@ -18,93 +18,79 @@ use std::ptr;
 pub const OPS: Ops = capi_new!(TestContext, TestStream);
 
 struct TestContext {
-    pub ops: *const Ops
+    pub ops: *const Ops,
 }
 
-impl Context for TestContext {
-    fn init(_context_name: Option<&CStr>) -> Result<*mut ffi::cubeb> {
+impl ContextOps for TestContext {
+    fn init(_context_name: Option<&CStr>) -> Result<Context> {
         let ctx = Box::new(TestContext {
-            ops: &OPS as *const _
+            ops: &OPS as *const _,
         });
-        Ok(Box::into_raw(ctx) as *mut _)
+        Ok(unsafe { Context::from_ptr(Box::into_raw(ctx) as *mut _) })
     }
 
-    fn backend_id(&self) -> &'static CStr {
+    fn backend_id(&mut self) -> &'static CStr {
         unsafe { CStr::from_ptr(b"remote\0".as_ptr() as *const _) }
     }
-    fn max_channel_count(&self) -> Result<u32> {
-        Ok(0u32)
-    }
-    fn min_latency(&self, _params: &StreamParams) -> Result<u32> {
-        Ok(0u32)
-    }
-    fn preferred_sample_rate(&self) -> Result<u32> {
-        Ok(0u32)
-    }
-    fn preferred_channel_layout(&self) -> Result<ffi::cubeb_channel_layout> {
+    fn max_channel_count(&mut self) -> Result<u32> { Ok(0u32) }
+    fn min_latency(&mut self, _params: StreamParams) -> Result<u32> { Ok(0u32) }
+    fn preferred_sample_rate(&mut self) -> Result<u32> { Ok(0u32) }
+    fn preferred_channel_layout(&mut self) -> Result<ChannelLayout> {
         Ok(ChannelLayout::Mono as _)
     }
     fn enumerate_devices(
-        &self,
+        &mut self,
         _devtype: DeviceType,
-    ) -> Result<ffi::cubeb_device_collection> {
-        Ok(ffi::cubeb_device_collection {
-            device: 0xDEAD_BEEF as *const _,
-            count: usize::max_value()
-        })
+        collection: &DeviceCollectionRef,
+    ) -> Result<()>
+    {
+        let coll = unsafe { &mut *collection.as_ptr() };
+        coll.device = 0xDEAD_BEEF as *mut _;
+        coll.count = usize::max_value();
+        Ok(())
     }
-    fn device_collection_destroy(
-        &self,
-        collection: *mut ffi::cubeb_device_collection,
-    ) {
-        let coll = unsafe { &mut *collection };
-        assert_eq!(coll.device, 0xDEAD_BEEF as *const _);
+    fn device_collection_destroy(&mut self, collection: &DeviceCollectionRef) -> Result<()> {
+        let coll = unsafe { &mut *collection.as_ptr() };
+        assert_eq!(coll.device, 0xDEAD_BEEF as *mut _);
         assert_eq!(coll.count, usize::max_value());
         coll.device = ptr::null_mut();
         coll.count = 0;
+        Ok(())
     }
     fn stream_init(
         &mut self,
         _stream_name: Option<&CStr>,
         _input_device: DeviceId,
-        _input_stream_params: Option<&ffi::cubeb_stream_params>,
+        _input_stream_params: Option<&StreamParamsRef>,
         _output_device: DeviceId,
-        _output_stream_params: Option<&ffi::cubeb_stream_params>,
+        _output_stream_params: Option<&StreamParamsRef>,
         _latency_frame: u32,
         _data_callback: ffi::cubeb_data_callback,
         _state_callback: ffi::cubeb_state_callback,
         _user_ptr: *mut c_void,
-    ) -> Result<*mut ffi::cubeb_stream> {
-        Ok(ptr::null_mut())
+    ) -> Result<Stream>
+    {
+        Ok(unsafe { Stream::from_ptr(0xDEAD_BEEF as *mut _) })
     }
     fn register_device_collection_changed(
         &mut self,
         _dev_type: DeviceType,
         _collection_changed_callback: ffi::cubeb_device_collection_changed_callback,
         _user_ptr: *mut c_void,
-    ) -> Result<()> {
+    ) -> Result<()>
+    {
         Ok(())
     }
 }
 
 struct TestStream {}
 
-impl Stream for TestStream {
-    fn start(&mut self) -> Result<()> {
-        Ok(())
-    }
-    fn stop(&mut self) -> Result<()> {
-        Ok(())
-    }
-    fn reset_default_device(&mut self) -> Result<()> {
-        Ok(())
-    }
-    fn position(&self) -> Result<u64> {
-        Ok(0u64)
-    }
-    fn latency(&self) -> Result<u32> {
-        Ok(0u32)
-    }
+impl StreamOps for TestStream {
+    fn start(&mut self) -> Result<()> { Ok(()) }
+    fn stop(&mut self) -> Result<()> { Ok(()) }
+    fn reset_default_device(&mut self) -> Result<()> { Ok(()) }
+    fn position(&mut self) -> Result<u64> { Ok(0u64) }
+    fn latency(&mut self) -> Result<u32> { Ok(0u32) }
     fn set_volume(&mut self, volume: f32) -> Result<()> {
         assert_eq!(volume, 0.5);
         Ok(())
@@ -113,17 +99,18 @@ impl Stream for TestStream {
         assert_eq!(panning, 0.5);
         Ok(())
     }
-    fn current_device(&self) -> Result<*const ffi::cubeb_device> {
-        Ok(0xDEAD_BEEF as *const _)
+    fn current_device(&mut self) -> Result<&DeviceRef> {
+        Ok(unsafe { DeviceRef::from_ptr(0xDEAD_BEEF as *mut _) })
     }
-    fn device_destroy(&self, device: *const ffi::cubeb_device) -> Result<()> {
-        assert_eq!(device, 0xDEAD_BEEF as *const _);
+    fn device_destroy(&mut self, device: &DeviceRef) -> Result<()> {
+        assert_eq!(device.as_ptr(), 0xDEAD_BEEF as *mut _);
         Ok(())
     }
     fn register_device_changed_callback(
-        &self,
+        &mut self,
         _: ffi::cubeb_device_changed_callback,
-    ) -> Result<()> {
+    ) -> Result<()>
+    {
         Ok(())
     }
 }
@@ -177,10 +164,7 @@ fn test_ops_context_preferred_channel_layout() {
     let mut layout = ChannelLayout::Undefined;
     assert_eq!(
         unsafe {
-            OPS.get_preferred_channel_layout.unwrap()(
-                c,
-                &mut layout as *mut _ as *mut _
-            )
+            OPS.get_preferred_channel_layout.unwrap()(c, &mut layout as *mut _ as *mut _)
         },
         ffi::CUBEB_OK
     );
@@ -191,14 +175,14 @@ fn test_ops_context_preferred_channel_layout() {
 fn test_ops_context_enumerate_devices() {
     let c: *mut ffi::cubeb = ptr::null_mut();
     let mut coll = ffi::cubeb_device_collection {
-        device: ptr::null(),
-        count: 0
+        device: ptr::null_mut(),
+        count: 0,
     };
     assert_eq!(
         unsafe { OPS.enumerate_devices.unwrap()(c, 0, &mut coll) },
         ffi::CUBEB_OK
     );
-    assert_eq!(coll.device, 0xDEAD_BEEF as *const _);
+    assert_eq!(coll.device, 0xDEAD_BEEF as *mut _);
     assert_eq!(coll.count, usize::max_value())
 }
 
@@ -206,8 +190,8 @@ fn test_ops_context_enumerate_devices() {
 fn test_ops_context_device_collection_destroy() {
     let c: *mut ffi::cubeb = ptr::null_mut();
     let mut coll = ffi::cubeb_device_collection {
-        device: 0xDEAD_BEEF as *const _,
-        count: usize::max_value()
+        device: 0xDEAD_BEEF as *mut _,
+        count: usize::max_value(),
     };
     assert_eq!(
         unsafe { OPS.device_collection_destroy.unwrap()(c, &mut coll) },
@@ -253,18 +237,18 @@ fn test_ops_stream_set_panning() {
 #[test]
 fn test_ops_stream_current_device() {
     let s: *mut ffi::cubeb_stream = ptr::null_mut();
-    let mut device: *const ffi::cubeb_device = ptr::null();
+    let mut device: *mut ffi::cubeb_device = ptr::null_mut();
     assert_eq!(
         unsafe { OPS.stream_get_current_device.unwrap()(s, &mut device) },
         ffi::CUBEB_OK
     );
-    assert_eq!(device, 0xDEAD_BEEF as *const _);
+    assert_eq!(device, 0xDEAD_BEEF as *mut _);
 }
 
 #[test]
 fn test_ops_stream_device_destroy() {
     let s: *mut ffi::cubeb_stream = ptr::null_mut();
     unsafe {
-        OPS.stream_device_destroy.unwrap()(s, 0xDEAD_BEEF as *const _);
+        OPS.stream_device_destroy.unwrap()(s, 0xDEAD_BEEF as *mut _);
     }
 }

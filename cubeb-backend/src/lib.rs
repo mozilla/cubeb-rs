@@ -4,10 +4,15 @@
 // accompanying file LICENSE for details.
 
 extern crate cubeb_core;
+extern crate foreign_types;
 
-pub mod ffi;
 pub mod capi;
+#[macro_use]
+mod log;
+mod ops;
 mod traits;
 
-pub use ffi::Ops;
-pub use traits::{Context, Stream};
+// Re-export cubeb_core types
+pub use cubeb_core::*;
+pub use ops::Ops;
+pub use traits::{ContextOps, StreamOps};

@@ -5,8 +5,7 @@
 
 use cubeb_core::Error;
 use ffi;
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
+use std::ffi::CString;
 
 /// A class of types that can be converted to C strings.
 ///
@@ -18,9 +17,7 @@ pub trait IntoCString {
 }
 
 impl<'a, T: IntoCString + Clone> IntoCString for &'a T {
-    fn into_c_string(self) -> Result<CString, Error> {
-        self.clone().into_c_string()
-    }
+    fn into_c_string(self) -> Result<CString, Error> { self.clone().into_c_string() }
 }
 
 impl<'a> IntoCString for &'a str {
@@ -42,31 +39,9 @@ impl IntoCString for String {
 }
 
 impl IntoCString for CString {
-    fn into_c_string(self) -> Result<CString, Error> {
-        Ok(self)
-    }
+    fn into_c_string(self) -> Result<CString, Error> { Ok(self) }
 }
 
 impl IntoCString for Vec<u8> {
-    fn into_c_string(self) -> Result<CString, Error> {
-        Ok(try!(CString::new(self)))
-    }
-}
-
-pub unsafe fn opt_bytes<T>(_anchor: &T, c: *const c_char) -> Option<&[u8]> {
-    if c.is_null() {
-        None
-    } else {
-        Some(CStr::from_ptr(c).to_bytes())
-    }
-}
-
-pub fn opt_cstr<T>(o: Option<T>) -> Result<Option<CString>, Error>
-where
-    T: IntoCString,
-{
-    match o {
-        Some(s) => s.into_c_string().map(Some),
-        None => Ok(None),
-    }
+    fn into_c_string(self) -> Result<CString, Error> { Ok(try!(CString::new(self))) }
 }

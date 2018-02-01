@@ -11,37 +11,27 @@
 //! libcubeb. See [cubeb-pulse-rs][2] for an example of extending
 //! libcubeb via implementing a cubeb backend in rust.
 
+// Copyright © 2017-2018 Mozilla Foundation
+//
+// This program is made available under an ISC-style license.  See the
+// accompanying file LICENSE for details.
+
 extern crate cubeb_core;
-extern crate libcubeb_sys as sys;
 
-#[macro_use]
-mod call;
 mod context;
-mod dev_coll;
 mod frame;
+#[macro_use]
 mod log;
+mod sample;
 mod stream;
-mod util;
 
-pub use context::Context;
+pub use context::*;
 // Re-export cubeb_core types
-pub use cubeb_core::{ChannelLayout, Device, DeviceFormat, DeviceId, DeviceInfo,
-                     DeviceState, DeviceType, Error, ErrorCode, LogLevel, Result,
-                     SampleFormat, State, StreamParams, StreamPrefs};
-pub use cubeb_core::{DEVICE_FMT_F32BE, DEVICE_FMT_F32LE, DEVICE_FMT_S16BE,
-                     DEVICE_FMT_S16LE};
-pub use cubeb_core::{DEVICE_PREF_ALL, DEVICE_PREF_MULTIMEDIA, DEVICE_PREF_NONE,
-                     DEVICE_PREF_NOTIFICATION, DEVICE_PREF_VOICE};
-pub use cubeb_core::{DEVICE_TYPE_INPUT, DEVICE_TYPE_OUTPUT, DEVICE_TYPE_UNKNOWN};
-pub use cubeb_core::{STREAM_PREF_LOOPBACK, STREAM_PREF_NONE};
-
-use cubeb_core::binding::Binding;
-use cubeb_core::ffi;
-pub use dev_coll::DeviceCollection;
-pub use frame::{Frame, MonoFrame, StereoFrame};
-pub use log::*;
-pub use stream::{SampleType, Stream, StreamCallback, StreamInitOptions,
-                 StreamInitOptionsBuilder, StreamParamsBuilder};
-
-pub type DeviceChangedCb<'a> = FnMut() + 'a;
-pub type DeviceCollectionChangedCb<'a> = FnMut(Context) + 'a;
+pub use cubeb_core::{ffi, ChannelLayout, Context, ContextRef, Device, DeviceCollection,
+                     DeviceCollectionRef, DeviceFormat, DeviceId, DeviceInfo, DeviceInfoRef,
+                     DeviceRef, DeviceState, DeviceType, Error, ErrorCode,
+                     LogLevel, Result, SampleFormat, State, StreamParams,
+                     StreamParamsBuilder, StreamParamsRef, StreamPrefs, StreamRef};
+pub use frame::*;
+pub use sample::*;
+pub use stream::*;

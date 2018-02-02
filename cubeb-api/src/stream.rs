@@ -21,7 +21,7 @@
 //!         .rate(44_100)
 //!         .channels(1)
 //!         .layout(cubeb::ChannelLayout::Mono)
-//!         .prefs(cubeb::STREAM_PREF_NONE)
+//!         .prefs(cubeb::StreamPrefs::NONE)
 //!         .take();
 //!
 //!     let phase_inc = 440.0 / 44_100.0;

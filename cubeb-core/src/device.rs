@@ -21,10 +21,10 @@ pub enum DeviceState {
 /// Architecture specific sample type.
 bitflags! {
     pub struct DeviceFormat: ffi::cubeb_device_fmt {
-        const DEVICE_FMT_S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
-        const DEVICE_FMT_S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;
-        const DEVICE_FMT_F32LE = ffi::CUBEB_DEVICE_FMT_F32LE;
-        const DEVICE_FMT_F32BE = ffi::CUBEB_DEVICE_FMT_F32BE;
+        const S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
+        const S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;
+        const F32LE = ffi::CUBEB_DEVICE_FMT_F32LE;
+        const F32BE = ffi::CUBEB_DEVICE_FMT_F32BE;
     }
 }
 
@@ -33,11 +33,11 @@ bitflags! {
 /// control.
 bitflags! {
     pub struct DevicePref: ffi::cubeb_device_pref {
-        const DEVICE_PREF_NONE = ffi::CUBEB_DEVICE_PREF_NONE;
-        const DEVICE_PREF_MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
-        const DEVICE_PREF_VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
-        const DEVICE_PREF_NOTIFICATION = ffi::CUBEB_DEVICE_PREF_NOTIFICATION;
-        const DEVICE_PREF_ALL = ffi::CUBEB_DEVICE_PREF_ALL;
+        const NONE = ffi::CUBEB_DEVICE_PREF_NONE;
+        const MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
+        const VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
+        const NOTIFICATION = ffi::CUBEB_DEVICE_PREF_NOTIFICATION;
+        const ALL = ffi::CUBEB_DEVICE_PREF_ALL;
     }
 }
 
@@ -45,9 +45,9 @@ bitflags! {
 /// output device (e.g. headphones).
 bitflags! {
     pub struct DeviceType: ffi::cubeb_device_type {
-        const DEVICE_TYPE_UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as _;
-        const DEVICE_TYPE_INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as _;
-        const DEVICE_TYPE_OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as _;
+        const UNKNOWN = ffi::CUBEB_DEVICE_TYPE_UNKNOWN as _;
+        const INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as _;
+        const OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as _;
     }
 }
 

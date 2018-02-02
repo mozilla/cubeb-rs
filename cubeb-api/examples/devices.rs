@@ -10,13 +10,13 @@ extern crate cubeb;
 
 mod common;
 
+use cubeb::{DeviceFormat, DeviceType};
 use std::error::Error;
 
 fn print_device_info(info: &cubeb::DeviceInfo) {
-
-    let devtype = if info.device_type().contains(cubeb::DEVICE_TYPE_INPUT) {
+    let devtype = if info.device_type().contains(DeviceType::INPUT) {
         "input"
-    } else if info.device_type().contains(cubeb::DEVICE_TYPE_OUTPUT) {
+    } else if info.device_type().contains(DeviceType::OUTPUT) {
         "output"
     } else {
         "unknown?"
@@ -29,24 +29,24 @@ fn print_device_info(info: &cubeb::DeviceInfo) {
     };
 
     let devdeffmt = match info.default_format() {
-        cubeb::DEVICE_FMT_S16LE => "S16LE",
-        cubeb::DEVICE_FMT_S16BE => "S16BE",
-        cubeb::DEVICE_FMT_F32LE => "F32LE",
-        cubeb::DEVICE_FMT_F32BE => "F32BE",
+        DeviceFormat::S16LE => "S16LE",
+        DeviceFormat::S16BE => "S16BE",
+        DeviceFormat::F32LE => "F32LE",
+        DeviceFormat::F32BE => "F32BE",
         _ => "unknown?",
     };
 
     let mut devfmts = "".to_string();
-    if info.format().contains(cubeb::DEVICE_FMT_S16LE) {
+    if info.format().contains(DeviceFormat::S16LE) {
         devfmts = format!("{} S16LE", devfmts);
     }
-    if info.format().contains(cubeb::DEVICE_FMT_S16BE) {
+    if info.format().contains(DeviceFormat::S16BE) {
         devfmts = format!("{} S16BE", devfmts);
     }
-    if info.format().contains(cubeb::DEVICE_FMT_F32LE) {
+    if info.format().contains(DeviceFormat::F32LE) {
         devfmts = format!("{} F32LE", devfmts);
     }
-    if info.format().contains(cubeb::DEVICE_FMT_F32BE) {
+    if info.format().contains(DeviceFormat::F32BE) {
         devfmts = format!("{} F32BE", devfmts);
     }
 
@@ -94,7 +94,7 @@ fn main() {
 
     println!("Enumerating input devices for backend {}", ctx.backend_id());
 
-    let devices = match ctx.enumerate_devices(cubeb::DEVICE_TYPE_INPUT) {
+    let devices = match ctx.enumerate_devices(DeviceType::INPUT) {
         Ok(devices) => devices,
         Err(e) if e.code() == cubeb::ErrorCode::NotSupported => {
             println!("Device enumeration not support for this backend.");
@@ -116,7 +116,7 @@ fn main() {
         ctx.backend_id()
     );
 
-    let devices = match ctx.enumerate_devices(cubeb::DEVICE_TYPE_OUTPUT) {
+    let devices = match ctx.enumerate_devices(DeviceType::OUTPUT) {
         Ok(devices) => devices,
         Err(e) => {
             println!("Error enumerating devices: {}", e.description());
@@ -128,6 +128,4 @@ fn main() {
     for d in devices.iter() {
         print_device_info(d);
     }
-
-
 }

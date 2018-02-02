@@ -12,5 +12,5 @@ Common types and definitions for cubeb rust and C bindings. Not intended for dir
 categories = ["api-bindings"]
 
 [dependencies]
-bitflags = "0.9"
+bitflags = "1.0"
 cubeb-sys = { path = "../cubeb-sys" }

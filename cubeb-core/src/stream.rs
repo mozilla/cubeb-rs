@@ -48,8 +48,8 @@ impl Into<ffi::cubeb_state> for State {
 /// Miscellaneous stream preferences.
 bitflags! {
     pub struct StreamPrefs: ffi::cubeb_stream_prefs {
-        const STREAM_PREF_NONE = ffi::CUBEB_STREAM_PREF_NONE;
-        const STREAM_PREF_LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
+        const NONE = ffi::CUBEB_STREAM_PREF_NONE;
+        const LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
     }
 }
 
@@ -217,7 +217,7 @@ impl StreamRef {
 
 #[cfg(test)]
 mod tests {
-    use {StreamParams, StreamParamsRef};
+    use {StreamParams, StreamParamsRef, StreamPrefs};
     use std::mem;
 
     #[test]
@@ -323,11 +323,10 @@ mod tests {
 
     #[test]
     fn stream_params_raw_prefs() {
-        use STREAM_PREF_LOOPBACK;
         let mut raw: super::ffi::cubeb_stream_params = unsafe { mem::zeroed() };
         raw.prefs = super::ffi::CUBEB_STREAM_PREF_LOOPBACK;
         let params = unsafe { StreamParamsRef::from_ptr(&mut raw) };
-        assert_eq!(params.prefs(), STREAM_PREF_LOOPBACK);
+        assert_eq!(params.prefs(), StreamPrefs::LOOPBACK);
     }
 
     #[test]

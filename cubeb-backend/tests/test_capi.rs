@@ -7,12 +7,11 @@
 
 #[macro_use]
 extern crate cubeb_backend;
-extern crate foreign_types;
 
 use cubeb_backend::{ffi, ChannelLayout, Context, ContextOps, DeviceCollectionRef, DeviceId,
                     DeviceRef, DeviceType, Ops, Result, Stream, StreamOps, StreamParams,
                     StreamParamsRef};
-use foreign_types::{ForeignType, ForeignTypeRef};
+use cubeb_backend::{ForeignType, ForeignTypeRef};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;

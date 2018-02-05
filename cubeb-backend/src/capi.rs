@@ -5,7 +5,7 @@
 
 use {ContextOps, StreamOps};
 use cubeb_core::{ffi, DeviceCollectionRef, DeviceRef, DeviceType, StreamParams};
-use foreign_types::{ForeignType, ForeignTypeRef};
+use cubeb_core::{ForeignType, ForeignTypeRef};
 use std::ffi::CStr;
 use std::mem;
 use std::os::raw::{c_char, c_int, c_void};

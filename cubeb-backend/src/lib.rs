@@ -4,7 +4,6 @@
 // accompanying file LICENSE for details.
 
 extern crate cubeb_core;
-extern crate foreign_types;
 
 pub mod capi;
 #[macro_use]

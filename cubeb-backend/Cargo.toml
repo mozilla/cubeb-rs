@@ -18,4 +18,3 @@ appveyor = { repository = "djg/cubeb-rs" }
 
 [dependencies]
 cubeb-core = { path = "../cubeb-core" }
-foreign-types = "0.3"

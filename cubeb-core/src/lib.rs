@@ -31,6 +31,7 @@ pub use context::*;
 pub use device::*;
 pub use device_collection::*;
 pub use error::*;
+pub use foreign_types::{ForeignType, ForeignTypeRef};
 pub use format::*;
 pub use log::*;
 pub use stream::*;

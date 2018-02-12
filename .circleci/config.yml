@@ -10,11 +10,6 @@ jobs:
       - restore_cache:
           key: project-cache
       - run:
-          name: Check formatting
-          command: |
-            cargo +nightly fmt --version
-            cargo +nightly fmt -- --write-mode=diff
-      - run:
           name: Nightly Build
           command: |
             rustup run nightly rustc --version --verbose

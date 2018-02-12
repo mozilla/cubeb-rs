@@ -12,8 +12,8 @@ jobs:
       - run:
           name: Check formatting
           command: |
-            rustfmt --version
-            cargo fmt -- --write-mode=diff
+            cargo +nightly fmt --version
+            cargo +nightly fmt -- --write-mode=diff
       - run:
           name: Nightly Build
           command: |

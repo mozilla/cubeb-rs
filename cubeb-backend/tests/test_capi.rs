@@ -49,7 +49,7 @@ impl ContextOps for TestContext {
         coll.count = usize::max_value();
         Ok(())
     }
-    fn device_collection_destroy(&mut self, collection: &DeviceCollectionRef) -> Result<()> {
+    fn device_collection_destroy(&mut self, collection: &mut DeviceCollectionRef) -> Result<()> {
         let coll = unsafe { &mut *collection.as_ptr() };
         assert_eq!(coll.device, 0xDEAD_BEEF as *mut _);
         assert_eq!(coll.count, usize::max_value());
@@ -122,6 +122,7 @@ fn test_ops_context_init() {
         unsafe { OPS.init.unwrap()(&mut c, ptr::null()) },
         ffi::CUBEB_OK
     );
+    unsafe { OPS.destroy.unwrap()(c) }
 }
 
 #[test]

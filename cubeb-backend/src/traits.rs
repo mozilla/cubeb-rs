@@ -21,7 +21,7 @@ pub trait ContextOps {
         devtype: DeviceType,
         collection: &DeviceCollectionRef,
     ) -> Result<()>;
-    fn device_collection_destroy(&mut self, collection: &DeviceCollectionRef) -> Result<()>;
+    fn device_collection_destroy(&mut self, collection: &mut DeviceCollectionRef) -> Result<()>;
     #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
     fn stream_init(
         &mut self,

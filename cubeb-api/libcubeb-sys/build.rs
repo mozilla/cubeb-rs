@@ -60,8 +60,10 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=stdc++");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
 
-        pkg_config::find_library("alsa").unwrap();
-        pkg_config::find_library("libpulse").unwrap();
-        pkg_config::find_library("jack").unwrap();
+        // Ignore the result of find_library. We don't care if the
+        // libraries are missing.
+        let _ = pkg_config::find_library("alsa");
+        let _ = pkg_config::find_library("libpulse");
+        let _ = pkg_config::find_library("jack");
     }
 }

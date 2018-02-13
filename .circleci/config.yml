@@ -37,6 +37,9 @@ jobs:
       - run:
           name: Test x86
           command: rustup run stable-i686-unknown-linux-gnu cargo test --all
+      - run:
+          name: Systest
+          command: rustup run stable cargo run -p systest
       - save_cache:
           key: project-cache
           paths:

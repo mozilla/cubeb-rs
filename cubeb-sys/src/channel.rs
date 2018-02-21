@@ -58,7 +58,9 @@ pub struct cubeb_channel_map {
 }
 
 impl Default for cubeb_channel_map {
-    fn default() -> Self { unsafe { mem::zeroed() } }
+    fn default() -> Self {
+        unsafe { mem::zeroed() }
+    }
 }
 
 // Explicit Debug impl to work around bug in ctest
@@ -71,7 +73,7 @@ impl fmt::Debug for cubeb_channel_map {
     }
 }
 
-extern {
+extern "C" {
     pub fn cubeb_channel_map_to_layout(
         channel_map: *const cubeb_channel_map,
     ) -> cubeb_channel_layout;

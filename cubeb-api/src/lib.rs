@@ -29,9 +29,9 @@ pub use context::*;
 // Re-export cubeb_core types
 pub use cubeb_core::{ffi, ChannelLayout, Context, ContextRef, Device, DeviceCollection,
                      DeviceCollectionRef, DeviceFormat, DeviceId, DeviceInfo, DeviceInfoRef,
-                     DeviceRef, DeviceState, DeviceType, Error, ErrorCode,
-                     LogLevel, Result, SampleFormat, State, StreamParams,
-                     StreamParamsBuilder, StreamParamsRef, StreamPrefs, StreamRef};
+                     DeviceRef, DeviceState, DeviceType, Error, ErrorCode, LogLevel, Result,
+                     SampleFormat, State, StreamParams, StreamParamsBuilder, StreamParamsRef,
+                     StreamPrefs, StreamRef};
 pub use frame::*;
 pub use sample::*;
 pub use stream::*;

@@ -13,9 +13,9 @@ cubeb_enum! {
     }
 }
 
-pub type cubeb_log_callback = Option<unsafe extern fn(*const c_char, ...)>;
+pub type cubeb_log_callback = Option<unsafe extern "C" fn(*const c_char, ...)>;
 
-extern {
+extern "C" {
     pub fn cubeb_set_log_callback(
         log_level: cubeb_log_level,
         log_callback: cubeb_log_callback,

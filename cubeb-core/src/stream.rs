@@ -62,7 +62,9 @@ ffi_type_stack!{
 }
 
 impl StreamParamsRef {
-    fn get_ref(&self) -> &ffi::cubeb_stream_params { unsafe { &*self.as_ptr() } }
+    fn get_ref(&self) -> &ffi::cubeb_stream_params {
+        unsafe { &*self.as_ptr() }
+    }
 
     pub fn format(&self) -> SampleFormat {
         use SampleFormat::*;
@@ -75,8 +77,12 @@ impl StreamParamsRef {
         }
     }
 
-    pub fn rate(&self) -> u32 { self.get_ref().rate }
-    pub fn channels(&self) -> u32 { self.get_ref().channels }
+    pub fn rate(&self) -> u32 {
+        self.get_ref().rate
+    }
+    pub fn channels(&self) -> u32 {
+        self.get_ref().channels
+    }
 
     pub fn layout(&self) -> ChannelLayout {
         macro_rules! check( ($($raw:ident => $real:ident),*) => {{
@@ -200,8 +206,7 @@ impl StreamRef {
     pub fn register_device_changed_callback(
         &self,
         callback: ffi::cubeb_device_changed_callback,
-    ) -> Result<()>
-    {
+    ) -> Result<()> {
         unsafe {
             try_call!(ffi::cubeb_stream_register_device_changed_callback(
                 self.as_ptr(),

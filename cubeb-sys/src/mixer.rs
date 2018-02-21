@@ -17,30 +17,32 @@ cubeb_enum! {
 
 pub enum cubeb_mixer {}
 
-extern {
-    pub fn cubeb_should_upmix(stream: *const cubeb_stream_params,
-                              mixer: *const cubeb_stream_params)
-                              -> bool;
-    pub fn cubeb_should_downmix(stream: *const cubeb_stream_params,
-                                mixer: *const cubeb_stream_params)
-                                -> bool;
-    pub fn cubeb_should_mix(stream: *const cubeb_stream_params,
-                            mixer: *const cubeb_stream_params)
-                            -> bool;
+extern "C" {
+    pub fn cubeb_should_upmix(
+        stream: *const cubeb_stream_params,
+        mixer: *const cubeb_stream_params,
+    ) -> bool;
+    pub fn cubeb_should_downmix(
+        stream: *const cubeb_stream_params,
+        mixer: *const cubeb_stream_params,
+    ) -> bool;
+    pub fn cubeb_should_mix(
+        stream: *const cubeb_stream_params,
+        mixer: *const cubeb_stream_params,
+    ) -> bool;
 
-    pub fn cubeb_mixer_create(format: cubeb_sample_format,
-                              direction: c_uchar)
-                              -> *mut cubeb_mixer;
+    pub fn cubeb_mixer_create(format: cubeb_sample_format, direction: c_uchar) -> *mut cubeb_mixer;
     pub fn cubeb_mixer_destroy(mixer: *mut cubeb_mixer);
-    pub fn cubeb_mixer_mix(mixer: *mut cubeb_mixer,
-                           frames: c_long,
-                           input_buffer: *mut c_void,
-                           input_buffer_length: c_ulong,
-                           output_buffer: *mut c_void,
-                           output_buffer_length: c_ulong,
-                           stream_params: *const cubeb_stream_params,
-                           mixer_params: *const cubeb_stream_params);
-
+    pub fn cubeb_mixer_mix(
+        mixer: *mut cubeb_mixer,
+        frames: c_long,
+        input_buffer: *mut c_void,
+        input_buffer_length: c_ulong,
+        output_buffer: *mut c_void,
+        output_buffer_length: c_ulong,
+        stream_params: *const cubeb_stream_params,
+        mixer_params: *const cubeb_stream_params,
+    );
 
     pub static CHANNEL_INDEX_TO_ORDER:
         [[cubeb_channel; CHANNEL_MAX as usize]; CUBEB_LAYOUT_MAX as usize];

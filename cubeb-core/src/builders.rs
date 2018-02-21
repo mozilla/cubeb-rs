@@ -19,7 +19,9 @@ impl Default for StreamParamsBuilder {
 }
 
 impl StreamParamsBuilder {
-    pub fn new() -> Self { Default::default() }
+    pub fn new() -> Self {
+        Default::default()
+    }
 
     pub fn format(mut self, format: SampleFormat) -> Self {
         self.0.format = format.into();
@@ -46,7 +48,9 @@ impl StreamParamsBuilder {
         self
     }
 
-    pub fn take(&self) -> StreamParams { StreamParams::from(self.0) }
+    pub fn take(&self) -> StreamParams {
+        StreamParams::from(self.0)
+    }
 }
 
 #[cfg(test)]

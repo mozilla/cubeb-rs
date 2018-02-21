@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use cubeb_core::{ChannelLayout, Context, DeviceCollectionRef, DeviceId, DeviceRef,
-                 DeviceType, Result, Stream, StreamParams, StreamParamsRef};
+use cubeb_core::{ChannelLayout, Context, DeviceCollectionRef, DeviceId, DeviceRef, DeviceType,
+                 Result, Stream, StreamParams, StreamParamsRef};
 use ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;

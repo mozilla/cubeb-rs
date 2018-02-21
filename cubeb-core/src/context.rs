@@ -34,7 +34,9 @@ impl Context {
 }
 
 impl ContextRef {
-    pub fn backend_id(&self) -> &str { str::from_utf8(self.backend_id_bytes()).unwrap() }
+    pub fn backend_id(&self) -> &str {
+        str::from_utf8(self.backend_id_bytes()).unwrap()
+    }
 
     pub fn backend_id_bytes(&self) -> &[u8] {
         unsafe { opt_bytes(ffi::cubeb_get_backend_id(self.as_ptr())).unwrap() }
@@ -97,8 +99,7 @@ impl ContextRef {
         data_callback: ffi::cubeb_data_callback,
         state_callback: ffi::cubeb_state_callback,
         user_ptr: *mut c_void,
-    ) -> Result<Stream>
-    {
+    ) -> Result<Stream> {
         let mut stm: *mut ffi::cubeb_stream = ptr::null_mut();
 
         let stream_name = as_ptr!(stream_name);
@@ -120,7 +121,6 @@ impl ContextRef {
         ));
         Ok(Stream::from_ptr(stm))
     }
-
 
     pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection> {
         let coll = DeviceCollection::default();
@@ -149,8 +149,7 @@ impl ContextRef {
         devtype: DeviceType,
         callback: ffi::cubeb_device_collection_changed_callback,
         user_ptr: *mut c_void,
-    ) -> Result<()>
-    {
+    ) -> Result<()> {
         let _ = try_call!(ffi::cubeb_register_device_collection_changed(
             self.as_ptr(),
             devtype.bits(),

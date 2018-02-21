@@ -27,7 +27,9 @@ impl From<ffi::cubeb_log_level> for LogLevel {
     }
 }
 
-pub fn log_enabled() -> bool { unsafe { ffi::g_cubeb_log_level != LogLevel::Disabled as _ } }
+pub fn log_enabled() -> bool {
+    unsafe { ffi::g_cubeb_log_level != LogLevel::Disabled as _ }
+}
 
 #[cfg(test)]
 mod tests {

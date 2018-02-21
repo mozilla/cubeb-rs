@@ -11,17 +11,14 @@ use stream::{cubeb_stream, cubeb_stream_params};
 
 pub enum cubeb {}
 
-extern {
+extern "C" {
     pub fn cubeb_init(
         context: *mut *mut cubeb,
         context_name: *const c_char,
         backend_name: *const c_char,
     ) -> c_int;
     pub fn cubeb_get_backend_id(context: *mut cubeb) -> *const c_char;
-    pub fn cubeb_get_max_channel_count(
-        context: *mut cubeb,
-        max_channels: *mut c_uint,
-    ) -> c_int;
+    pub fn cubeb_get_max_channel_count(context: *mut cubeb, max_channels: *mut c_uint) -> c_int;
     pub fn cubeb_get_min_latency(
         context: *mut cubeb,
         params: *mut cubeb_stream_params,

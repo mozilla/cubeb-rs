@@ -5,7 +5,7 @@
 
 use callbacks::cubeb_device_collection_changed_callback;
 use context::cubeb;
-use std::{fmt,mem};
+use std::{fmt, mem};
 use std::os::raw::{c_char, c_int, c_uint, c_void};
 
 cubeb_enum! {
@@ -68,7 +68,9 @@ pub struct cubeb_device {
 
 // Explicit Debug impl to work around bug in ctest
 impl Default for cubeb_device {
-    fn default() -> Self { unsafe { mem::zeroed() } }
+    fn default() -> Self {
+        unsafe { mem::zeroed() }
+    }
 }
 
 impl fmt::Debug for cubeb_device {
@@ -87,7 +89,9 @@ pub struct cubeb_device_collection {
 }
 
 impl Default for cubeb_device_collection {
-    fn default() -> Self { unsafe { mem::zeroed() } }
+    fn default() -> Self {
+        unsafe { mem::zeroed() }
+    }
 }
 
 impl fmt::Debug for cubeb_device_collection {
@@ -123,7 +127,9 @@ pub struct cubeb_device_info {
 }
 
 impl Default for cubeb_device_info {
-    fn default() -> Self { unsafe { mem::zeroed() } }
+    fn default() -> Self {
+        unsafe { mem::zeroed() }
+    }
 }
 
 impl fmt::Debug for cubeb_device_info {
@@ -149,7 +155,7 @@ impl fmt::Debug for cubeb_device_info {
     }
 }
 
-extern {
+extern "C" {
     pub fn cubeb_enumerate_devices(
         context: *mut cubeb,
         devtype: cubeb_device_type,

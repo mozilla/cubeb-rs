@@ -26,11 +26,31 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn error() -> Self { Error { code: ErrorCode::Error, } }
-    pub fn invalid_format() -> Self { Error { code: ErrorCode::InvalidFormat, } }
-    pub fn invalid_parameter() -> Self { Error { code: ErrorCode::InvalidParameter, } }
-    pub fn not_supported() -> Self { Error { code: ErrorCode::NotSupported, } }
-    pub fn device_unavailable() -> Self { Error { code: ErrorCode::DeviceUnavailable, } }
+    pub fn error() -> Self {
+        Error {
+            code: ErrorCode::Error,
+        }
+    }
+    pub fn invalid_format() -> Self {
+        Error {
+            code: ErrorCode::InvalidFormat,
+        }
+    }
+    pub fn invalid_parameter() -> Self {
+        Error {
+            code: ErrorCode::InvalidParameter,
+        }
+    }
+    pub fn not_supported() -> Self {
+        Error {
+            code: ErrorCode::NotSupported,
+        }
+    }
+    pub fn device_unavailable() -> Self {
+        Error {
+            code: ErrorCode::DeviceUnavailable,
+        }
+    }
 
     pub unsafe fn from_raw(code: c_int) -> Error {
         let code = match code {
@@ -45,7 +65,9 @@ impl Error {
         Error { code: code }
     }
 
-    pub fn code(&self) -> ErrorCode { self.code }
+    pub fn code(&self) -> ErrorCode {
+        self.code
+    }
 
     pub fn raw_code(&self) -> c_int {
         match self.code {
@@ -59,7 +81,9 @@ impl Error {
 }
 
 impl Default for Error {
-    fn default() -> Self { Error::error() }
+    fn default() -> Self {
+        Error::error()
+    }
 }
 
 impl error::Error for Error {
@@ -75,21 +99,22 @@ impl error::Error for Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self,
-           f: &mut fmt::Formatter)
-           -> fmt::Result
-    {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use std::error::Error;
         write!(f, "{}", self.description())
     }
 }
 
 impl From<ErrorCode> for Error {
-    fn from(code: ErrorCode) -> Error { Error { code: code } }
+    fn from(code: ErrorCode) -> Error {
+        Error { code: code }
+    }
 }
 
 impl From<NulError> for Error {
-    fn from(_: NulError) -> Error { unsafe { Error::from_raw(ffi::CUBEB_ERROR) } }
+    fn from(_: NulError) -> Error {
+        unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
+    }
 }
 
 #[cfg(test)]

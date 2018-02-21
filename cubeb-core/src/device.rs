@@ -64,7 +64,9 @@ ffi_type_heap! {
 }
 
 impl DeviceRef {
-    fn get_ref(&self) -> &ffi::cubeb_device { unsafe { &*self.as_ptr() } }
+    fn get_ref(&self) -> &ffi::cubeb_device {
+        unsafe { &*self.as_ptr() }
+    }
 
     /// Gets the output device name.
     ///
@@ -100,10 +102,14 @@ ffi_type_stack! {
 }
 
 impl DeviceInfoRef {
-    fn get_ref(&self) -> &ffi::cubeb_device_info { unsafe { &*self.as_ptr() } }
+    fn get_ref(&self) -> &ffi::cubeb_device_info {
+        unsafe { &*self.as_ptr() }
+    }
 
     /// Device identifier handle.
-    pub fn devid(&self) -> DeviceId { self.get_ref().devid }
+    pub fn devid(&self) -> DeviceId {
+        self.get_ref().devid
+    }
 
     /// Device identifier which might be presented in a UI.
     pub fn device_id(&self) -> Option<&str> {
@@ -182,22 +188,34 @@ impl DeviceInfoRef {
     }
 
     /// Channels.
-    pub fn max_channels(&self) -> u32 { self.get_ref().max_channels }
+    pub fn max_channels(&self) -> u32 {
+        self.get_ref().max_channels
+    }
 
     /// Default/Preferred sample rate.
-    pub fn default_rate(&self) -> u32 { self.get_ref().default_rate }
+    pub fn default_rate(&self) -> u32 {
+        self.get_ref().default_rate
+    }
 
     /// Maximum sample rate supported.
-    pub fn max_rate(&self) -> u32 { self.get_ref().max_rate }
+    pub fn max_rate(&self) -> u32 {
+        self.get_ref().max_rate
+    }
 
     /// Minimum sample rate supported.
-    pub fn min_rate(&self) -> u32 { self.get_ref().min_rate }
+    pub fn min_rate(&self) -> u32 {
+        self.get_ref().min_rate
+    }
 
     /// Lowest possible latency in frames.
-    pub fn latency_lo(&self) -> u32 { self.get_ref().latency_lo }
+    pub fn latency_lo(&self) -> u32 {
+        self.get_ref().latency_lo
+    }
 
     /// Higest possible latency in frames.
-    pub fn latency_hi(&self) -> u32 { self.get_ref().latency_hi }
+    pub fn latency_hi(&self) -> u32 {
+        self.get_ref().latency_hi
+    }
 }
 
 #[cfg(test)]

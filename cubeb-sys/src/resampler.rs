@@ -17,22 +17,24 @@ cubeb_enum! {
     }
 }
 
-extern {
-    pub fn cubeb_resampler_create(stream: *mut cubeb_stream,
-                                  input_params: *mut cubeb_stream_params,
-                                  output_params: *mut cubeb_stream_params,
-                                  target_rate: c_uint,
-                                  callback: cubeb_data_callback,
-                                  user_ptr: *mut c_void,
-                                  quality: cubeb_resampler_quality)
-                                  -> *mut cubeb_resampler;
+extern "C" {
+    pub fn cubeb_resampler_create(
+        stream: *mut cubeb_stream,
+        input_params: *mut cubeb_stream_params,
+        output_params: *mut cubeb_stream_params,
+        target_rate: c_uint,
+        callback: cubeb_data_callback,
+        user_ptr: *mut c_void,
+        quality: cubeb_resampler_quality,
+    ) -> *mut cubeb_resampler;
 
-    pub fn cubeb_resampler_fill(resampler: *mut cubeb_resampler,
-                                input_buffer: *mut c_void,
-                                input_frame_count: *mut c_long,
-                                output_buffer: *mut c_void,
-                                output_frames_needed: c_long)
-                                -> c_long;
+    pub fn cubeb_resampler_fill(
+        resampler: *mut cubeb_resampler,
+        input_buffer: *mut c_void,
+        input_frame_count: *mut c_long,
+        output_buffer: *mut c_void,
+        output_frames_needed: c_long,
+    ) -> c_long;
 
     pub fn cubeb_resampler_destroy(resampler: *mut cubeb_resampler);
     pub fn cubeb_resampler_latency(resampler: *mut cubeb_resampler) -> c_long;

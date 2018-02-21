@@ -21,8 +21,7 @@ pub fn init<T: Into<Vec<u8>>>(ctx_name: T) -> Result<Context> {
                 writeln!(
                     handle,
                     "Requested backend `{}', got `{}'",
-                    backend,
-                    ctx_backend
+                    backend, ctx_backend
                 ).unwrap();
             }
         }

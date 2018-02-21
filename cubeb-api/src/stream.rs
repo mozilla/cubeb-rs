@@ -80,9 +80,10 @@ pub struct StreamCallbacks<F> {
 pub struct Stream<F>(cubeb_core::Stream, PhantomData<*const F>);
 
 impl<F> Stream<F> {
-    fn new(s: cubeb_core::Stream) -> Stream<F> { Stream(s, PhantomData) }
+    fn new(s: cubeb_core::Stream) -> Stream<F> {
+        Stream(s, PhantomData)
+    }
 }
-
 
 impl<F> Drop for Stream<F> {
     fn drop(&mut self) {
@@ -93,9 +94,10 @@ impl<F> Drop for Stream<F> {
 impl<F> ops::Deref for Stream<F> {
     type Target = cubeb_core::Stream;
 
-    fn deref(&self) -> &Self::Target { &self.0 }
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
-
 
 pub struct StreamBuilder<'a, F> {
     name: Option<CString>,
@@ -121,16 +123,19 @@ impl<'a, F> StreamBuilder<'a, F> {
     }
 
     pub fn data_callback<D>(&mut self, cb: D) -> &mut Self
-    where D: FnMut(&[F], &mut [F]) -> isize + Send + Sync + 'static {
+    where
+        D: FnMut(&[F], &mut [F]) -> isize + Send + Sync + 'static,
+    {
         self.data_cb = Some(Box::new(cb) as Box<DataCallback<F>>);
         self
     }
     pub fn state_callback<S>(&mut self, cb: S) -> &mut Self
-    where S: FnMut(State) + Send + Sync + 'static {
+    where
+        S: FnMut(State) + Send + Sync + 'static,
+    {
         self.state_cb = Some(Box::new(cb) as Box<StateCallback>);
         self
     }
-
 
     pub fn name<T: Into<Vec<u8>>>(&mut self, name: T) -> &mut Self {
         self.name = Some(CString::new(name).unwrap());
@@ -163,7 +168,9 @@ impl<'a, F> StreamBuilder<'a, F> {
     }
 
     pub fn device_changed_cb<CB>(&mut self, cb: CB) -> &mut Self
-    where CB: FnMut() + Send + Sync + 'static {
+    where
+        CB: FnMut() + Send + Sync + 'static,
+    {
         self.device_changed_cb = Some(Box::new(cb) as Box<DeviceChangedCallback>);
         self
     }
@@ -212,14 +219,13 @@ impl<'a, F> StreamBuilder<'a, F> {
 }
 
 // C callable callbacks
-unsafe extern fn data_cb_c<F>(
+unsafe extern "C" fn data_cb_c<F>(
     _: *mut ffi::cubeb_stream,
     user_ptr: *mut c_void,
     input_buffer: *const c_void,
     output_buffer: *mut c_void,
     nframes: c_long,
-) -> c_long
-{
+) -> c_long {
     let ok = panic::catch_unwind(|| {
         let cbs = &mut *(user_ptr as *mut StreamCallbacks<F>);
         let input: &[F] = if input_buffer.is_null() {
@@ -237,12 +243,11 @@ unsafe extern fn data_cb_c<F>(
     ok.unwrap_or(0)
 }
 
-unsafe extern fn state_cb_c<F>(
+unsafe extern "C" fn state_cb_c<F>(
     _: *mut ffi::cubeb_stream,
     user_ptr: *mut c_void,
     state: ffi::cubeb_state,
-)
-{
+) {
     let ok = panic::catch_unwind(|| {
         let state = State::from(state);
         let cbs = &mut *(user_ptr as *mut StreamCallbacks<F>);
@@ -251,7 +256,7 @@ unsafe extern fn state_cb_c<F>(
     ok.expect("State callback panicked");
 }
 
-unsafe extern fn device_changed_cb_c<F>(user_ptr: *mut c_void) {
+unsafe extern "C" fn device_changed_cb_c<F>(user_ptr: *mut c_void) {
     let ok = panic::catch_unwind(|| {
         let cbs = &mut *(user_ptr as *mut StreamCallbacks<F>);
         if let Some(ref mut device_changed) = cbs.device_changed {

@@ -5,11 +5,7 @@
 
 use std::os::raw::{c_float, c_short};
 
-extern {
-    pub fn cubeb_pan_stereo_buffer_float(buf: *mut c_float,
-                                         frames: u32,
-                                         pan: c_float);
-    pub fn cubeb_pan_stereo_buffer_int(buf: *mut c_short,
-                                       frames: u32,
-                                       pan: c_float);
+extern "C" {
+    pub fn cubeb_pan_stereo_buffer_float(buf: *mut c_float, frames: u32, pan: c_float);
+    pub fn cubeb_pan_stereo_buffer_int(buf: *mut c_short, frames: u32, pan: c_float);
 }

@@ -99,11 +99,11 @@ fn main() {
         Err(e) if e.code() == cubeb::ErrorCode::NotSupported => {
             println!("Device enumeration not support for this backend.");
             return;
-        },
+        }
         Err(e) => {
             println!("Error enumerating devices: {}", e.description());
             return;
-        },
+        }
     };
 
     println!("Found {} input devices", devices.len());
@@ -121,7 +121,7 @@ fn main() {
         Err(e) => {
             println!("Error enumerating devices: {}", e.description());
             return;
-        },
+        }
     };
 
     println!("Found {} output devices", devices.len());

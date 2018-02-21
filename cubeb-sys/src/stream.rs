@@ -39,7 +39,9 @@ pub struct cubeb_stream_params {
 }
 
 impl Default for cubeb_stream_params {
-    fn default() -> Self { unsafe { mem::zeroed() } }
+    fn default() -> Self {
+        unsafe { mem::zeroed() }
+    }
 }
 
 // Explicit Debug impl to work around bug in ctest
@@ -55,7 +57,7 @@ impl fmt::Debug for cubeb_stream_params {
     }
 }
 
-extern {
+extern "C" {
     pub fn cubeb_stream_destroy(stream: *mut cubeb_stream);
     pub fn cubeb_stream_start(stream: *mut cubeb_stream) -> c_int;
     pub fn cubeb_stream_stop(stream: *mut cubeb_stream) -> c_int;

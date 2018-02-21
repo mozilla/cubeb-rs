@@ -99,5 +99,7 @@ impl From<ffi::cubeb_channel_layout> for ChannelLayout {
 }
 
 impl Into<ffi::cubeb_channel_layout> for ChannelLayout {
-    fn into(self) -> ffi::cubeb_channel_layout { self as ffi::cubeb_channel_layout }
+    fn into(self) -> ffi::cubeb_channel_layout {
+        self as ffi::cubeb_channel_layout
+    }
 }

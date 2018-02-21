@@ -5,7 +5,7 @@ authors = ["Dan Glastonbury <dan.glastonbury@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-cubeb-sys = { path = ".." }
+cubeb-sys = { path = "../cubeb-sys" }
 
 [build-dependencies]
 ctest = "0.1"

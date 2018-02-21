@@ -17,7 +17,7 @@ fn main() {
     // Include the directory where the header files are defined
     cfg.include(root.join("include"))
         .include(root.join("include/cubeb"))
-        .include("../libcubeb/src");
+        .include("../cubeb-sys/libcubeb/src");
 
     cfg.type_name(|s, _| s.to_string())
         .field_name(|_, f| match f {
@@ -35,5 +35,5 @@ fn main() {
 
     // Generate the tests, passing the path to the `*-sys` library as well as
     // the module to generate.
-    cfg.generate("../src/lib.rs", "all.rs");
+    cfg.generate("../cubeb-sys/src/lib.rs", "all.rs");
 }

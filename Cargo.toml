@@ -4,5 +4,5 @@ members = [
     "cubeb-api",
     "cubeb-backend",
     "cubeb-sys",
-    "cubeb-sys/systest"
+    "systest"
 ]

@@ -11,6 +11,9 @@ Common types and definitions for cubeb rust and C bindings. Not intended for dir
 """
 categories = ["api-bindings"]
 
+[badges]
+circle-ci = { repository = "djg/cubeb-rs" }
+
 [dependencies]
 bitflags = "1.0"
 cubeb-sys = { path = "../cubeb-sys", version = "0.4" }

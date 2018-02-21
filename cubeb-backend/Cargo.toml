@@ -13,8 +13,7 @@ Bindings to libcubeb internals to facilitate implementing cubeb backends in rust
 categories = ["api-bindings"]
 
 [badges]
-travis-ci = { repository = "djg/cubeb-rs" }
-appveyor = { repository = "djg/cubeb-rs" }
+circle-ci = { repository = "djg/cubeb-rs" }
 
 [dependencies]
 cubeb-core = { path = "../cubeb-core", version = "0.4" }

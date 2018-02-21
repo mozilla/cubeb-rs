@@ -14,6 +14,9 @@ categories = ["api-bindings"]
 [badges]
 circle-ci = { repository = "djg/cubeb-rs" }
 
+[features]
+gecko-in-tree = ["cubeb-sys/gecko-in-tree"]
+
 [dependencies]
 bitflags = "1.0"
 cubeb-sys = { path = "../cubeb-sys", version = "0.4" }

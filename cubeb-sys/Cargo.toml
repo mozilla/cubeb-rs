@@ -12,6 +12,9 @@ build = "build.rs"
 [badges]
 circle-ci = { repository = "djg/cubeb-rs" }
 
+[features]
+gecko-in-tree = []
+
 [build-dependencies]
 pkg-config = "0.3"
 cmake = "0.1.2"

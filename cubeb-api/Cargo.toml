@@ -1,5 +1,4 @@
 [package]
-
 name = "cubeb"
 version = "0.4.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
@@ -15,6 +14,9 @@ categories = ["api-bindings"]
 
 [badges]
 circle-ci = { repository = "djg/cubeb-rs" }
+
+[features]
+gecko-in-tree = ["cubeb-core/gecko-in-tree"]
 
 [dependencies]
 cubeb-core = { path = "../cubeb-core", version = "0.4" }

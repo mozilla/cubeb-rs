@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Dan Glastonbury <dan.glastonbury@gmail.com>"]
 build = "build.rs"
 
+[features]
+gecko-in-tree = ["cubeb-sys/gecko-in-tree"]
+
 [dependencies]
 cubeb-sys = { path = "../cubeb-sys" }
 

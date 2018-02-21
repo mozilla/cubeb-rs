@@ -20,6 +20,11 @@ macro_rules! t {
 }
 
 fn main() {
+    let gecko_in_tree = env::var("CARGO_FEATURE_GECKO_IN_TREE").is_ok();
+    if gecko_in_tree {
+        return;
+    }
+
     if env::var("LIBCUBEB_SYS_USE_PKG_CONFIG").is_ok() {
         if pkg_config::find_library("libcubeb").is_ok() {
             return;

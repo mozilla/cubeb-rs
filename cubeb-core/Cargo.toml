@@ -13,4 +13,4 @@ categories = ["api-bindings"]
 
 [dependencies]
 bitflags = "1.0"
-cubeb-sys = { path = "../cubeb-sys" }
+cubeb-sys = { path = "../cubeb-sys", version = "0.4" }

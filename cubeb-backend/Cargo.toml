@@ -17,4 +17,4 @@ travis-ci = { repository = "djg/cubeb-rs" }
 appveyor = { repository = "djg/cubeb-rs" }
 
 [dependencies]
-cubeb-core = { path = "../cubeb-core" }
+cubeb-core = { path = "../cubeb-core", version = "0.4" }

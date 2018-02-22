@@ -1,7 +1,6 @@
 [package]
-
 name = "cubeb-backend"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"
 keywords = ["cubeb"]
@@ -19,4 +18,4 @@ circle-ci = { repository = "djg/cubeb-rs" }
 gecko-in-tree = ["cubeb-core/gecko-in-tree"]
 
 [dependencies]
-cubeb-core = { path = "../cubeb-core", version = "0.4" }
+cubeb-core = { path = "../cubeb-core", version = "0.4.1" }

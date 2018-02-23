@@ -123,25 +123,15 @@ impl ContextRef {
     }
 
     pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection> {
-        let coll = DeviceCollection::default();
+        let mut coll = ffi::cubeb_device_collection::default();
         unsafe {
             let _ = try_call!(ffi::cubeb_enumerate_devices(
                 self.as_ptr(),
                 devtype.bits(),
-                coll.as_ptr()
+                &mut coll
             ));
         }
-        Ok(coll)
-    }
-
-    pub fn device_collection_destroy(&self, collection: DeviceCollection) -> Result<()> {
-        unsafe {
-            let _ = try_call!(ffi::cubeb_device_collection_destroy(
-                self.as_ptr(),
-                collection.as_ptr()
-            ));
-        }
-        Ok(())
+        Ok(DeviceCollection::init_with_ctx(self, coll))
     }
 
     pub unsafe fn register_device_collection_changed(

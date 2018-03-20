@@ -4,7 +4,6 @@
 // accompanying file LICENSE for details.
 
 use callbacks::{cubeb_data_callback, cubeb_state_callback};
-use channel::cubeb_channel_layout;
 use device::cubeb_devid;
 use std::os::raw::{c_char, c_int, c_uint, c_void};
 use stream::{cubeb_stream, cubeb_stream_params};

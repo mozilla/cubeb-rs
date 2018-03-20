@@ -8,9 +8,8 @@
 #[macro_use]
 extern crate cubeb_backend;
 
-use cubeb_backend::{ffi, ChannelLayout, Context, ContextOps, DeviceCollectionRef, DeviceId,
-                    DeviceRef, DeviceType, Ops, Result, Stream, StreamOps, StreamParams,
-                    StreamParamsRef};
+use cubeb_backend::{ffi, Context, ContextOps, DeviceCollectionRef, DeviceId, DeviceRef,
+                    DeviceType, Ops, Result, Stream, StreamOps, StreamParams, StreamParamsRef};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;

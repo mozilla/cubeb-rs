@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use {ChannelLayout, DeviceCollection, DeviceId, DeviceType, Result, Stream, StreamParamsRef};
+use {DeviceCollection, DeviceId, DeviceType, Result, Stream, StreamParamsRef};
 use ffi;
 use std::{ptr, str};
 use std::ffi::CStr;

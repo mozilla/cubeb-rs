@@ -58,15 +58,15 @@
 //! }
 //! ```
 
-use {ContextRef, DeviceId, Error, Result, State, StreamParamsRef};
 use cubeb_core;
 use ffi;
-use std::{ops, panic, ptr};
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::os::raw::{c_long, c_void};
 use std::slice::{from_raw_parts, from_raw_parts_mut};
+use std::{ops, panic, ptr};
+use {ContextRef, DeviceId, Error, Result, State, StreamParamsRef};
 
 pub type DataCallback<F> = FnMut(&[F], &mut [F]) -> isize + Send + Sync + 'static;
 pub type StateCallback = FnMut(State) + Send + Sync + 'static;
@@ -78,8 +78,7 @@ pub struct StreamCallbacks<F> {
     pub(crate) device_changed: Option<Box<DeviceChangedCallback>>,
 }
 
-pub struct Stream<F>(ManuallyDrop<cubeb_core::Stream>,
-                     PhantomData<*const F>);
+pub struct Stream<F>(ManuallyDrop<cubeb_core::Stream>, PhantomData<*const F>);
 
 impl<F> Stream<F> {
     fn new(s: cubeb_core::Stream) -> Stream<F> {

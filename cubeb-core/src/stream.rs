@@ -3,10 +3,10 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use {ChannelLayout, DeviceRef, Result, SampleFormat};
 use ffi;
 use std::os::raw::c_void;
 use std::ptr;
+use {ChannelLayout, DeviceRef, Result, SampleFormat};
 
 /// Stream states signaled via `state_callback`.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -199,8 +199,8 @@ impl StreamRef {
 
 #[cfg(test)]
 mod tests {
-    use {StreamParams, StreamParamsRef, StreamPrefs};
     use std::mem;
+    use {StreamParams, StreamParamsRef, StreamPrefs};
 
     #[test]
     fn stream_params_default() {

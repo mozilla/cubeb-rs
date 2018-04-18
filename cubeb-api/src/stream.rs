@@ -62,7 +62,6 @@ use cubeb_core;
 use ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
-use std::mem::ManuallyDrop;
 use std::os::raw::{c_long, c_void};
 use std::slice::{from_raw_parts, from_raw_parts_mut};
 use std::{ops, panic, ptr};
@@ -78,18 +77,25 @@ pub struct StreamCallbacks<F> {
     pub(crate) device_changed: Option<Box<DeviceChangedCallback>>,
 }
 
-pub struct Stream<F>(ManuallyDrop<cubeb_core::Stream>, PhantomData<*const F>);
+pub struct Stream<F>(cubeb_core::Stream, PhantomData<*const F>);
 
 impl<F> Stream<F> {
     fn new(s: cubeb_core::Stream) -> Stream<F> {
-        Stream(ManuallyDrop::new(s), PhantomData)
+        Stream(s, PhantomData)
     }
 }
 
 impl<F> Drop for Stream<F> {
     fn drop(&mut self) {
+        // ignore stop failure since we're destructing.
+        let _ = self.0.stop();
+        // At this point the stream to stopped so we don't need to
+        // worry about that `StreamCallbacks<F>` is dropped before
+        // `Stream<F>`.
         let user_ptr = self.user_ptr();
-        unsafe { ManuallyDrop::drop(&mut self.0) };
+        // A stream associated with this `Stream<F>` should definately
+        // have a `StreamCallbacks<F>` stored in user_ptr.
+        assert!(!user_ptr.is_null());
         let _ = unsafe { Box::from_raw(user_ptr as *mut StreamCallbacks<F>) };
     }
 }

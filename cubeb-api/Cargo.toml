@@ -1,6 +1,6 @@
 [package]
 name = "cubeb"
-version = "0.5.2"
+version = "0.5.3"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"
 readme = "README.md"

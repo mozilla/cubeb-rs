@@ -126,7 +126,7 @@ pub unsafe extern "C" fn capi_device_collection_destroy<CTX: ContextOps>(
 ) -> c_int {
     let ctx = &mut *(c as *mut CTX);
     let collection = DeviceCollectionRef::from_ptr_mut(collection);
-    let _ = ctx.device_collection_destroy(collection);
+    _try!(ctx.device_collection_destroy(collection));
     ffi::CUBEB_OK
 }
 

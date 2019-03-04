@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: mozmedia/cubeb-rust:fc27
+      - image: mozmedia/cubeb-rust:latest
     environment:
       TZ: "/usr/share/zoneinfo/Australia/Brisbane"
     steps:

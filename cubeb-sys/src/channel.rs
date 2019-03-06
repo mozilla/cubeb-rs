@@ -3,9 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-#[cfg(windows)]
+#[cfg(all(windows, not(target_env = "gnu")))]
 use std::os::raw::c_int as c_enum;
-#[cfg(not(windows))]
+#[cfg(any(not(windows), all(windows, target_env = "gnu")))]
 use std::os::raw::c_uint as c_enum;
 
 cubeb_enum! {

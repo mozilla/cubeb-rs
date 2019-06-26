@@ -14,6 +14,7 @@ cubeb_enum! {
     pub enum cubeb_stream_prefs {
         CUBEB_STREAM_PREF_NONE     = 0x00,
         CUBEB_STREAM_PREF_LOOPBACK = 0x01,
+        CUBEB_STREAM_PREF_VOICE = 0x04,
     }
 }
 

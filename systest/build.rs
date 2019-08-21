@@ -11,7 +11,6 @@ fn main() {
     // Include the header files where the C APIs are defined
     cfg.header("cubeb.h")
         .header("cubeb_mixer.h")
-        .header("cubeb_panner.h")
         .header("cubeb_resampler.h");
 
     // Include the directory where the header files are defined

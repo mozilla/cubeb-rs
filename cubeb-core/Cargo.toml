@@ -18,5 +18,5 @@ circle-ci = { repository = "djg/cubeb-rs" }
 gecko-in-tree = ["cubeb-sys/gecko-in-tree"]
 
 [dependencies]
-bitflags = "1.0"
+bitflags = "1.2.0"
 cubeb-sys = { path = "../cubeb-sys", version = "0.6.2" }

@@ -40,6 +40,7 @@ fn main() {
     //    let host = env::var("HOST").unwrap();
     let windows = target.contains("windows");
     let darwin = target.contains("darwin");
+    let freebsd = target.contains("freebsd");
     let mut cfg = cmake::Config::new("libcubeb");
 
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
@@ -65,7 +66,11 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=c++");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else {
-        println!("cargo:rustc-link-lib=dylib=stdc++");
+        if freebsd {
+            println!("cargo:rustc-link-lib=dylib=c++");
+        } else {
+            println!("cargo:rustc-link-lib=dylib=stdc++");
+        }
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
         println!("cargo:rustc-link-search=native={}/lib64", dst.display());
 

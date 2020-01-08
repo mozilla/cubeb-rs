@@ -48,6 +48,7 @@ fn main() {
     env::remove_var("DESTDIR");
     let dst = cfg.define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_TESTS", "OFF")
+        .define("BUILD_TOOLS", "OFF")
         .build();
 
     println!("cargo:rustc-link-lib=static=cubeb");

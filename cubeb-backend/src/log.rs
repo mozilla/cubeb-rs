@@ -23,7 +23,8 @@ macro_rules! cubeb_log_internal {
     };
     (__INTERNAL__ $msg: expr) => {
         if let Some(log_callback) = $crate::ffi::g_cubeb_log_callback {
-            let cstr = ::std::ffi::CString::new(format!("{}:{}: {}\n", file!(), line!(), $msg)).unwrap();
+            let filename = std::path::Path::new(file!()).file_name().unwrap().to_str().unwrap();
+            let cstr = ::std::ffi::CString::new(format!("{}:{}: {}\n", filename, line!(), $msg)).unwrap();
             log_callback(cstr.as_ptr());
         }
     }

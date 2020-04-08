@@ -23,8 +23,20 @@ macro_rules! cubeb_log_internal {
     };
     (__INTERNAL__ $msg: expr) => {
         if let Some(log_callback) = $crate::ffi::g_cubeb_log_callback {
-            let filename = std::path::Path::new(file!()).file_name().unwrap().to_str().unwrap();
-            let cstr = ::std::ffi::CString::new(format!("{}:{}: {}\n", filename, line!(), $msg)).unwrap();
+            use std::io::Write;
+
+            let mut buf = [0 as u8; 1024];
+            let filename = std::path::Path::new(file!())
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap();
+            // +2 for ':', +1 for ' ', and +1 for converting line value to number of digits
+            let len = filename.len() + ((line!() as f32).log10() as usize) + $msg.len() + 4;
+            assert!(len < buf.len(), "log is too long!");
+            write!(&mut buf[..], "{}:{}: {}", filename, line!(), $msg).unwrap();
+            buf[len] = 0;
+            let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..len + 1]) };
             log_callback(cstr.as_ptr());
         }
     }

@@ -33,10 +33,11 @@ macro_rules! cubeb_log_internal {
                 .unwrap();
             // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
             let len = filename.len() + ((line!() as f32).log10() as usize) + $msg.len() + 5;
-            assert!(len < buf.len(), "log is too long!");
-            write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg).unwrap();
-            buf[len] = 0;
-            let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..len + 1]) };
+            debug_assert!(len < buf.len(), "log will be truncated");
+            let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg);
+            let last = std::cmp::min(len, buf.len() - 1);
+            buf[last] = 0;
+            let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..last + 1]) };
             log_callback(cstr.as_ptr());
         }
     }

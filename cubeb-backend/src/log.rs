@@ -32,7 +32,7 @@ macro_rules! cubeb_log_internal {
                 .to_str()
                 .unwrap();
             // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
-            let len = filename.len() + ((line!() as f32).log10() as usize) + $msg.len() + 5;
+            let len = filename.len() + ((line!() as f32).log10().trunc() as usize) + $msg.len() + 5;
             debug_assert!(len < buf.len(), "log will be truncated");
             let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg);
             let last = std::cmp::min(len, buf.len() - 1);

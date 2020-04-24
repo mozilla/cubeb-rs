@@ -143,6 +143,17 @@ impl StreamRef {
         Ok(latency)
     }
 
+    /// Get the input latency for this stream, in frames. This is the number of frames between the
+    /// time the audio input device records the audio, and the cubeb callback delivers it.
+    /// This returns an error if the stream is output-only.
+    pub fn input_latency(&self) -> Result<u32> {
+        let mut latency = 0u32;
+        unsafe {
+            let _ = try_call!(ffi::cubeb_stream_get_input_latency(self.as_ptr(), &mut latency));
+        }
+        Ok(latency)
+    }
+
     /// Set the volume for a stream.
     pub fn set_volume(&self, volume: f32) -> Result<()> {
         unsafe { call!(ffi::cubeb_stream_set_volume(self.as_ptr(), volume)) }

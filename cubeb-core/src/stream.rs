@@ -45,8 +45,8 @@ impl Into<ffi::cubeb_state> for State {
     }
 }
 
-/// Miscellaneous stream preferences.
 bitflags! {
+    /// Miscellaneous stream preferences.
     pub struct StreamPrefs: ffi::cubeb_stream_prefs {
         const NONE = ffi::CUBEB_STREAM_PREF_NONE;
         const LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
@@ -55,8 +55,8 @@ bitflags! {
     }
 }
 
-/// Stream format initialization parameters.
 ffi_type_stack!{
+    /// Stream format initialization parameters.
     type CType = ffi::cubeb_stream_params;
     #[derive(Debug)]
     pub struct StreamParams;

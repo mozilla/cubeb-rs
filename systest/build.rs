@@ -18,7 +18,7 @@ fn main() {
         .include(root.join("include/cubeb"))
         .include("../cubeb-sys/libcubeb/src");
 
-    cfg.type_name(|s, _| s.to_string())
+    cfg.type_name(|s, _, _| s.to_string())
         .field_name(|_, f| match f {
             "device_type" => "type".to_string(),
             _ => f.to_string(),
@@ -30,6 +30,11 @@ fn main() {
         s if s.ends_with("_callback") => true,
         "cubeb_devid" => true,
         _ => false,
+    });
+
+    // g_cubeb_log_* globals aren't visible via cubeb.h, skip them.
+    cfg.skip_static(|s| {
+        s.starts_with("g_cubeb_log_")
     });
 
     // Generate the tests, passing the path to the `*-sys` library as well as

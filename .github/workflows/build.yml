@@ -1,0 +1,45 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        rust: [stable]
+        experimental: [false]
+        include:
+          - os: ubuntu-20.04
+            rust: nightly
+            experimental: true
+          - os: windows-2019
+            rust: nightly
+            experimental: true
+          - os: macos-10.15
+            rust: nightly
+            experimental: true
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Install Rust
+      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt
+
+#    - name: Check format
+#      shell: bash
+#      run: rustup run ${{ matrix.rust }} cargo fmt --all -- --check
+
+    - name: Build
+      shell: bash
+      run: rustup run ${{ matrix.rust }} cargo build --all
+
+    - name: Test
+      shell: bash
+      run: rustup run ${{ matrix.rust }} cargo test --all
+

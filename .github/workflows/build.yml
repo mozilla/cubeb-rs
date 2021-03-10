@@ -43,3 +43,7 @@ jobs:
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo test --all
 
+    - name: Run systest
+      shell: bash
+      run: rustup run ${{ matrix.rust }} cargo run -p systest
+

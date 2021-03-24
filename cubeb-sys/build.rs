@@ -37,10 +37,10 @@ fn main() {
     }
 
     let target = env::var("TARGET").unwrap();
-    //    let host = env::var("HOST").unwrap();
     let windows = target.contains("windows");
     let darwin = target.contains("darwin");
     let freebsd = target.contains("freebsd");
+    let android = target.contains("android");
     let mut cfg = cmake::Config::new("libcubeb");
 
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
@@ -66,7 +66,7 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=c++");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else {
-        if freebsd {
+        if freebsd || android {
             println!("cargo:rustc-link-lib=dylib=c++");
         } else {
             println!("cargo:rustc-link-lib=dylib=stdc++");
@@ -79,5 +79,8 @@ fn main() {
         let _ = pkg_config::find_library("alsa");
         let _ = pkg_config::find_library("libpulse");
         let _ = pkg_config::find_library("jack");
+        if android {
+            println!("cargo:rustc-link-lib=dylib=OpenSLES");
+        }
     }
 }

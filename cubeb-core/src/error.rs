@@ -1,7 +1,7 @@
 use ffi;
-use std::{error, fmt};
 use std::ffi::NulError;
 use std::os::raw::c_int;
+use std::{error, fmt};
 
 pub type Result<T> = ::std::result::Result<T, Error>;
 
@@ -62,7 +62,7 @@ impl Error {
             _ => ErrorCode::Error,
         };
 
-        Error { code: code }
+        Error { code }
     }
 
     pub fn code(&self) -> ErrorCode {
@@ -106,7 +106,7 @@ impl fmt::Display for Error {
 
 impl From<ErrorCode> for Error {
     fn from(code: ErrorCode) -> Error {
-        Error { code: code }
+        Error { code }
     }
 }
 

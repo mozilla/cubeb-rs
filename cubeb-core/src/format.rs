@@ -30,7 +30,7 @@ impl From<ffi::cubeb_sample_format> for SampleFormat {
 }
 
 impl Into<ffi::cubeb_sample_format> for SampleFormat {
-    #[cfg_attr(feature = "cargo-clippy", allow(match_same_arms))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::match_same_arms))]
     fn into(self) -> ffi::cubeb_sample_format {
         use SampleFormat::*;
         match self {

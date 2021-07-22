@@ -4,8 +4,8 @@
 // accompanying file LICENSE for details.
 #![macro_use]
 
-use Error;
 use std::os::raw::c_int;
+use Error;
 
 pub fn cvt_r(ret: c_int) -> Result<(), Error> {
     match ret {

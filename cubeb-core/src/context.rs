@@ -3,15 +3,17 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use {DeviceCollection, DeviceId, DeviceType, Result, Stream, StreamParamsRef};
 use ffi;
-use std::{ptr, str};
 use std::ffi::CStr;
 use std::os::raw::c_void;
+use std::{ptr, str};
 use util::opt_bytes;
+use {DeviceCollection, DeviceId, DeviceType, Result, Stream, StreamParamsRef};
 
 macro_rules! as_ptr {
-    ($e:expr) => { $e.map(|s| s.as_ptr()).unwrap_or(ptr::null_mut()) }
+    ($e:expr) => {
+        $e.map(|s| s.as_ptr()).unwrap_or(ptr::null_mut())
+    };
 }
 
 ffi_type_heap! {
@@ -76,7 +78,7 @@ impl ContextRef {
         Ok(rate)
     }
 
-    #[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub unsafe fn stream_init(
         &self,
         stream_name: Option<&CStr>,

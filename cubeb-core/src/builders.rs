@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use {ChannelLayout, SampleFormat, StreamParams, StreamPrefs};
 use ffi;
+use {ChannelLayout, SampleFormat, StreamParams, StreamPrefs};
 
 ///
 #[derive(Debug)]
@@ -55,8 +55,8 @@ impl StreamParamsBuilder {
 
 #[cfg(test)]
 mod tests {
-    use {ffi, StreamParamsBuilder, StreamPrefs};
     use SampleFormat;
+    use {ffi, StreamParamsBuilder, StreamPrefs};
 
     #[test]
     fn stream_params_builder_channels() {

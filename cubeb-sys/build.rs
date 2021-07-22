@@ -12,10 +12,12 @@ use std::path::Path;
 use std::process::Command;
 
 macro_rules! t {
-    ($e:expr) => (match $e {
-        Ok(e) => e,
-        Err(e) => panic!("{} failed with {}", stringify!($e), e),
-    })
+    ($e:expr) => {
+        match $e {
+            Ok(e) => e,
+            Err(e) => panic!("{} failed with {}", stringify!($e), e),
+        }
+    };
 }
 
 fn main() {
@@ -24,10 +26,10 @@ fn main() {
         return;
     }
 
-    if env::var("LIBCUBEB_SYS_USE_PKG_CONFIG").is_ok() {
-        if pkg_config::find_library("libcubeb").is_ok() {
-            return;
-        }
+    if env::var("LIBCUBEB_SYS_USE_PKG_CONFIG").is_ok()
+        && pkg_config::find_library("libcubeb").is_ok()
+    {
+        return;
     }
 
     if !Path::new("libcubeb/.git").exists() {
@@ -47,7 +49,8 @@ fn main() {
     t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
 
     env::remove_var("DESTDIR");
-    let dst = cfg.define("BUILD_SHARED_LIBS", "OFF")
+    let dst = cfg
+        .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_TESTS", "OFF")
         .define("BUILD_TOOLS", "OFF")
         .build();

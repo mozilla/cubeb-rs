@@ -39,6 +39,7 @@ pub struct Ops {
         ) -> c_int,
     >,
     pub destroy: Option<unsafe extern "C" fn(context: *mut ffi::cubeb)>,
+    #[allow(clippy::type_complexity)]
     pub stream_init: Option<
         unsafe extern "C" fn(
             context: *mut ffi::cubeb,

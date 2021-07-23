@@ -52,7 +52,7 @@ impl Error {
         }
     }
 
-    pub unsafe fn from_raw(code: c_int) -> Error {
+    pub fn from_raw(code: c_int) -> Error {
         let code = match code {
             ffi::CUBEB_ERROR_INVALID_FORMAT => ErrorCode::InvalidFormat,
             ffi::CUBEB_ERROR_INVALID_PARAMETER => ErrorCode::InvalidParameter,
@@ -112,7 +112,7 @@ impl From<ErrorCode> for Error {
 
 impl From<NulError> for Error {
     fn from(_: NulError) -> Error {
-        unsafe { Error::from_raw(ffi::CUBEB_ERROR) }
+        Error::from_raw(ffi::CUBEB_ERROR)
     }
 }
 
@@ -126,7 +126,7 @@ mod tests {
         macro_rules! test {
             ( $($raw:ident => $err:ident),* ) => {{
                 $(
-                    let e = unsafe { Error::from_raw(ffi::$raw) };
+                    let e = Error::from_raw(ffi::$raw);
                     assert_eq!(e.raw_code(), ffi::$raw);
                     assert_eq!(e.code(), ErrorCode::$err);
                 )*

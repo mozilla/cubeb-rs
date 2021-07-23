@@ -114,15 +114,7 @@ pub struct StreamBuilder<'a, F> {
 
 impl<'a, F> StreamBuilder<'a, F> {
     pub fn new() -> StreamBuilder<'a, F> {
-        StreamBuilder {
-            name: None,
-            input: None,
-            output: None,
-            latency: None,
-            data_cb: None,
-            state_cb: None,
-            device_changed_cb: None,
-        }
+        Default::default()
     }
 
     pub fn data_callback<D>(&mut self, cb: D) -> &mut Self
@@ -219,6 +211,12 @@ impl<'a, F> StreamBuilder<'a, F> {
             stream.register_device_changed_callback(device_changed_callback)?;
         }
         Ok(Stream::new(stream))
+    }
+}
+
+impl<'a, F> Default for StreamBuilder<'a, F> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

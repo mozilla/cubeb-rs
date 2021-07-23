@@ -78,6 +78,10 @@ impl ContextRef {
         Ok(rate)
     }
 
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences the given `data_callback`, `state_callback`, and `user_ptr` pointers.
+    /// The caller should ensure those pointers are valid.
     #[cfg_attr(feature = "cargo-clippy", allow(clippy::too_many_arguments))]
     pub unsafe fn stream_init(
         &self,
@@ -125,6 +129,10 @@ impl ContextRef {
         Ok(DeviceCollection::init_with_ctx(self, coll))
     }
 
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences the given `callback` and  `user_ptr` pointers.
+    /// The caller should ensure those pointers are valid.
     pub unsafe fn register_device_collection_changed(
         &self,
         devtype: DeviceType,

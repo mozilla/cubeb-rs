@@ -55,11 +55,19 @@ impl<'ctx> ::std::convert::AsRef<DeviceCollectionRef> for DeviceCollection<'ctx>
 pub struct DeviceCollectionRef(ffi_types::Opaque);
 
 impl DeviceCollectionRef {
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences the given `ptr` pointer.
+    /// The caller should ensure that pointer is valid.
     #[inline]
     pub unsafe fn from_ptr<'a>(ptr: *mut CType) -> &'a Self {
         &*(ptr as *mut _)
     }
 
+    /// # Safety
+    ///
+    /// This function is unsafe because it dereferences the given `ptr` pointer.
+    /// The caller should ensure that pointer is valid.
     #[inline]
     pub unsafe fn from_ptr_mut<'a>(ptr: *mut CType) -> &'a mut Self {
         &mut *(ptr as *mut _)

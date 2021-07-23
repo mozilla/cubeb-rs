@@ -29,15 +29,16 @@ jobs:
         submodules: recursive
 
     - name: Install Rust
-      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt
+      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt clippy
 
     - name: Check format
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo fmt --all -- --check
 
-#    - name: Clippy
-#      shell: bash
-#      run: rustup run ${{ matrix.rust }} cargo clippy --all -- -D warnings
+    # Skip clippy checks for `systest`
+    - name: Clippy
+      shell: bash
+      run: rustup run ${{ matrix.rust }} cargo clippy -p cubeb -p cubeb-backend -p cubeb-core -p cubeb-sys -- -D warnings
 
     - name: Build
       shell: bash

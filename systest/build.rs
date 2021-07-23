@@ -1,4 +1,4 @@
-extern crate ctest;
+extern crate ctest2;
 
 use std::env;
 use std::path::PathBuf;
@@ -6,7 +6,7 @@ use std::path::PathBuf;
 fn main() {
     let root = PathBuf::from(env::var_os("DEP_CUBEB_ROOT").unwrap());
 
-    let mut cfg = ctest::TestGenerator::new();
+    let mut cfg = ctest2::TestGenerator::new();
 
     // Include the header files where the C APIs are defined
     cfg.header("cubeb.h")

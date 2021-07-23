@@ -26,6 +26,10 @@ pub struct Error {
 }
 
 impl Error {
+    // `clippy::self_named_constructor` is a nightly-only lint as of 2021-07-22,
+    // so we allow `unknown_lints` to ignore it on stable.
+    #[allow(unknown_lints)]
+    #[allow(clippy::self_named_constructor)]
     pub fn error() -> Self {
         Error {
             code: ErrorCode::Error,

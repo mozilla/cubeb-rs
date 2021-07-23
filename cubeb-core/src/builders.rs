@@ -12,9 +12,10 @@ pub struct StreamParamsBuilder(ffi::cubeb_stream_params);
 
 impl Default for StreamParamsBuilder {
     fn default() -> Self {
-        let mut r = ffi::cubeb_stream_params::default();
-        r.format = ffi::CUBEB_SAMPLE_S16NE;
-        StreamParamsBuilder(r)
+        StreamParamsBuilder(ffi::cubeb_stream_params {
+            format: ffi::CUBEB_SAMPLE_S16NE,
+            ..Default::default()
+        })
     }
 }
 

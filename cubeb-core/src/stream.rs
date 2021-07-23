@@ -34,10 +34,10 @@ impl From<ffi::cubeb_state> for State {
     }
 }
 
-impl Into<ffi::cubeb_state> for State {
-    fn into(self) -> ffi::cubeb_state {
+impl From<State> for ffi::cubeb_state {
+    fn from(x: State) -> Self {
         use State::*;
-        match self {
+        match x {
             Started => ffi::CUBEB_STATE_STARTED,
             Stopped => ffi::CUBEB_STATE_STOPPED,
             Drained => ffi::CUBEB_STATE_DRAINED,

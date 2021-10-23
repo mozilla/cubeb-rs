@@ -216,7 +216,15 @@ impl<'a, F> StreamBuilder<'a, F> {
 
 impl<'a, F> Default for StreamBuilder<'a, F> {
     fn default() -> Self {
-        Self::new()
+        StreamBuilder {
+            name: None,
+            input: None,
+            output: None,
+            latency: None,
+            data_cb: None,
+            state_cb: None,
+            device_changed_cb: None,
+        }
     }
 }
 

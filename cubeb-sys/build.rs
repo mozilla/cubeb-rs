@@ -3,7 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+#[cfg(not(feature = "gecko-in-tree"))]
 extern crate cmake;
+#[cfg(not(feature = "gecko-in-tree"))]
 extern crate pkg_config;
 
 use std::env;
@@ -20,12 +22,11 @@ macro_rules! t {
     };
 }
 
-fn main() {
-    let gecko_in_tree = env::var("CARGO_FEATURE_GECKO_IN_TREE").is_ok();
-    if gecko_in_tree {
-        return;
-    }
+#[cfg(feature = "gecko-in-tree")]
+fn main() {}
 
+#[cfg(not(feature = "gecko-in-tree"))]
+fn main() {
     if env::var("LIBCUBEB_SYS_USE_PKG_CONFIG").is_ok()
         && pkg_config::find_library("libcubeb").is_ok()
     {

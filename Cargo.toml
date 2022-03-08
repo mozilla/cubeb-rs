@@ -4,5 +4,6 @@ members = [
     "cubeb-api",
     "cubeb-backend",
     "cubeb-sys",
-    "systest"
+    # Re-enable when https://github.com/mozilla/cubeb-rs/issues/63 is sorted out
+    # "systest",
 ]

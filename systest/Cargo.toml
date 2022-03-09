@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Dan Glastonbury <dan.glastonbury@gmail.com>"]
 build = "build.rs"
 edition = "2018"
+publish = false
+
+[package.metadata.release]
+release = false
 
 [features]
 gecko-in-tree = ["cubeb-sys/gecko-in-tree"]

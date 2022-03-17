@@ -46,6 +46,17 @@ fn main() {
     let android = target.contains("android");
     let mut cfg = cmake::Config::new("libcubeb");
 
+    if darwin {
+        let cmake_osx_arch = if target.contains("aarch64") {
+            // Apple Silicon
+            "arm64"
+        } else {
+            // Assuming Intel (x86_64)
+            "x86_64"
+        };
+        cfg.define("CMAKE_OSX_ARCHITECTURES", cmake_osx_arch);
+    }
+
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
     t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
 

@@ -7,7 +7,7 @@ A cross-platform audio library in Rust.
 Provides access to the following:
 
 - Multiple audio backends across multiple platforms. See
-  [here](https://github.com/kinetiknz/cubeb/wiki/Backend-Support) for details.
+  [here](https://github.com/mozilla/cubeb/wiki/Backend-Support) for details.
 - Enumeration of available audio devices.
 - Opening input, output and duplex audio streams with control over latency,
   sample rate, channel layout, state transitions, data handling and more.
@@ -15,7 +15,7 @@ Provides access to the following:
 ## Goals
 
 Currently, **cubeb-rs** is based on a set of bindings to the original [**cubeb**
-C++ library](https://github.com/kinetiknz/cubeb) most notable for its use as the
+C++ library](https://github.com/mozilla/cubeb) most notable for its use as the
 audio backend within
 [Gecko](https://github.com/mozilla/gecko-dev/search?q=cubeb&unscoped_q=cubeb),
 Mozilla's browser engine. The long-term goal for **cubeb-rs** is to become
@@ -28,8 +28,8 @@ supports backend implementations in both pure-Rust and via bindings to the C++
 implementation, allowing for progressive replacement. So far, pure-Rust
 implementations exist for:
 
-- CoreAudio https://github.com/ChunMinChang/cubeb-coreaudio-rs
-- PulseAudio https://github.com/djg/cubeb-pulse-rs
+- CoreAudio https://github.com/mozilla/cubeb-coreaudio-rs
+- PulseAudio https://github.com/mozilla/cubeb-pulse-rs
 
 The plan is to consolidate all **cubeb**-related projects (including backend
 implementations) under a single repository

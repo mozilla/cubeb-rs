@@ -22,28 +22,33 @@ macro_rules! cubeb_log_internal {
         }
     };
     ($use_async: ident, __INTERNAL__ $msg: expr) => {
-        use std::io::Write;
-        let mut buf = [0 as u8; 1024];
-        let filename = std::path::Path::new(file!())
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap();
-        // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
-        let len = filename.len() + ((line!() as f32).log10().trunc() as usize) + $msg.len() + 5;
-        debug_assert!(len < buf.len(), "log will be truncated");
-        let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg);
-        let last = std::cmp::min(len, buf.len() - 1);
-        buf[last] = 0;
-        let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]) };
+        let get_cstr = || {
+            use std::io::Write;
+            let mut buf = [0 as u8; 1024];
+            let filename = std::path::Path::new(file!())
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap();
+            // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
+            let len = filename.len() + ((line!() as f32).log10().trunc() as usize) + $msg.len() + 5;
+            debug_assert!(len < buf.len(), "log will be truncated");
+            let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg);
+            let last = std::cmp::min(len, buf.len() - 1);
+            buf[last] = 0;
+            let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]) };
+            cstr.to_owned()
+        };
 
         match($use_async) {
             false => {
                 if let Some(log_callback) = $crate::ffi::g_cubeb_log_callback {
-                    log_callback(cstr.as_ptr());
+                    log_callback(get_cstr().as_ptr());
                 }
             }
-            true => { $crate::ffi::cubeb_async_log(cstr.as_ptr()); }
+            true => {
+                $crate::ffi::cubeb_async_log(get_cstr().as_ptr());
+            }
         }
     }
 }

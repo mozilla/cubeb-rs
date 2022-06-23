@@ -3,6 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+
 #[macro_export]
 macro_rules! cubeb_log_internal {
     ($use_async: ident, $level: expr, $msg: expr) => {
@@ -22,32 +23,35 @@ macro_rules! cubeb_log_internal {
         }
     };
     ($use_async: ident, __INTERNAL__ $msg: expr) => {
-        let get_cstr = || {
+        fn get_cstr<'a>(buf: &'a mut [u8; 1024], file: &str, line: u32, msg: &str) -> &'a std::ffi::CStr {
             use std::io::Write;
-            let mut buf = [0 as u8; 1024];
-            let filename = std::path::Path::new(file!())
+            let filename = std::path::Path::new(file)
                 .file_name()
                 .unwrap()
                 .to_str()
                 .unwrap();
             // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
-            let len = filename.len() + ((line!() as f32).log10().trunc() as usize) + $msg.len() + 5;
+            let len = filename.len() + ((line as f32).log10().trunc() as usize) + msg.len() + 5 + 5;
             debug_assert!(len < buf.len(), "log will be truncated");
-            let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line!(), $msg);
+            let _ = write!(&mut buf[..], "{}:{}: {}\n", filename, line, msg);
             let last = std::cmp::min(len, buf.len() - 1);
             buf[last] = 0;
             let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]) };
-            cstr.to_owned()
-        };
+            cstr
+        }
 
         match($use_async) {
             false => {
                 if let Some(log_callback) = $crate::ffi::g_cubeb_log_callback {
-                    log_callback(get_cstr().as_ptr());
+                    let mut buf = [0u8; 1024];
+                    log_callback(get_cstr(&mut buf, file!(), line!(), &$msg).as_ptr());
                 }
             }
             true => {
-                $crate::ffi::cubeb_async_log(get_cstr().as_ptr());
+                {   // Extra braces here to limit buf's lifetime
+                    let mut buf = [0u8; 1024];
+                    $crate::ffi::cubeb_async_log(get_cstr(&mut buf, file!(), line!(), &$msg).as_ptr());
+                }
             }
         }
     }

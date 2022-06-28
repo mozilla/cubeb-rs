@@ -3,7 +3,6 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-
 #[macro_export]
 macro_rules! cubeb_log_internal {
     ($use_async: ident, $level: expr, $msg: expr) => {

@@ -5,7 +5,12 @@
 
 /// Annotates input buffer string with logging information.
 /// Returns result as a ffi::CStr for use with native cubeb logging functions.
-pub fn cubeb_log_internal_buf_fmt<'a>(buf: &'a mut [u8; 1024], file: &str, line: u32, msg: &str) -> &'a std::ffi::CStr {
+pub fn cubeb_log_internal_buf_fmt<'a>(
+    buf: &'a mut [u8; 1024],
+    file: &str,
+    line: u32,
+    msg: &str,
+) -> &'a std::ffi::CStr {
     use std::io::Write;
     let filename = std::path::Path::new(file)
         .file_name()

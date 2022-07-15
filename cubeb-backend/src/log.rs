@@ -18,7 +18,7 @@ pub fn cubeb_log_internal_buf_fmt<'a>(
         .to_str()
         .unwrap();
     // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
-    let len = filename.len() + ((line as f32).log10().trunc() as usize) + msg.len() + 5 + 5;
+    let len = filename.len() + ((line as f32).log10().trunc() as usize) + msg.len() + 5;
     debug_assert!(len < buf.len(), "log will be truncated");
     let _ = writeln!(&mut buf[..], "{}:{}: {}", filename, line, msg);
     let last = std::cmp::min(len, buf.len() - 1);

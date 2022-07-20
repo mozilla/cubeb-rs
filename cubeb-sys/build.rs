@@ -95,6 +95,7 @@ fn main() {
         let _ = pkg_config::find_library("alsa");
         let _ = pkg_config::find_library("libpulse");
         let _ = pkg_config::find_library("jack");
+        let _ = pkg_config::find_library("speexdsp");
         if android {
             println!("cargo:rustc-link-lib=dylib=OpenSLES");
         }

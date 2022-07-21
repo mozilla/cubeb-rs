@@ -20,8 +20,6 @@ extern crate cubeb_core;
 
 mod context;
 mod frame;
-#[macro_use]
-mod log;
 mod sample;
 mod stream;
 

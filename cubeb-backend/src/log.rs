@@ -3,15 +3,16 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-/// Annotates input buffer string with logging information.
-/// Returns result as a ffi::CStr for use with native cubeb logging functions.
-pub fn cubeb_log_internal_buf_fmt<'a>(
-    buf: &'a mut [u8; 1024],
+/// Annotates input buffer string with logging information, then
+/// logs it via `log_callback`.
+pub fn cubeb_log_internal_buf_fmt(
+    log_callback: unsafe extern "C" fn(*const i8, ...),
     file: &str,
     line: u32,
     msg: &str,
-) -> &'a std::ffi::CStr {
+) {
     use std::io::Write;
+    let mut buf = [0u8; 1024];
     let filename = std::path::Path::new(file)
         .file_name()
         .unwrap()
@@ -23,8 +24,9 @@ pub fn cubeb_log_internal_buf_fmt<'a>(
     let _ = writeln!(&mut buf[..], "{}:{}: {}", filename, line, msg);
     let last = std::cmp::min(len, buf.len() - 1);
     buf[last] = 0;
-    let cstr = unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]) };
-    cstr
+    unsafe {
+        log_callback(std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]).as_ptr());
+    };
 }
 
 #[macro_export]
@@ -37,11 +39,7 @@ macro_rules! cubeb_log_internal {
         unsafe {
             if $level <= $crate::ffi::g_cubeb_log_level.into() {
                 if let Some(log_callback) = $log_callback {
-                    let mut buf = [0u8; 1024];
-                    log_callback(
-                        $crate::log::cubeb_log_internal_buf_fmt(&mut buf, file!(), line!(), &$msg)
-                            .as_ptr(),
-                    );
+                    $crate::log::cubeb_log_internal_buf_fmt(log_callback, file!(), line!(), &$msg)
                 }
             }
         }

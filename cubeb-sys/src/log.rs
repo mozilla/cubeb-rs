@@ -24,6 +24,6 @@ extern "C" {
     pub static g_cubeb_log_level: cubeb_log_level;
     pub static g_cubeb_log_callback: cubeb_log_callback;
 
-    pub fn cubeb_async_log_reset_threads(_: c_void) -> c_void;
-    pub fn cubeb_async_log(msg: *const c_char, ...) -> c_void;
+    pub fn cubeb_async_log_reset_threads(_: c_void);
+    pub fn cubeb_async_log(msg: *const c_char, ...);
 }

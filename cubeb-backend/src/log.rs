@@ -3,46 +3,74 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-/// Annotates input buffer string with logging information, then
-/// logs it via `log_callback`.
+/// Maximum length in bytes for a log message.
+/// Longer messages are silently truncated.  See `write_str`.
+const LOG_LIMIT: usize = 1024;
+
+struct StaticCString<const N: usize> {
+    buf: [u8; N],
+    len: usize,
+}
+
+impl<const N: usize> StaticCString<N> {
+    fn new() -> Self {
+        StaticCString {
+            buf: [0u8; N],
+            len: 0,
+        }
+    }
+
+    fn as_cstr(&self) -> &std::ffi::CStr {
+        unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&self.buf[..=self.len]) }
+    }
+}
+
+impl<const N: usize> std::fmt::Write for StaticCString<N> {
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        let s = s.as_bytes();
+        let end = s.len().min(N.checked_sub(1).unwrap() - self.len);
+        debug_assert_eq!(s.len(), end, "message truncated");
+        self.buf[self.len..self.len + end].copy_from_slice(&s[..end]);
+        self.len += end;
+        self.buf[self.len] = 0;
+        Ok(())
+    }
+}
+
+/// Formats `$file:line: $msg\n` into an on-stack buffer of size `LOG_LIMIT`,
+/// then calls `log_callback` with a pointer to the formatted message.
 pub fn cubeb_log_internal_buf_fmt(
     log_callback: unsafe extern "C" fn(*const i8, ...),
     file: &str,
     line: u32,
-    msg: &str,
+    msg: std::fmt::Arguments,
 ) {
-    use std::io::Write;
-    let mut buf = [0u8; 1024];
     let filename = std::path::Path::new(file)
         .file_name()
         .unwrap()
         .to_str()
         .unwrap();
-    // 2 for ':', 1 for ' ', 1 for '\n', and 1 for converting `line!()` to number of digits
-    let len = filename.len() + ((line as f32).log10().trunc() as usize) + msg.len() + 5;
-    debug_assert!(len < buf.len(), "log will be truncated");
-    let _ = writeln!(&mut buf[..], "{}:{}: {}", filename, line, msg);
-    let last = std::cmp::min(len, buf.len() - 1);
-    buf[last] = 0;
+    let mut buf = StaticCString::<LOG_LIMIT>::new();
+    let _ = std::fmt::write(&mut buf, format_args!("{}:{}: {}\n", filename, line, msg));
     unsafe {
-        log_callback(std::ffi::CStr::from_bytes_with_nul_unchecked(&buf[..=last]).as_ptr());
+        log_callback(buf.as_cstr().as_ptr());
     };
 }
 
 #[macro_export]
 macro_rules! cubeb_log_internal {
     ($log_callback: expr, $level: expr, $fmt: expr, $($arg: expr),+) => {
-        cubeb_log_internal!($log_callback, $level, format!($fmt, $($arg),*));
-    };
-    ($log_callback: expr, $level: expr, $msg: expr) => {
         #[allow(unused_unsafe)]
         unsafe {
             if $level <= $crate::ffi::g_cubeb_log_level.into() {
                 if let Some(log_callback) = $log_callback {
-                    $crate::log::cubeb_log_internal_buf_fmt(log_callback, file!(), line!(), &$msg)
+                    $crate::log::cubeb_log_internal_buf_fmt(log_callback, file!(), line!(), format_args!($fmt, $($arg),+));
                 }
             }
         }
+    };
+    ($log_callback: expr, $level: expr, $msg: expr) => {
+        cubeb_log_internal!($log_callback, $level, "{}", $msg);
     };
 }
 

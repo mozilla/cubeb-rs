@@ -8,31 +8,46 @@
 const LOG_LIMIT: usize = 1024;
 
 struct StaticCString<const N: usize> {
-    buf: [u8; N],
+    buf: [std::mem::MaybeUninit<u8>; N],
     len: usize,
 }
 
 impl<const N: usize> StaticCString<N> {
     fn new() -> Self {
         StaticCString {
-            buf: [0u8; N],
+            buf: unsafe { std::mem::MaybeUninit::uninit().assume_init() },
             len: 0,
         }
     }
 
     fn as_cstr(&self) -> &std::ffi::CStr {
-        unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(&self.buf[..=self.len]) }
+        unsafe {
+            std::ffi::CStr::from_bytes_with_nul_unchecked(std::slice::from_raw_parts(
+                self.buf.as_ptr().cast::<u8>(),
+                self.len,
+            ))
+        }
     }
 }
 
 impl<const N: usize> std::fmt::Write for StaticCString<N> {
     fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        use std::convert::TryInto;
         let s = s.as_bytes();
         let end = s.len().min(N.checked_sub(1).unwrap() - self.len);
         debug_assert_eq!(s.len(), end, "message truncated");
-        self.buf[self.len..self.len + end].copy_from_slice(&s[..end]);
+        unsafe {
+            std::ptr::copy_nonoverlapping(
+                s[..end].as_ptr(),
+                self.buf
+                    .as_mut_ptr()
+                    .cast::<u8>()
+                    .offset(self.len.try_into().unwrap()),
+                end,
+            )
+        };
         self.len += end;
-        self.buf[self.len] = 0;
+        self.buf[self.len].write(0);
         Ok(())
     }
 }

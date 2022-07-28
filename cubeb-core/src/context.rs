@@ -24,7 +24,7 @@ ffi_type_heap! {
     ///
     /// # Usage
     ///
-    /// ```rust
+    /// ```no_run
     /// use cubeb_core::{Context, Result};
     /// use std::env;
     /// use std::ffi::CString;

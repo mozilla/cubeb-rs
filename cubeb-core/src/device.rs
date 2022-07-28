@@ -56,10 +56,13 @@ bitflags! {
 pub type DeviceId = ffi::cubeb_devid;
 
 ffi_type_heap! {
-    /// Audio device description
     type CType = ffi::cubeb_device;
+
+    /// Audio device description
     #[derive(Debug)]
     pub struct Device;
+
+    /// Reference to a [`Device`]
     pub struct DeviceRef;
 }
 
@@ -92,12 +95,14 @@ impl DeviceRef {
 }
 
 ffi_type_stack! {
-    /// This structure holds the characteristics of an input or output
-    /// audio device. It is obtained using `enumerate_devices`, which
-    /// returns these structures via `device_collection` and must be
-    /// destroyed via `device_collection_destroy`.
     type CType = ffi::cubeb_device_info;
+
+    /// Characteristics of an input or output audio device.
+    ///
+    /// It is obtained using [`enumerate_devices`](crate::ContextRef::enumerate_devices).
     pub struct DeviceInfo;
+
+    /// Reference to a [`DeviceInfo`]
     pub struct DeviceInfoRef;
 }
 

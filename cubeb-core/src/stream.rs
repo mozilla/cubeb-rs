@@ -57,10 +57,13 @@ bitflags! {
 }
 
 ffi_type_stack! {
-    /// Stream format initialization parameters.
     type CType = ffi::cubeb_stream_params;
+
+    /// Stream format initialization parameters.
     #[derive(Debug)]
     pub struct StreamParams;
+
+    /// Reference to [`StreamParams`]
     pub struct StreamParamsRef;
 }
 
@@ -69,6 +72,7 @@ impl StreamParamsRef {
         unsafe { &*self.as_ptr() }
     }
 
+    /// Requested sample format. One of [`SampleFormat`]
     pub fn format(&self) -> SampleFormat {
         use SampleFormat::*;
         match self.get_ref().format {
@@ -80,17 +84,22 @@ impl StreamParamsRef {
         }
     }
 
+    /// Requested sample rate.
     pub fn rate(&self) -> u32 {
         self.get_ref().rate
     }
+
+    /// Requested channel count.
     pub fn channels(&self) -> u32 {
         self.get_ref().channels
     }
 
+    /// Requested channel layout.
     pub fn layout(&self) -> ChannelLayout {
         ChannelLayout::from(self.get_ref().layout)
     }
 
+    /// Requested preferences (loopback, voice, device switching)
     pub fn prefs(&self) -> StreamPrefs {
         StreamPrefs::from_bits_truncate(self.get_ref().prefs)
     }
@@ -104,7 +113,11 @@ unsafe fn wrapped_cubeb_stream_destroy(stream: *mut ffi::cubeb_stream) {
 ffi_type_heap! {
     type CType = ffi::cubeb_stream;
     fn drop = wrapped_cubeb_stream_destroy;
+
+    /// Input/output stream
     pub struct Stream;
+
+    /// Reference to a [`Stream`]
     pub struct StreamRef;
 }
 
@@ -128,9 +141,10 @@ impl StreamRef {
         Ok(position)
     }
 
-    /// Get the latency for this stream, in frames. This is the number
-    /// of frames between the time cubeb acquires the data in the
-    /// callback and the listener can hear the sound.
+    /// Get the latency for this stream, in frames.
+    ///
+    /// This is the number of frames between the time cubeb acquires the data in the callback and
+    /// the listener can hear the sound.
     pub fn latency(&self) -> Result<u32> {
         let mut latency = 0u32;
         unsafe {
@@ -139,9 +153,10 @@ impl StreamRef {
         Ok(latency)
     }
 
-    /// Get the input latency for this stream, in frames. This is the number of frames between the
-    /// time the audio input device records the audio, and the cubeb callback delivers it.
-    /// This returns an error if the stream is output-only.
+    /// Get the input latency for this stream, in frames.
+    ///
+    /// This is the number of frames between the time the audio input device records the audio, and
+    /// the cubeb callback delivers it.  This returns an error if the stream is output-only.
     pub fn input_latency(&self) -> Result<u32> {
         let mut latency = 0u32;
         unsafe {

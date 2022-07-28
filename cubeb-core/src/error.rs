@@ -20,6 +20,7 @@ pub enum ErrorCode {
     DeviceUnavailable,
 }
 
+/// Possible errors that can happen when working with cubeb.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Error {
     code: ErrorCode,

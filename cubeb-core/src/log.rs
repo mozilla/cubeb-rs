@@ -27,6 +27,7 @@ impl From<ffi::cubeb_log_level> for LogLevel {
     }
 }
 
+/// Check if logging is enabled (disabled by default)
 pub fn log_enabled() -> bool {
     unsafe { ffi::g_cubeb_log_level != LogLevel::Disabled as _ }
 }

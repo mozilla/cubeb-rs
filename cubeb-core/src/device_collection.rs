@@ -8,9 +8,9 @@ use ffi_types;
 use std::{ops, slice};
 use {ContextRef, DeviceInfo};
 
-/// A collection of `DeviceInfo` used by libcubeb
 type CType = ffi::cubeb_device_collection;
 
+/// A collection of `DeviceInfo` used by libcubeb
 #[derive(Debug)]
 pub struct DeviceCollection<'ctx>(CType, &'ctx ContextRef);
 
@@ -52,6 +52,7 @@ impl<'ctx> ::std::convert::AsRef<DeviceCollectionRef> for DeviceCollection<'ctx>
     }
 }
 
+/// Reference to a [`DeviceCollection`]
 pub struct DeviceCollectionRef(ffi_types::Opaque);
 
 impl DeviceCollectionRef {

@@ -5,14 +5,21 @@
 
 use ffi;
 
+/// Sample format enumeration
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
 pub enum SampleFormat {
+    /// 16bit signed integer little endian
     S16LE,
+    /// 16bit signed integer big endian
     S16BE,
+    /// 32bit float little endian
     Float32LE,
+    /// 32bit float big endian
     Float32BE,
     // Maps to the platform native endian
+    /// 16bit signed integer native endian - maps to flatform specific type
     S16NE,
+    /// 32bit float native endian - maps to flatform specific type
     Float32NE,
 }
 

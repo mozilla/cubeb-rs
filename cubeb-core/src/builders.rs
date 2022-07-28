@@ -6,7 +6,17 @@
 use ffi;
 use {ChannelLayout, SampleFormat, StreamParams, StreamPrefs};
 
+/// Builder for stream format initialization parameters
 ///
+/// ```
+/// let params = cubeb_core::StreamParamsBuilder::new()
+///     .format(cubeb_core::SampleFormat::Float32LE)
+///     .rate(44_100)
+///     .channels(1)
+///     .layout(cubeb_core::ChannelLayout::MONO)
+///     .prefs(cubeb_core::StreamPrefs::NONE)
+///     .take();
+/// ```
 #[derive(Debug)]
 pub struct StreamParamsBuilder(ffi::cubeb_stream_params);
 
@@ -24,31 +34,39 @@ impl StreamParamsBuilder {
         Default::default()
     }
 
+    /// Requested sample format. One of [`SampleFormat`]
     pub fn format(mut self, format: SampleFormat) -> Self {
         self.0.format = format.into();
         self
     }
 
+    /// Requested sample rate. Valid range is [1000, 192000].
     pub fn rate(mut self, rate: u32) -> Self {
         self.0.rate = rate;
         self
     }
 
+    /// Requested channel count. Valid range is [1, 8].
     pub fn channels(mut self, channels: u32) -> Self {
         self.0.channels = channels;
         self
     }
 
+    /// Requested channel layout.
+    ///
+    /// This must be consistent with the provided channels. [`ChannelLayout::UNDEFINED`] if unknown
     pub fn layout(mut self, layout: ChannelLayout) -> Self {
         self.0.layout = layout.into();
         self
     }
 
+    /// Requested preferences (loopback, voice, device switching)
     pub fn prefs(mut self, prefs: StreamPrefs) -> Self {
         self.0.prefs = prefs.bits();
         self
     }
 
+    /// Build the stream initialization parameters
     pub fn take(&self) -> StreamParams {
         StreamParams::from(self.0)
     }

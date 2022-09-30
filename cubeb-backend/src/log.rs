@@ -77,7 +77,7 @@ macro_rules! cubeb_log_internal {
     ($log_callback: expr, $level: expr, $fmt: expr, $($arg: expr),+) => {
         #[allow(unused_unsafe)]
         unsafe {
-            if $level <= $crate::ffi::g_cubeb_log_level.into() {
+            if $level <= $crate::ffi::cubeb_log_get_level().into() {
                 if let Some(log_callback) = $log_callback {
                     $crate::log::cubeb_log_internal_buf_fmt(log_callback, file!(), line!(), format_args!($fmt, $($arg),+));
                 }

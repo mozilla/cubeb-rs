@@ -91,12 +91,12 @@ macro_rules! cubeb_log_internal {
 
 #[macro_export]
 macro_rules! cubeb_log {
-    ($($arg: expr),+) => (cubeb_log_internal!($crate::ffi::g_cubeb_log_callback, $crate::LogLevel::Normal, $($arg),+));
+    ($($arg: expr),+) => (cubeb_log_internal!($crate::ffi::cubeb_log_get_callback(), $crate::LogLevel::Normal, $($arg),+));
 }
 
 #[macro_export]
 macro_rules! cubeb_logv {
-    ($($arg: expr),+) => (cubeb_log_internal!($crate::ffi::g_cubeb_log_callback, $crate::LogLevel::Verbose, $($arg),+));
+    ($($arg: expr),+) => (cubeb_log_internal!($crate::ffi::cubeb_log_get_callback(), $crate::LogLevel::Verbose, $($arg),+));
 }
 
 #[macro_export]

@@ -33,9 +33,6 @@ fn main() {
         _ => false,
     });
 
-    // g_cubeb_log_* globals aren't visible via cubeb.h, skip them.
-    cfg.skip_static(|s| s.starts_with("g_cubeb_log_"));
-
     // Generate the tests, passing the path to the `*-sys` library as well as
     // the module to generate.
     cfg.generate("../cubeb-sys/src/lib.rs", "all.rs");

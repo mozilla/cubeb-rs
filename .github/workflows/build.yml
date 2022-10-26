@@ -1,30 +1,18 @@
-name: Build
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  lint:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-10.15]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [stable]
-        experimental: [false]
-        include:
-          - os: ubuntu-20.04
-            rust: nightly
-            experimental: true
-          - os: windows-2019
-            rust: nightly
-            experimental: true
-          - os: macos-10.15
-            rust: nightly
-            experimental: true
-
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -40,13 +28,53 @@ jobs:
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo clippy -p cubeb -p cubeb-backend -p cubeb-core -p cubeb-sys -- -D warnings
 
+  build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable]
+        experimental: [false]
+        include:
+          - os: ubuntu-latest
+            rust: nightly
+            experimental: true
+          - os: windows-latest
+            rust: nightly
+            experimental: true
+          - os: macos-latest
+            rust: nightly
+            experimental: true
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Setup cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ matrix.os }}-${{ matrix.rust }}-cargo-
+
+    - name: Install Rust
+      run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt clippy
+
     - name: Build
       shell: bash
-      run: rustup run ${{ matrix.rust }} cargo build --all
+      run: rustup run ${{ matrix.rust }} cargo build --verbose --all
 
     - name: Test
       shell: bash
-      run: rustup run ${{ matrix.rust }} cargo test --all
+      run: rustup run ${{ matrix.rust }} cargo test --verbose --all
 
     - name: Run systest
       shell: bash

@@ -20,6 +20,7 @@ pub enum DeviceState {
 
 bitflags! {
     /// Architecture specific sample type.
+    #[derive(PartialEq, Eq)]
     pub struct DeviceFormat: ffi::cubeb_device_fmt {
         const S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
         const S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;

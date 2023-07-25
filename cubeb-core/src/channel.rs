@@ -7,6 +7,7 @@ use ffi;
 
 bitflags! {
     /// Some common layout definitions
+    #[derive(Debug, Copy, PartialEq, Eq, Clone, PartialOrd, Ord, Hash)]
     pub struct ChannelLayout: ffi::cubeb_channel_layout {
         ///
         const FRONT_LEFT = ffi::CHANNEL_FRONT_LEFT;
@@ -32,7 +33,7 @@ bitflags! {
 
 macro_rules! bits {
     ($($x:ident => $y:ident),*) => {
-        $(pub const $x: ChannelLayout = ChannelLayout { bits: ffi::$y };)*
+        $(pub const $x: ChannelLayout = ChannelLayout::from_bits_truncate(ffi::$y);)*
     }
 }
 
@@ -75,8 +76,7 @@ impl From<ChannelLayout> for ffi::cubeb_channel {
 
 impl ChannelLayout {
     pub fn num_channels(&self) -> u32 {
-        let layout = *self;
-        unsafe { ffi::cubeb_channel_layout_nb_channels(layout.into()) }
+        unsafe { ffi::cubeb_channel_layout_nb_channels(self.bits()) }
     }
 }
 

@@ -48,6 +48,7 @@ impl From<State> for ffi::cubeb_state {
 
 bitflags! {
     /// Miscellaneous stream preferences.
+    #[derive(Debug, Copy, PartialEq, Eq, Clone, PartialOrd, Ord, Hash)]
     pub struct StreamPrefs: ffi::cubeb_stream_prefs {
         const NONE = ffi::CUBEB_STREAM_PREF_NONE;
         const LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;

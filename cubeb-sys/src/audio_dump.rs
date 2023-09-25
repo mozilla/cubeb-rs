@@ -4,14 +4,14 @@
 // accompanying file LICENSE for details.
 
 use stream::cubeb_stream_params;
-use std::os::raw::{c_int, c_uint, c_void, c_char};
+use std::os::raw::{c_int, c_void, c_char};
 
 pub enum cubeb_audio_dump_stream {}
 pub enum cubeb_audio_dump_session {}
+pub type cubeb_audio_dump_stream_t = *mut cubeb_audio_dump_stream;
+pub type cubeb_audio_dump_session_t = *mut cubeb_audio_dump_session;
 
 extern "C" {
-    pub type cubeb_audio_dump_stream_t = *mut cubeb_audio_dump_stream;
-    pub type cubeb_audio_dump_session_t = *mut cubeb_audio_dump_session;
     pub fn cubeb_audio_dump_init(session: *mut cubeb_audio_dump_session_t)
         -> c_int;
     pub fn cubeb_audio_dump_shutdown(session: cubeb_audio_dump_session_t) -> c_int;

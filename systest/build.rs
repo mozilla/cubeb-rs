@@ -12,7 +12,8 @@ fn main() {
     cfg.header("cubeb.h")
         .header("cubeb_mixer.h")
         .header("cubeb_resampler.h")
-        .header("cubeb_log.h");
+        .header("cubeb_log.h")
+        .header("cubeb_audio_dump.h");
 
     // Include the directory where the header files are defined
     cfg.include(root.join("include"))

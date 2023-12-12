@@ -19,11 +19,73 @@ macro_rules! as_ptr {
 ffi_type_heap! {
     type CType = ffi::cubeb;
     fn drop = ffi::cubeb_destroy;
+
+    /// Application context
+    ///
+    /// # Usage
+    ///
+    /// ```no_run
+    /// use cubeb_core::{Context, Result};
+    /// use std::env;
+    /// use std::ffi::CString;
+    ///
+    /// // allow user to select backend via env var
+    /// let backend = env::var("CUBEB_BACKEND").ok();
+    ///
+    /// // a little dance to convert to `Option<&CStr>`
+    /// let backend_c = backend.clone().map(|s| CString::new(s).unwrap());
+    /// let backend_c = backend_c.as_ref().map(|c| c.as_c_str());
+    ///
+    /// // setup context
+    /// let ctx_name = CString::new("Cubeb test context").unwrap();
+    /// let ctx = Context::init(Some(ctx_name.as_c_str()), backend_c);
+    ///
+    /// // alert when the prefered backend was not available
+    /// if let Ok(ref ctx) = ctx {
+    ///     if let Some(ref backend) = backend {
+    ///         let ctx_backend = ctx.backend_id();
+    ///         if backend != ctx_backend {
+    ///             eprintln!("Requested backend `{}', got `{}'", backend, ctx_backend);
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// See [`Context::init`] for allowed values for the backend selection.
     pub struct Context;
+
+    /// Reference to a [`Context`]
     pub struct ContextRef;
 }
 
 impl Context {
+    /// Initialize an application context.
+    ///
+    /// This will perform any library or application scoped initialization.
+    ///
+    /// # Arguments
+    ///
+    /// - context_name (optional): A name for the context. Depending on the platform this can
+    /// appear in different locations.
+    /// - backend_name (optional): The name of the cubeb backend user desires to select. Accepted
+    /// values are listed below. When `None`, a default ordering is used for backend choice.
+    ///
+    /// Available backend names:
+    /// - pulse
+    /// - pulse-rust
+    /// - jack
+    /// - alsa
+    /// - audiounit
+    /// - audiounit-rust
+    /// - wasapi
+    /// - winmm
+    /// - sndio
+    /// - sun
+    /// - opensl
+    /// - oss
+    /// - aaudio
+    /// - audiotrack
+    /// - kai
     pub fn init(context_name: Option<&CStr>, backend_name: Option<&CStr>) -> Result<Context> {
         let mut context: *mut ffi::cubeb = ptr::null_mut();
         let context_name = as_ptr!(context_name);
@@ -36,14 +98,17 @@ impl Context {
 }
 
 impl ContextRef {
+    /// String identifying this context's current backend
     pub fn backend_id(&self) -> &str {
         str::from_utf8(self.backend_id_bytes()).unwrap()
     }
 
+    /// Raw bytes identifying this context's current backend
     pub fn backend_id_bytes(&self) -> &[u8] {
         unsafe { opt_bytes(ffi::cubeb_get_backend_id(self.as_ptr())).unwrap() }
     }
 
+    /// The maximum possible number of channels.
     pub fn max_channel_count(&self) -> Result<u32> {
         let mut channel_count = 0u32;
         unsafe {
@@ -55,6 +120,13 @@ impl ContextRef {
         Ok(channel_count)
     }
 
+    /// The minimal supported latency value, in frames
+    ///
+    /// This is guaranteed to work when creating a stream for the specified sample rate. This is
+    /// platform, hardware and backend dependent.
+    ///
+    /// On some backends, the minimum achievable latency depends on the characteristics of the
+    /// stream.
     pub fn min_latency(&self, params: &StreamParamsRef) -> Result<u32> {
         let mut latency = 0u32;
         unsafe {
@@ -67,6 +139,10 @@ impl ContextRef {
         Ok(latency)
     }
 
+    /// The preferred sample rate for this backend
+    ///
+    /// This is hardware and platform dependent, and can avoid resampling, and/or trigger
+    /// fastpaths.
     pub fn preferred_sample_rate(&self) -> Result<u32> {
         let mut rate = 0u32;
         unsafe {
@@ -78,6 +154,10 @@ impl ContextRef {
         Ok(rate)
     }
 
+    /// Initialize an application context.
+    ///
+    /// For a safe variant, have a look at the `StreamBuilder` in `cubeb_api`
+    ///
     /// # Safety
     ///
     /// This function is unsafe because it dereferences the given `data_callback`, `state_callback`, and `user_ptr` pointers.
@@ -117,6 +197,9 @@ impl ContextRef {
         Ok(Stream::from_ptr(stm))
     }
 
+    /// Returns enumerated devices
+    ///
+    /// See `examples/devices.rs` in `cubeb_api` for example usage
     pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection> {
         let mut coll = ffi::cubeb_device_collection::default();
         unsafe {
@@ -129,6 +212,9 @@ impl ContextRef {
         Ok(DeviceCollection::init_with_ctx(self, coll))
     }
 
+    /// Registers a callback which is called when the system detects a new device or a device is
+    /// removed.
+    ///
     /// # Safety
     ///
     /// This function is unsafe because it dereferences the given `callback` and  `user_ptr` pointers.

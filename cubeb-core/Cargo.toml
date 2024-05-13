@@ -1,6 +1,6 @@
 [package]
 name = "cubeb-core"
-version = "0.12.0"
+version = "0.13.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"
 keywords = ["cubeb"]

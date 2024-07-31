@@ -65,11 +65,15 @@ fn main() {
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_TESTS", "OFF")
         .define("BUILD_TOOLS", "OFF")
+        // This is safe to set always; it's a no-op if the directories don't
+        // exist
+        .define("BUILD_RUST_LIBS", "ON")
         .build();
+
+    let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
 
     println!("cargo:rustc-link-lib=static=cubeb");
     if windows {
-        let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
         println!("cargo:rustc-link-lib=dylib=avrt");
         println!("cargo:rustc-link-lib=dylib=ksuser");
         println!("cargo:rustc-link-lib=dylib=ole32");
@@ -84,6 +88,17 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=CoreAudio");
         println!("cargo:rustc-link-lib=framework=CoreServices");
         println!("cargo:rustc-link-lib=dylib=c++");
+
+        println!("cargo:rustc-link-lib=dylib=cubeb_coreaudio");
+        let mut search_path = std::env::current_dir().unwrap();
+        search_path.push("libcubeb/src/cubeb-coreaudio-rs/target");
+        if debug {
+            search_path.push("debug");
+        } else {
+            search_path.push("release");
+        }
+        println!("cargo:rustc-link-search=native={}", search_path.display());
+
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else {
         if freebsd || android {
@@ -97,7 +112,17 @@ fn main() {
         // Ignore the result of find_library. We don't care if the
         // libraries are missing.
         let _ = pkg_config::find_library("alsa");
-        let _ = pkg_config::find_library("libpulse");
+        if pkg_config::find_library("libpulse").is_ok() {
+            println!("cargo:rustc-link-lib=static=cubeb_pulse");
+            let mut search_path = std::env::current_dir().unwrap();
+            search_path.push("libcubeb/src/cubeb-pulse/target");
+            if debug {
+                search_path.push("debug");
+            } else {
+                search_path.push("release");
+            }
+            println!("cargo:rustc-link-search=native={}", search_path.display());
+        }
         let _ = pkg_config::find_library("jack");
         let _ = pkg_config::find_library("speexdsp");
         if android {

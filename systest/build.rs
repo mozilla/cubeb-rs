@@ -6,6 +6,14 @@ use std::path::PathBuf;
 fn main() {
     let root = PathBuf::from(env::var_os("DEP_CUBEB_ROOT").unwrap());
 
+    let target = env::var("TARGET").unwrap();
+    let windows = target.contains("windows");
+    let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
+
+    if windows && debug {
+        println!("cargo:rustc-link-lib=msvcrtd");
+    }
+
     let mut cfg = ctest2::TestGenerator::new();
 
     // Include the header files where the C APIs are defined

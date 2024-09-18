@@ -69,12 +69,16 @@ fn main() {
 
     println!("cargo:rustc-link-lib=static=cubeb");
     if windows {
+        let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
         println!("cargo:rustc-link-lib=dylib=avrt");
         println!("cargo:rustc-link-lib=dylib=ksuser");
         println!("cargo:rustc-link-lib=dylib=ole32");
         println!("cargo:rustc-link-lib=dylib=user32");
         println!("cargo:rustc-link-lib=dylib=winmm");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
+        if debug {
+            println!("cargo:rustc-link-lib=msvcrtd");
+        }
     } else if darwin {
         println!("cargo:rustc-link-lib=framework=AudioUnit");
         println!("cargo:rustc-link-lib=framework=CoreAudio");

@@ -37,4 +37,5 @@ fn main() {
     // Generate the tests, passing the path to the `*-sys` library as well as
     // the module to generate.
     cfg.generate("../cubeb-sys/src/lib.rs", "all.rs");
+    println!("cargo:rustc-link-arg=/NODEFAULTLIB:msvcrt");
 }

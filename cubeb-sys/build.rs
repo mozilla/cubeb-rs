@@ -69,12 +69,27 @@ fn main() {
 
     println!("cargo:rustc-link-lib=static=cubeb");
     if windows {
+        let profile = env::var("PROFILE").unwrap();
+        let debug = profile.contains("debug");
         println!("cargo:rustc-link-lib=dylib=avrt");
         println!("cargo:rustc-link-lib=dylib=ksuser");
         println!("cargo:rustc-link-lib=dylib=ole32");
         println!("cargo:rustc-link-lib=dylib=user32");
         println!("cargo:rustc-link-lib=dylib=winmm");
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
+        if debug {
+            println!("cargo:rustc-link-arg=/NODEFAULTLIB:libcmt.lib");
+            println!("cargo:rustc-link-arg=/NODEFAULTLIB:libcpmt.lib");
+            println!("cargo:rustc-link-arg=/NODEFAULTLIB:msvcprt.lib");
+            println!("cargo:rustc-link-lib=libcmtd");
+            println!("cargo:rustc-link-lib=libcpmtd");
+        } else {
+            println!("cargo:rustc-link-lib=libcmt");
+            println!("cargo:rustc-link-lib=libcpmt");
+            // Ignore these if any deps try to pull them in.
+            println!("cargo:rustc-link-arg=/NODEFAULTLIB:libcmtd.lib");
+            println!("cargo:rustc-link-arg=/NODEFAULTLIB:libcpmtd.lib");
+        }
     } else if darwin {
         println!("cargo:rustc-link-lib=framework=AudioUnit");
         println!("cargo:rustc-link-lib=framework=CoreAudio");

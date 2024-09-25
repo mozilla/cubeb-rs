@@ -46,19 +46,6 @@ fn main() {
     let android = target.contains("android");
     let mut cfg = cmake::Config::new("libcubeb");
 
-    // Also clone better-supported rust backends.
-    if darwin {
-        let _ = Command::new("git")
-            .args(["clone", "https://github.com/mozilla/cubeb-coreaudio-rs.git"])
-            .current_dir("libcubeb/src")
-            .status();
-    } else if !windows {
-        let _ = Command::new("git")
-            .args(["clone", "https://github.com/mozilla/cubeb-pulse-rs"])
-            .current_dir("libcubeb/src")
-            .status();
-    }
-
     if darwin {
         let cmake_osx_arch = if target.contains("aarch64") {
             // Apple Silicon
@@ -83,9 +70,10 @@ fn main() {
         .define("BUILD_RUST_LIBS", "ON")
         .build();
 
+    let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
+
     println!("cargo:rustc-link-lib=static=cubeb");
     if windows {
-        let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
         println!("cargo:rustc-link-lib=dylib=avrt");
         println!("cargo:rustc-link-lib=dylib=ksuser");
         println!("cargo:rustc-link-lib=dylib=ole32");
@@ -100,11 +88,17 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=CoreAudio");
         println!("cargo:rustc-link-lib=framework=CoreServices");
         println!("cargo:rustc-link-lib=dylib=c++");
+
         println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
         let mut search_path = std::env::current_dir().unwrap();
-        // TODO: Also allow for debug?
-        search_path.push("libcubeb/src/cubeb-coreaudio-rs/target/release");
+        search_path.push("libcubeb/src/cubeb-coreaudio-rs/target");
+        if debug {
+            search_path.push("debug");
+        } else {
+            search_path.push("release");
+        }
         println!("cargo:rustc-link-search=native={}", search_path.display());
+
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
     } else {
         if freebsd || android {
@@ -118,11 +112,15 @@ fn main() {
         // Ignore the result of find_library. We don't care if the
         // libraries are missing.
         let _ = pkg_config::find_library("alsa");
-        if pkg_config::find_library("libpulse").is_ok() || true {
+        if pkg_config::find_library("libpulse").is_ok() {
             println!("cargo:rustc-link-lib=static=cubeb_pulse");
             let mut search_path = std::env::current_dir().unwrap();
-            // TODO: Also allow for debug?
-            search_path.push("libcubeb/src/cubeb-pulse/target/release");
+            search_path.push("libcubeb/src/cubeb-pulse/target");
+            if debug {
+                search_path.push("debug");
+            } else {
+                search_path.push("release");
+            }
             println!("cargo:rustc-link-search=native={}", search_path.display());
         }
         let _ = pkg_config::find_library("jack");

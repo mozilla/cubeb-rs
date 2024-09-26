@@ -6,3 +6,7 @@ members = [
     "cubeb-sys",
     "systest"
 ]
+exclude = [
+  "cubeb-sys/libcubeb/src/cubeb-coreaudio-rs",
+  "cubeb-sys/libcubeb/src/cubeb-pulse-rs",
+]

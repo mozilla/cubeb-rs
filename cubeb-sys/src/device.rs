@@ -182,7 +182,7 @@ impl Default for cubeb_device_info {
 
 impl fmt::Debug for cubeb_device_info {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fn optional_c_str(c_str: *const i8) -> Option<*const i8> {
+        fn optional_c_str(c_str: *const c_char) -> Option<*const c_char> {
             (unsafe { c_str.as_ref() }).map(ptr::from_ref)
         }
         f.debug_struct("cubeb_device_info")

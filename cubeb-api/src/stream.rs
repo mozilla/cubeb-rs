@@ -315,7 +315,7 @@ impl<'a, F> StreamBuilder<'a, F> {
     }
 }
 
-impl<'a, F> Default for StreamBuilder<'a, F> {
+impl<F> Default for StreamBuilder<'_, F> {
     fn default() -> Self {
         StreamBuilder {
             name: None,

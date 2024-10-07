@@ -66,3 +66,24 @@ jobs:
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo run -p systest
 
+  build_arm_linux:
+    name: Cross-compile for aarch64 linux
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+         submodules: recursive
+
+      - name: Install Rust
+        shell: bash
+        run: rustup target add aarch64-unknown-linux-gnu
+
+      - name: Install crossbuild headers
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y crossbuild-essential-arm64
+
+      - name: Build cross compile aarch64
+        shell: bash
+        run: cargo build --workspace --exclude systest --target aarch64-unknown-linux-gnu

@@ -15,7 +15,13 @@ circle-ci = { repository = "mozilla/cubeb-rs" }
 
 [features]
 gecko-in-tree = []
+unittest-build = []
 
 [build-dependencies]
 pkg-config = "0.3"
 cmake = "0.1.2"
+
+# Workaround, see build.rs and
+# https://github.com/rust-lang/cargo/issues/4789#issuecomment-2308131243
+[dev-dependencies]
+cubeb-sys = { path = ".", features = ["unittest-build"] }

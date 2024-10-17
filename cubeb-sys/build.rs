@@ -129,7 +129,7 @@ fn main() {
             {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
                 let mut search_path = std::env::current_dir().unwrap();
-                search_path.push("libcubeb/src/cubeb-pulse/target");
+                search_path.push("libcubeb/src/cubeb-pulse-rs/target");
                 if debug {
                     search_path.push("debug");
                 } else {

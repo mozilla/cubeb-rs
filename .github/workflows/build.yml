@@ -31,6 +31,10 @@ jobs:
     - name: Install Rust
       run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt clippy
 
+    - name: Install Dependencies (Linux)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: sudo apt-get update && sudo apt-get install libpulse-dev pulseaudio
+
     - name: Check format
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo fmt --all -- --check
@@ -43,6 +47,10 @@ jobs:
     - name: Build
       shell: bash
       run: rustup run ${{ matrix.rust }} cargo build --all
+
+    - name: Start Sound Server (Linux)
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: pulseaudio -D --start
 
     - name: Setup Audio
       if: ${{ matrix.os == 'macos-14' }}

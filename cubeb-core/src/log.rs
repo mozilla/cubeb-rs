@@ -4,7 +4,7 @@
 // accompanying file LICENSE for details.
 
 use std::ffi::{c_char, CStr};
-use std::sync::Mutex;
+use std::sync::RwLock;
 use {ffi, Error, Result};
 
 /// Level (verbosity) of logging for a particular cubeb context.
@@ -44,7 +44,7 @@ pub fn log_enabled() -> bool {
     unsafe { ffi::cubeb_log_get_level() != LogLevel::Disabled as _ }
 }
 
-static LOG_CALLBACK: Mutex<Option<fn(s: &CStr)>> = Mutex::new(None);
+static LOG_CALLBACK: RwLock<Option<fn(s: &CStr)>> = RwLock::new(None);
 
 extern "C" {
     fn cubeb_write_log(fmt: *const c_char, ...);
@@ -59,7 +59,7 @@ pub unsafe extern "C" fn rust_write_formatted_msg(s: *const c_char) {
         // Do nothing if the pointer is null.
         return;
     }
-    if let Ok(guard) = LOG_CALLBACK.lock() {
+    if let Ok(guard) = LOG_CALLBACK.read() {
         if let Some(f) = *guard {
             f(CStr::from_ptr(s));
         }
@@ -69,7 +69,7 @@ pub unsafe extern "C" fn rust_write_formatted_msg(s: *const c_char) {
 }
 
 pub fn set_logging(level: LogLevel, f: Option<fn(s: &CStr)>) -> Result<()> {
-    match LOG_CALLBACK.lock() {
+    match LOG_CALLBACK.write() {
         Ok(mut guard) => {
             *guard = f;
         }

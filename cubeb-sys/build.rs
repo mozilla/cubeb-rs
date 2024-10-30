@@ -38,6 +38,8 @@ fn main() {
             .args(["submodule", "update", "--init", "--recursive"])
             .status();
     }
+    let libcubeb_rust_exists = Path::new("libcubeb/src/cubeb-coreaudio-rs").exists()
+        && Path::new("libcubeb/src/cubeb-pulse-rs").exists();
 
     let target = env::var("TARGET").unwrap();
     let windows = target.contains("windows");
@@ -67,7 +69,7 @@ fn main() {
     #[cfg(feature = "unittest-build")]
     let build_rust_libs = "OFF";
     #[cfg(not(feature = "unittest-build"))]
-    let build_rust_libs = "ON";
+    let build_rust_libs = if libcubeb_rust_exists { "ON" } else { "OFF" };
     let dst = cfg
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_TESTS", "OFF")
@@ -94,19 +96,21 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=CoreServices");
         println!("cargo:rustc-link-lib=dylib=c++");
 
-        // Do not link the rust backends for tests: doing so causes duplicate
-        // symbol definitions.
-        #[cfg(not(feature = "unittest-build"))]
-        {
-            println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
-            let mut search_path = std::env::current_dir().unwrap();
-            search_path.push("libcubeb/src/cubeb-coreaudio-rs/target");
-            if debug {
-                search_path.push("debug");
-            } else {
-                search_path.push("release");
+        if libcubeb_rust_exists {
+            // Do not link the rust backends for tests: doing so causes duplicate
+            // symbol definitions.
+            #[cfg(not(feature = "unittest-build"))]
+            {
+                println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
+                let mut search_path = std::env::current_dir().unwrap();
+                search_path.push("libcubeb/src/cubeb-coreaudio-rs/target");
+                if debug {
+                    search_path.push("debug");
+                } else {
+                    search_path.push("release");
+                }
+                println!("cargo:rustc-link-search=native={}", search_path.display());
             }
-            println!("cargo:rustc-link-search=native={}", search_path.display());
         }
 
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
@@ -122,7 +126,7 @@ fn main() {
         // Ignore the result of find_library. We don't care if the
         // libraries are missing.
         let _ = pkg_config::find_library("alsa");
-        if pkg_config::find_library("libpulse").is_ok() {
+        if pkg_config::find_library("libpulse").is_ok() && libcubeb_rust_exists {
             // Do not link the rust backends for tests: doing so causes duplicate
             // symbol definitions.
             #[cfg(not(feature = "unittest-build"))]

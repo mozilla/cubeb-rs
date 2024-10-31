@@ -33,20 +33,48 @@ fn main() {
         return;
     }
 
-    if !Path::new("libcubeb/.git").exists() {
+    let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
+    t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
+
+    env::remove_var("DESTDIR");
+
+    let libcubeb_path = if Path::new("libcubeb").exists() {
+        "libcubeb".to_owned()
+    } else {
+        env::var("OUT_DIR").unwrap() + "/libcubeb"
+    };
+
+    if !Path::new(&libcubeb_path).exists() {
         let _ = Command::new("git")
-            .args(["submodule", "update", "--init", "--recursive"])
+            .args([
+                "clone",
+                "-q",
+                "--filter=tree:0",
+                "https://github.com/mozilla/cubeb",
+                &libcubeb_path,
+            ])
+            .status();
+        let _ = Command::new("git")
+            .args([
+                "-C",
+                &libcubeb_path,
+                "submodule",
+                "update",
+                "--init",
+                "--recursive",
+            ])
             .status();
     }
-    let libcubeb_rust_exists = Path::new("libcubeb/src/cubeb-coreaudio-rs").exists()
-        && Path::new("libcubeb/src/cubeb-pulse-rs").exists();
+    let libcubeb_rust_exists = Path::new(&(libcubeb_path.clone() + "/src/cubeb-coreaudio-rs"))
+        .exists()
+        && Path::new(&(libcubeb_path.clone() + "/src/cubeb-pulse-rs")).exists();
 
     let target = env::var("TARGET").unwrap();
     let windows = target.contains("windows");
     let darwin = target.contains("darwin");
     let freebsd = target.contains("freebsd");
     let android = target.contains("android");
-    let mut cfg = cmake::Config::new("libcubeb");
+    let mut cfg = cmake::Config::new(&libcubeb_path);
 
     if darwin {
         let cmake_osx_arch = if target.contains("aarch64") {
@@ -58,11 +86,6 @@ fn main() {
         };
         cfg.define("CMAKE_OSX_ARCHITECTURES", cmake_osx_arch);
     }
-
-    let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
-    t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
-
-    env::remove_var("DESTDIR");
 
     // Do not build the rust backends for tests: doing so causes duplicate
     // symbol definitions.
@@ -103,7 +126,7 @@ fn main() {
             {
                 println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
                 let mut search_path = std::env::current_dir().unwrap();
-                search_path.push("libcubeb/src/cubeb-coreaudio-rs/target");
+                search_path.push(&(libcubeb_path + "/src/cubeb-coreaudio-rs/target"));
                 if debug {
                     search_path.push("debug");
                 } else {
@@ -133,7 +156,7 @@ fn main() {
             {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
                 let mut search_path = std::env::current_dir().unwrap();
-                search_path.push("libcubeb/src/cubeb-pulse-rs/target");
+                search_path.push(&(libcubeb_path + "/src/cubeb-pulse-rs/target"));
                 if debug {
                     search_path.push("debug");
                 } else {

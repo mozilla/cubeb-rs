@@ -38,6 +38,11 @@ fn main() {
 
     env::remove_var("DESTDIR");
 
+    if env::var("DOCS_RS").is_ok() {
+        // Use stubs, not libcubeb, for docs.rs.
+        return;
+    }
+
     let libcubeb_path = if Path::new("libcubeb").exists() {
         "libcubeb".to_owned()
     } else {

@@ -98,6 +98,9 @@ fn main() {
         .define("BUILD_TESTS", "OFF")
         .define("BUILD_TOOLS", "OFF")
         .define("BUILD_RUST_LIBS", build_rust_libs)
+        // Force rust libs to include target triple when outputting,
+        // for easier linking when cross-compiling.
+        .env("CARGO_BUILD_TARGET", &target)
         .build();
 
     let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
@@ -127,6 +130,7 @@ fn main() {
                 println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
                 let mut search_path = std::env::current_dir().unwrap();
                 search_path.push(&(libcubeb_path + "/src/cubeb-coreaudio-rs/target"));
+                search_path.push(&target);
                 if debug {
                     search_path.push("debug");
                 } else {
@@ -157,6 +161,7 @@ fn main() {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
                 let mut search_path = std::env::current_dir().unwrap();
                 search_path.push(&(libcubeb_path + "/src/cubeb-pulse-rs/target"));
+                search_path.push(&target);
                 if debug {
                     search_path.push("debug");
                 } else {

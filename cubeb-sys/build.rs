@@ -3,6 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+// This should match the submodule for cubeb-sys/libcubeb.
+const LIBCUBEB_COMMIT: &str = "78b2bce70e0d1c21d3c175b72f322c50801b2e94";
+
 #[cfg(not(feature = "gecko-in-tree"))]
 extern crate cmake;
 #[cfg(not(feature = "gecko-in-tree"))]
@@ -58,6 +61,9 @@ fn main() {
                 "https://github.com/mozilla/cubeb",
                 &libcubeb_path,
             ])
+            .status();
+        let _ = Command::new("git")
+            .args(["-C", &libcubeb_path, "reset", "--hard", LIBCUBEB_COMMIT])
             .status();
         let _ = Command::new("git")
             .args([

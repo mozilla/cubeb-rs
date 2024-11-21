@@ -90,6 +90,7 @@ fn main() {
         .define("BUILD_TESTS", "OFF")
         .define("BUILD_TOOLS", "OFF")
         .define("BUILD_RUST_LIBS", build_rust_libs)
+        .define("USE_STATIC_MSVC_RUNTIME", "ON")
         // Force rust libs to include target triple when outputting,
         // for easier linking when cross-compiling.
         .env("CARGO_BUILD_TARGET", &target)

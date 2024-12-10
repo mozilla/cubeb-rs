@@ -1,10 +1,12 @@
 [workspace]
+resolver = "2"
 members = [
     "cubeb-core",
     "cubeb-api",
     "cubeb-backend",
     "cubeb-sys",
-    "systest"
+    "systest",
+    "xtask",
 ]
 exclude = [
   "cubeb-sys/libcubeb/src/cubeb-coreaudio-rs",

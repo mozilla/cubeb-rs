@@ -33,33 +33,50 @@ fn main() {
         return;
     }
 
-    let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
-    t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
-
-    env::remove_var("DESTDIR");
-
     if env::var("DOCS_RS").is_ok() {
         // Use stubs, not libcubeb, for docs.rs.
         return;
     }
 
-    // If the libcubeb submodule is present, use that.
-    let libcubeb_path = if Path::new("libcubeb").exists() {
-        "libcubeb".to_owned()
-    } else {
-        // If the submodule is not present, we're building in a packaged environment
-        // so we expected a vendored copy of the source to be available.
-        // Vendored copy generated with:
-        // "tar -c -f libcubeb_vendored.tar --exclude libcubeb/googletest libcubeb"
-        t!(Command::new("tar")
-            .args([
-                "xvfC",
-                "libcubeb_vendored.tar",
-                &env::var("OUT_DIR").unwrap(),
-            ])
-            .status());
-        env::var("OUT_DIR").unwrap() + "/libcubeb"
-    };
+    let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
+    t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
+
+    env::remove_var("DESTDIR");
+
+    // Copy libcubeb to the output directory.
+    let libcubeb_path = format!("{}/libcubeb", env::var("OUT_DIR").unwrap());
+    t!(Command::new("cp")
+        .args(["-r", "libcubeb", &env::var("OUT_DIR").unwrap(),])
+        .status());
+
+    fn visit_dirs(dir: &Path, cb: &dyn Fn(&fs::DirEntry)) -> std::io::Result<()> {
+        if dir.is_dir() {
+            for entry in fs::read_dir(dir)? {
+                let entry = entry?;
+                let path = entry.path();
+                if path.is_dir() {
+                    visit_dirs(&path, cb)?;
+                } else {
+                    cb(&entry);
+                }
+            }
+        }
+        Ok(())
+    }
+    // For packaged build: rename libcubeb Cargo.toml.in files to Cargo.toml.
+    t!(visit_dirs(Path::new(&libcubeb_path), &|entry| {
+        let path = entry.path();
+        if path
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .ends_with("Cargo.toml.in")
+        {
+            let new_path = path.with_file_name("Cargo.toml");
+            fs::rename(&path, &new_path).unwrap();
+        }
+    }));
 
     let target = env::var("TARGET").unwrap();
     let windows = target.contains("windows");

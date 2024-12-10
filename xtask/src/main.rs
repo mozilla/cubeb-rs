@@ -76,9 +76,8 @@ fn release() -> Result<(), DynError> {
 
     let status = Command::new(&cargo)
         .current_dir(project_root())
-        .args(["publish", "--workspace", "--allow-dirty"])
+        .args(["publish", "--package", "cubeb-sys", "--allow-dirty"])
         .status()?;
-
     if !status.success() {
         Err("cargo publish failed")?;
     }
@@ -98,6 +97,30 @@ fn release() -> Result<(), DynError> {
         }
     })
     .unwrap();
+
+    let status = Command::new(&cargo)
+        .current_dir(project_root())
+        .args(["publish", "--package", "cubeb-core"])
+        .status()?;
+    if !status.success() {
+        Err("cargo publish failed")?;
+    }
+
+    let status = Command::new(&cargo)
+        .current_dir(project_root())
+        .args(["publish", "--package", "cubeb-backend"])
+        .status()?;
+    if !status.success() {
+        Err("cargo publish failed")?;
+    }
+
+    let status = Command::new(&cargo)
+        .current_dir(project_root())
+        .args(["publish", "--package", "cubeb"])
+        .status()?;
+    if !status.success() {
+        Err("cargo publish failed")?;
+    }
 
     Ok(())
 }

@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details
 
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::float_cmp))]
+#![allow(clippy::float_cmp)]
 
 #[macro_use]
 extern crate cubeb_backend;

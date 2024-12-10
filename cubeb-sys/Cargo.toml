@@ -1,11 +1,11 @@
 [package]
 name = "cubeb-sys"
-version = "0.18.0"
+version = "0.20.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 repository = "https://github.com/mozilla/cubeb-rs"
 license = "ISC"
 description = "Native bindings to the cubeb library"
-exclude = ["libcubeb/"]
+exclude = ["libcubeb/googletest"]
 
 links = "cubeb"
 build = "build.rs"

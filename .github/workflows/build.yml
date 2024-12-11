@@ -76,6 +76,8 @@ jobs:
 
   build_arm_linux:
     name: Cross-compile for aarch64 linux
+    env:
+      CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
     runs-on: ubuntu-20.04
 

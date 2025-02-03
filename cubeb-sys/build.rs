@@ -113,7 +113,7 @@ fn main() {
         .env("CARGO_BUILD_TARGET", &target)
         .build();
 
-    let debug = env::var("DEBUG").unwrap().parse::<bool>().unwrap();
+    let debug = env::var("PROFILE").unwrap() == "debug";
 
     println!("cargo:rustc-link-lib=static=cubeb");
     if windows {

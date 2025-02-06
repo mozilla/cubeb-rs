@@ -15,6 +15,7 @@ use cubeb_backend::{
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
+use std::sync::OnceLock;
 
 pub const OPS: Ops = capi_new!(TestContext, TestStream);
 
@@ -144,12 +145,13 @@ fn test_ops_context_init() {
         unsafe { OPS.init.unwrap()(&mut c, ptr::null()) },
         ffi::CUBEB_OK
     );
+    assert!(!c.is_null());
     unsafe { OPS.destroy.unwrap()(c) }
 }
 
 #[test]
 fn test_ops_context_max_channel_count() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let mut max_channel_count = u32::max_value();
     assert_eq!(
         unsafe { OPS.get_max_channel_count.unwrap()(c, &mut max_channel_count) },
@@ -160,7 +162,7 @@ fn test_ops_context_max_channel_count() {
 
 #[test]
 fn test_ops_context_min_latency() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let params: ffi::cubeb_stream_params = unsafe { ::std::mem::zeroed() };
     let mut latency = u32::max_value();
     assert_eq!(
@@ -172,7 +174,7 @@ fn test_ops_context_min_latency() {
 
 #[test]
 fn test_ops_context_preferred_sample_rate() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let mut rate = u32::max_value();
     assert_eq!(
         unsafe { OPS.get_preferred_sample_rate.unwrap()(c, &mut rate) },
@@ -183,7 +185,7 @@ fn test_ops_context_preferred_sample_rate() {
 
 #[test]
 fn test_ops_context_supported_input_processing_params() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let mut params: ffi::cubeb_input_processing_params = InputProcessingParams::all().bits();
     assert_eq!(
         unsafe { OPS.get_supported_input_processing_params.unwrap()(c, &mut params) },
@@ -194,7 +196,7 @@ fn test_ops_context_supported_input_processing_params() {
 
 #[test]
 fn test_ops_context_enumerate_devices() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let mut coll = ffi::cubeb_device_collection {
         device: ptr::null_mut(),
         count: 0,
@@ -209,7 +211,7 @@ fn test_ops_context_enumerate_devices() {
 
 #[test]
 fn test_ops_context_device_collection_destroy() {
-    let c: *mut ffi::cubeb = ptr::null_mut();
+    let c: *mut ffi::cubeb = get_ctx();
     let mut coll = ffi::cubeb_device_collection {
         device: 0xDEAD_BEEF as *mut _,
         count: usize::max_value(),
@@ -294,5 +296,37 @@ fn test_ops_stream_device_destroy() {
     let s: *mut ffi::cubeb_stream = ptr::null_mut();
     unsafe {
         OPS.stream_device_destroy.unwrap()(s, 0xDEAD_BEEF as *mut _);
+    }
+}
+
+fn get_ctx() -> *mut ffi::cubeb {
+    CONTEXT.get_or_init(TestContextPtr::new).ptr
+}
+
+static CONTEXT: OnceLock<TestContextPtr> = OnceLock::new();
+
+struct TestContextPtr {
+    ptr: *mut ffi::cubeb,
+}
+
+// Safety: ffi::cubeb implementations are expected to be thread-safe.
+unsafe impl Send for TestContextPtr {}
+unsafe impl Sync for TestContextPtr {}
+
+impl TestContextPtr {
+    fn new() -> Self {
+        let mut c: *mut ffi::cubeb = ptr::null_mut();
+        assert_eq!(
+            unsafe { OPS.init.unwrap()(&mut c, ptr::null()) },
+            ffi::CUBEB_OK
+        );
+        assert!(!c.is_null());
+        TestContextPtr { ptr: c }
+    }
+}
+
+impl Drop for TestContextPtr {
+    fn drop(&mut self) {
+        unsafe { OPS.destroy.unwrap()(self.ptr) }
     }
 }

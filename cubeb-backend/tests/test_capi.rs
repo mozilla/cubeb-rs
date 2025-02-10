@@ -232,7 +232,7 @@ fn test_ops_context_device_collection_destroy() {
 
 #[test]
 fn test_ops_stream_latency() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     let mut latency = u32::max_value();
     assert_eq!(
         unsafe { OPS.stream_get_latency.unwrap()(s, &mut latency) },
@@ -243,7 +243,7 @@ fn test_ops_stream_latency() {
 
 #[test]
 fn test_ops_stream_set_volume() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     unsafe {
         OPS.stream_set_volume.unwrap()(s, 0.5);
     }
@@ -251,7 +251,7 @@ fn test_ops_stream_set_volume() {
 
 #[test]
 fn test_ops_stream_set_name() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     unsafe {
         OPS.stream_set_name.unwrap()(s, CStr::from_bytes_with_nul(b"test\0").unwrap().as_ptr());
     }
@@ -259,7 +259,7 @@ fn test_ops_stream_set_name() {
 
 #[test]
 fn test_ops_stream_current_device() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     let mut device: *mut ffi::cubeb_device = ptr::null_mut();
     assert_eq!(
         unsafe { OPS.stream_get_current_device.unwrap()(s, &mut device) },
@@ -270,7 +270,7 @@ fn test_ops_stream_current_device() {
 
 #[test]
 fn test_ops_stream_set_input_mute() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     assert_eq!(
         unsafe { OPS.stream_set_input_mute.unwrap()(s, 1) },
         ffi::CUBEB_OK
@@ -279,7 +279,7 @@ fn test_ops_stream_set_input_mute() {
 
 #[test]
 fn test_ops_stream_set_input_processing_params() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
+    let s: *mut ffi::cubeb_stream = get_stream();
     assert_eq!(
         unsafe {
             OPS.stream_set_input_processing_params.unwrap()(
@@ -289,14 +289,6 @@ fn test_ops_stream_set_input_processing_params() {
         },
         ffi::CUBEB_OK
     );
-}
-
-#[test]
-fn test_ops_stream_device_destroy() {
-    let s: *mut ffi::cubeb_stream = ptr::null_mut();
-    unsafe {
-        OPS.stream_device_destroy.unwrap()(s, 0xDEAD_BEEF as *mut _);
-    }
 }
 
 fn get_ctx() -> *mut ffi::cubeb {
@@ -328,5 +320,52 @@ impl TestContextPtr {
 impl Drop for TestContextPtr {
     fn drop(&mut self) {
         unsafe { OPS.destroy.unwrap()(self.ptr) }
+    }
+}
+
+fn get_stream() -> *mut ffi::cubeb_stream {
+    STREAM.get_or_init(TestStreamPtr::new).ptr
+}
+
+static STREAM: OnceLock<TestStreamPtr> = OnceLock::new();
+
+struct TestStreamPtr {
+    ptr: *mut ffi::cubeb_stream,
+}
+
+// Safety: ffi::cubeb_stream implementations are expected to be thread-safe.
+unsafe impl Send for TestStreamPtr {}
+unsafe impl Sync for TestStreamPtr {}
+
+impl TestStreamPtr {
+    fn new() -> Self {
+        let c: *mut ffi::cubeb = get_ctx();
+        let mut s: *mut ffi::cubeb_stream = ptr::null_mut();
+        assert_eq!(
+            unsafe {
+                OPS.stream_init.unwrap()(
+                    c,
+                    &mut s,
+                    ptr::null(),
+                    ptr::null(),
+                    ptr::null_mut(),
+                    ptr::null(),
+                    ptr::null_mut(),
+                    0,
+                    None,
+                    None,
+                    ptr::null_mut(),
+                )
+            },
+            ffi::CUBEB_OK
+        );
+        assert!(!s.is_null());
+        TestStreamPtr { ptr: s }
+    }
+}
+
+impl Drop for TestStreamPtr {
+    fn drop(&mut self) {
+        unsafe { OPS.stream_destroy.unwrap()(self.ptr) }
     }
 }

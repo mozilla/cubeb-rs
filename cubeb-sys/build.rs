@@ -93,9 +93,9 @@ fn main() {
 
     // Do not build the rust backends for tests: doing so causes duplicate
     // symbol definitions.
-    #[cfg(feature = "unittest-build")]
+    #[cfg(any(feature = "unittest-build", docsrs))]
     let build_rust_libs = "OFF";
-    #[cfg(not(feature = "unittest-build"))]
+    #[cfg(not(any(feature = "unittest-build", docsrs)))]
     let build_rust_libs = "ON";
     let dst = cfg
         .define("BUILD_SHARED_LIBS", "OFF")
@@ -129,7 +129,7 @@ fn main() {
 
         // Do not link the rust backends for tests: doing so causes duplicate
         // symbol definitions.
-        #[cfg(not(feature = "unittest-build"))]
+        #[cfg(not(any(feature = "unittest-build", docsrs)))]
         {
             println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
             let mut search_path = std::env::current_dir().unwrap();
@@ -159,7 +159,7 @@ fn main() {
         if pkg_config::find_library("libpulse").is_ok() {
             // Do not link the rust backends for tests: doing so causes duplicate
             // symbol definitions.
-            #[cfg(not(feature = "unittest-build"))]
+            #[cfg(not(any(feature = "unittest-build", docsrs)))]
             {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
                 let mut search_path = std::env::current_dir().unwrap();

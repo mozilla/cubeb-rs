@@ -93,15 +93,15 @@ fn main() {
 
     // Do not build the rust backends for tests: doing so causes duplicate
     // symbol definitions.
-    #[cfg(any(feature = "unittest-build", docsrs))]
-    let build_rust_libs = "OFF";
-    #[cfg(not(any(feature = "unittest-build", docsrs)))]
-    let build_rust_libs = "ON";
+    let build_rust_libs = cfg!(not(feature = "unittest-build")) && env::var("DOCS_RS").is_err();
     let dst = cfg
         .define("BUILD_SHARED_LIBS", "OFF")
         .define("BUILD_TESTS", "OFF")
         .define("BUILD_TOOLS", "OFF")
-        .define("BUILD_RUST_LIBS", build_rust_libs)
+        .define(
+            "BUILD_RUST_LIBS",
+            if build_rust_libs { "ON" } else { "OFF" },
+        )
         .define("USE_STATIC_MSVC_RUNTIME", "ON")
         // Force rust libs to include target triple when outputting,
         // for easier linking when cross-compiling.
@@ -129,8 +129,7 @@ fn main() {
 
         // Do not link the rust backends for tests: doing so causes duplicate
         // symbol definitions.
-        #[cfg(not(any(feature = "unittest-build", docsrs)))]
-        {
+        if build_rust_libs {
             println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
             let mut search_path = std::env::current_dir().unwrap();
             search_path.push(&(libcubeb_path + "/src/cubeb-coreaudio-rs/target"));
@@ -159,8 +158,7 @@ fn main() {
         if pkg_config::find_library("libpulse").is_ok() {
             // Do not link the rust backends for tests: doing so causes duplicate
             // symbol definitions.
-            #[cfg(not(any(feature = "unittest-build", docsrs)))]
-            {
+            if build_rust_libs {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
                 let mut search_path = std::env::current_dir().unwrap();
                 search_path.push(&(libcubeb_path + "/src/cubeb-pulse-rs/target"));

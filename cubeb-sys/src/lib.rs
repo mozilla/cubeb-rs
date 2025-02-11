@@ -20,9 +20,6 @@ mod mixer;
 mod resampler;
 mod stream;
 
-#[cfg(docsrs)]
-mod documentation_libcubeb_stubs;
-
 pub use audio_dump::*;
 pub use callbacks::*;
 pub use channel::*;

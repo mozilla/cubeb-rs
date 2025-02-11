@@ -33,11 +33,6 @@ fn main() {
         return;
     }
 
-    if env::var("DOCS_RS").is_ok() {
-        // Use stubs, not libcubeb, for docs.rs.
-        return;
-    }
-
     let _ = fs::remove_dir_all(env::var("OUT_DIR").unwrap());
     t!(fs::create_dir_all(env::var("OUT_DIR").unwrap()));
 

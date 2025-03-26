@@ -424,6 +424,9 @@ pub unsafe extern "C" fn capi_stream_device_destroy<STM: StreamOps>(
     device: *mut ffi::cubeb_device,
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
+    if device.is_null() {
+        return ffi::CUBEB_ERROR_INVALID_PARAMETER;
+    }
     let device = DeviceRef::from_ptr(device);
     let _ = stm.device_destroy(device);
     ffi::CUBEB_OK

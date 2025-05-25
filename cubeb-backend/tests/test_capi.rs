@@ -9,8 +9,8 @@
 extern crate cubeb_backend;
 
 use cubeb_backend::{
-    ffi, Context, ContextOps, DeviceCollectionRef, DeviceId, DeviceRef, DeviceType,
-    InputProcessingParams, Ops, Result, Stream, StreamOps, StreamParams, StreamParamsRef,
+    ffi, ContextOps, DeviceCollectionRef, DeviceId, DeviceRef, DeviceType, InputProcessingParams,
+    Ops, Result, Stream, StreamOps, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
 use std::os::raw::c_void;
@@ -25,11 +25,10 @@ struct TestContext {
 }
 
 impl ContextOps for TestContext {
-    fn init(_context_name: Option<&CStr>) -> Result<Context> {
-        let ctx = Box::new(TestContext {
+    fn init(_context_name: Option<&CStr>) -> Result<Box<Self>> {
+        Ok(Box::new(TestContext {
             ops: &OPS as *const _,
-        });
-        Ok(unsafe { Context::from_ptr(Box::into_raw(ctx) as *mut _) })
+        }))
     }
 
     fn backend_id(&mut self) -> &'static CStr {

@@ -9,11 +9,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-14]
+        os: [ubuntu-22.04, windows-2019, macos-14]
         rust: [stable]
         experimental: [false]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             rust: nightly
             experimental: true
           - os: windows-2019
@@ -32,7 +32,7 @@ jobs:
       run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt,clippy
 
     - name: Install Dependencies (Linux)
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      if: ${{ matrix.os == 'ubuntu-22.04' }}
       run: sudo apt-get update && sudo apt-get install libpulse-dev pulseaudio
 
     - name: Check format
@@ -49,7 +49,7 @@ jobs:
       run: rustup run ${{ matrix.rust }} cargo build --all
 
     - name: Start Sound Server (Linux)
-      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      if: ${{ matrix.os == 'ubuntu-22.04' }}
       run: pulseaudio -D --start
 
     - name: Setup Audio
@@ -80,7 +80,7 @@ jobs:
     env:
       CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v2

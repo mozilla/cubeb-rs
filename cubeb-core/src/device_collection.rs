@@ -4,96 +4,56 @@
 // accompanying file LICENSE for details.
 
 use ffi;
-use ffi_types;
-use std::{ops, slice};
-use {ContextRef, DeviceInfo};
+use std::mem::MaybeUninit;
+use {ContextRef, DeviceInfo, DeviceType, Error, Result};
 
 /// A collection of `DeviceInfo` used by libcubeb
-type CType = ffi::cubeb_device_collection;
-
 #[derive(Debug)]
-pub struct DeviceCollection<'ctx>(CType, &'ctx ContextRef);
+pub struct DeviceCollection<'ctx> {
+    inner: &'ctx mut [DeviceInfo],
+    ctx: &'ctx ContextRef,
+}
 
 impl DeviceCollection<'_> {
-    pub(crate) fn init_with_ctx(ctx: &ContextRef, coll: CType) -> DeviceCollection<'_> {
-        DeviceCollection(coll, ctx)
-    }
+    pub(crate) fn new(ctx: &ContextRef, devtype: DeviceType) -> Result<DeviceCollection<'_>> {
+        let mut coll = MaybeUninit::uninit();
+        unsafe {
+            Error::wrap(ffi::cubeb_enumerate_devices(
+                ctx.as_ptr(),
+                devtype.bits(),
+                coll.as_mut_ptr(),
+            ))?;
+        }
 
-    pub fn as_ptr(&self) -> *mut CType {
-        &self.0 as *const CType as *mut CType
+        // SAFETY: It is the responsibility of the cubeb_enumerate_devices to initialize the
+        // device collection struct with a valid array of device infos.
+        let inner = unsafe {
+            let coll = coll.assume_init();
+            std::slice::from_raw_parts_mut(coll.device as *mut _, coll.count)
+        };
+        Ok(DeviceCollection { inner, ctx })
     }
 }
 
 impl Drop for DeviceCollection<'_> {
     fn drop(&mut self) {
+        let mut coll = ffi::cubeb_device_collection {
+            device: self.inner.as_mut_ptr() as *mut _,
+            count: self.inner.len(),
+        };
         unsafe {
-            let _ = call!(ffi::cubeb_device_collection_destroy(
-                self.1.as_ptr(),
-                &mut self.0
-            ));
+            // This drops the self.inner, do not interact with it past this point
+            let res = ffi::cubeb_device_collection_destroy(self.ctx.as_ptr(), &mut coll);
+            debug_assert!(res == 0)
         }
     }
 }
 
 impl ::std::ops::Deref for DeviceCollection<'_> {
-    type Target = DeviceCollectionRef;
-
-    #[inline]
-    fn deref(&self) -> &DeviceCollectionRef {
-        let ptr = &self.0 as *const CType as *mut CType;
-        unsafe { DeviceCollectionRef::from_ptr(ptr) }
-    }
-}
-
-impl ::std::convert::AsRef<DeviceCollectionRef> for DeviceCollection<'_> {
-    #[inline]
-    fn as_ref(&self) -> &DeviceCollectionRef {
-        self
-    }
-}
-
-pub struct DeviceCollectionRef(ffi_types::Opaque);
-
-impl DeviceCollectionRef {
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferences the given `ptr` pointer.
-    /// The caller should ensure that pointer is valid.
-    #[inline]
-    pub unsafe fn from_ptr<'a>(ptr: *mut CType) -> &'a Self {
-        &*(ptr as *mut _)
-    }
-
-    /// # Safety
-    ///
-    /// This function is unsafe because it dereferences the given `ptr` pointer.
-    /// The caller should ensure that pointer is valid.
-    #[inline]
-    pub unsafe fn from_ptr_mut<'a>(ptr: *mut CType) -> &'a mut Self {
-        &mut *(ptr as *mut _)
-    }
-
-    #[inline]
-    pub fn as_ptr(&self) -> *mut CType {
-        self as *const _ as *mut _
-    }
-}
-
-impl ::std::fmt::Debug for DeviceCollectionRef {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let ptr = self as *const DeviceCollectionRef as usize;
-        f.debug_tuple(stringify!(DeviceCollectionRef))
-            .field(&ptr)
-            .finish()
-    }
-}
-
-impl ops::Deref for DeviceCollectionRef {
     type Target = [DeviceInfo];
-    fn deref(&self) -> &[DeviceInfo] {
-        unsafe {
-            let coll: &ffi::cubeb_device_collection = &*self.as_ptr();
-            slice::from_raw_parts(coll.device as *const DeviceInfo, coll.count)
-        }
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        self.inner
     }
 }

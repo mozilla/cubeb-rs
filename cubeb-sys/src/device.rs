@@ -133,24 +133,6 @@ pub struct cubeb_device_collection {
     pub count: usize,
 }
 
-impl Default for cubeb_device_collection {
-    fn default() -> Self {
-        unsafe { mem::zeroed() }
-    }
-}
-
-impl fmt::Debug for cubeb_device_collection {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let devices = ptr::slice_from_raw_parts(self.device, self.count);
-        let devices = unsafe { &*devices };
-        let mut dbg = f.debug_list();
-        for d in devices {
-            dbg.entry(d);
-        }
-        dbg.finish()
-    }
-}
-
 #[repr(C)]
 pub struct cubeb_device_info {
     pub devid: cubeb_devid,

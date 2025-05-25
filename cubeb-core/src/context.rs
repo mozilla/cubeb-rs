@@ -131,15 +131,7 @@ impl ContextRef {
     }
 
     pub fn enumerate_devices(&self, devtype: DeviceType) -> Result<DeviceCollection<'_>> {
-        let mut coll = ffi::cubeb_device_collection::default();
-        unsafe {
-            call!(ffi::cubeb_enumerate_devices(
-                self.as_ptr(),
-                devtype.bits(),
-                &mut coll
-            ))?;
-        }
-        Ok(DeviceCollection::init_with_ctx(self, coll))
+        DeviceCollection::new(self, devtype)
     }
 
     /// # Safety

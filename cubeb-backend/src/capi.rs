@@ -4,8 +4,7 @@
 // accompanying file LICENSE for details
 
 use cubeb_core::{
-    ffi, DeviceCollectionRef, DeviceRef, DeviceType, InputProcessingParams, StreamParams,
-    StreamParamsRef,
+    ffi, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
 use std::mem;
@@ -169,10 +168,17 @@ pub unsafe extern "C" fn capi_enumerate_devices<CTX: ContextOps>(
     devtype: ffi::cubeb_device_type,
     collection: *mut ffi::cubeb_device_collection,
 ) -> c_int {
+    debug_assert!(!c.is_null());
+    debug_assert!(!collection.is_null());
+
     let ctx = &mut *(c as *mut CTX);
     let devtype = DeviceType::from_bits_truncate(devtype);
-    let collection = DeviceCollectionRef::from_ptr(collection);
-    _try!(ctx.enumerate_devices(devtype, collection));
+
+    let coll = Box::into_raw(_try!(ctx.enumerate_devices(devtype)));
+    collection.write(ffi::cubeb_device_collection {
+        device: coll as *mut _,
+        count: coll.len(),
+    });
     ffi::CUBEB_OK
 }
 
@@ -186,9 +192,19 @@ pub unsafe extern "C" fn capi_device_collection_destroy<CTX: ContextOps>(
     c: *mut ffi::cubeb,
     collection: *mut ffi::cubeb_device_collection,
 ) -> c_int {
+    debug_assert!(!c.is_null());
+    debug_assert!(!collection.is_null());
+
     let ctx = &mut *(c as *mut CTX);
-    let collection = DeviceCollectionRef::from_ptr_mut(collection);
-    _try!(ctx.device_collection_destroy(collection));
+    let collection = &mut *(collection);
+
+    let coll = Box::from_raw(std::slice::from_raw_parts_mut(
+        collection.device as *mut DeviceInfo,
+        collection.count,
+    ));
+    _try!(ctx.device_collection_destroy(coll));
+    collection.device = std::ptr::null_mut();
+    collection.count = 0;
     ffi::CUBEB_OK
 }
 

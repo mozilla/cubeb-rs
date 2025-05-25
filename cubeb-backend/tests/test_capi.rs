@@ -9,10 +9,11 @@
 extern crate cubeb_backend;
 
 use cubeb_backend::{
-    ffi, ContextOps, DeviceCollectionRef, DeviceId, DeviceRef, DeviceType, InputProcessingParams,
-    Ops, Result, Stream, StreamOps, StreamParams, StreamParamsRef,
+    ffi, ContextOps, DeviceId, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, Ops,
+    Result, Stream, StreamOps, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
+use std::mem::ManuallyDrop;
 use std::os::raw::c_void;
 use std::ptr;
 use std::sync::OnceLock;
@@ -46,22 +47,12 @@ impl ContextOps for TestContext {
     fn supported_input_processing_params(&mut self) -> Result<InputProcessingParams> {
         Ok(InputProcessingParams::NONE)
     }
-    fn enumerate_devices(
-        &mut self,
-        _devtype: DeviceType,
-        collection: &DeviceCollectionRef,
-    ) -> Result<()> {
-        let coll = unsafe { &mut *collection.as_ptr() };
-        coll.device = 0xDEAD_BEEF as *mut _;
-        coll.count = usize::max_value();
-        Ok(())
+    fn enumerate_devices(&mut self, _devtype: DeviceType) -> Result<Box<[DeviceInfo]>> {
+        Ok(vec![DeviceInfo::default()].into_boxed_slice())
     }
-    fn device_collection_destroy(&mut self, collection: &mut DeviceCollectionRef) -> Result<()> {
-        let coll = unsafe { &mut *collection.as_ptr() };
-        assert_eq!(coll.device, 0xDEAD_BEEF as *mut _);
-        assert_eq!(coll.count, usize::max_value());
-        coll.device = ptr::null_mut();
-        coll.count = 0;
+    fn device_collection_destroy(&mut self, collection: Box<[DeviceInfo]>) -> Result<()> {
+        assert_eq!(collection.len(), 1);
+        assert_ne!(collection[0].as_ptr(), std::ptr::null_mut());
         Ok(())
     }
     fn stream_init(
@@ -204,16 +195,18 @@ fn test_ops_context_enumerate_devices() {
         unsafe { OPS.enumerate_devices.unwrap()(c, 0, &mut coll) },
         ffi::CUBEB_OK
     );
-    assert_eq!(coll.device, 0xDEAD_BEEF as *mut _);
-    assert_eq!(coll.count, usize::max_value())
+    assert_ne!(coll.device, std::ptr::null_mut());
+    assert_eq!(coll.count, 1)
 }
 
 #[test]
 fn test_ops_context_device_collection_destroy() {
     let c: *mut ffi::cubeb = get_ctx();
+    let mut device_infos = ManuallyDrop::new(Box::new([DeviceInfo::default().into()]));
+
     let mut coll = ffi::cubeb_device_collection {
-        device: 0xDEAD_BEEF as *mut _,
-        count: usize::max_value(),
+        device: device_infos.as_mut_ptr(),
+        count: device_infos.len(),
     };
     assert_eq!(
         unsafe { OPS.device_collection_destroy.unwrap()(c, &mut coll) },

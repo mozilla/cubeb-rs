@@ -4,7 +4,7 @@
 // accompanying file LICENSE for details.
 
 use cubeb_core::{
-    DeviceCollectionRef, DeviceId, DeviceRef, DeviceType, InputProcessingParams, Result, Stream,
+    DeviceId, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, Result, Stream,
     StreamParams, StreamParamsRef,
 };
 use ffi;
@@ -18,12 +18,8 @@ pub trait ContextOps {
     fn min_latency(&mut self, params: StreamParams) -> Result<u32>;
     fn preferred_sample_rate(&mut self) -> Result<u32>;
     fn supported_input_processing_params(&mut self) -> Result<InputProcessingParams>;
-    fn enumerate_devices(
-        &mut self,
-        devtype: DeviceType,
-        collection: &DeviceCollectionRef,
-    ) -> Result<()>;
-    fn device_collection_destroy(&mut self, collection: &mut DeviceCollectionRef) -> Result<()>;
+    fn enumerate_devices(&mut self, devtype: DeviceType) -> Result<Box<[DeviceInfo]>>;
+    fn device_collection_destroy(&mut self, collection: Box<[DeviceInfo]>) -> Result<()>;
     #[allow(clippy::too_many_arguments)]
     fn stream_init(
         &mut self,

@@ -4,15 +4,15 @@
 // accompanying file LICENSE for details.
 
 use cubeb_core::{
-    Context, DeviceCollectionRef, DeviceId, DeviceRef, DeviceType, InputProcessingParams, Result,
-    Stream, StreamParams, StreamParamsRef,
+    DeviceCollectionRef, DeviceId, DeviceRef, DeviceType, InputProcessingParams, Result, Stream,
+    StreamParams, StreamParamsRef,
 };
 use ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 
 pub trait ContextOps {
-    fn init(context_name: Option<&CStr>) -> Result<Context>;
+    fn init(context_name: Option<&CStr>) -> Result<Box<Self>>;
     fn backend_id(&mut self) -> &CStr;
     fn max_channel_count(&mut self) -> Result<u32>;
     fn min_latency(&mut self, params: StreamParams) -> Result<u32>;

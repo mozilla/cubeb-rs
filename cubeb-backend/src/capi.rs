@@ -79,9 +79,7 @@ pub unsafe extern "C" fn capi_init<CTX: ContextOps>(
     let anchor = &();
     let context_name = opt_cstr(anchor, context_name);
     let context = _try!(CTX::init(context_name));
-    *c = context.as_ptr();
-    // Leaking pointer across C FFI
-    mem::forget(context);
+    c.write(Box::into_raw(context) as *mut _);
     ffi::CUBEB_OK
 }
 

@@ -5,21 +5,21 @@
 
 use ffi;
 use std::mem::MaybeUninit;
-use {ContextRef, DeviceInfo, DeviceType, Error, Result};
+use {Context, DeviceInfo, DeviceType, Error, Result};
 
 /// A collection of `DeviceInfo` used by libcubeb
 #[derive(Debug)]
 pub struct DeviceCollection<'ctx> {
     inner: &'ctx mut [DeviceInfo],
-    ctx: &'ctx ContextRef,
+    ctx: &'ctx Context,
 }
 
 impl DeviceCollection<'_> {
-    pub(crate) fn new(ctx: &ContextRef, devtype: DeviceType) -> Result<DeviceCollection<'_>> {
+    pub(crate) fn new(ctx: &Context, devtype: DeviceType) -> Result<DeviceCollection<'_>> {
         let mut coll = MaybeUninit::uninit();
         unsafe {
             Error::wrap(ffi::cubeb_enumerate_devices(
-                ctx.as_ptr(),
+                ctx.0,
                 devtype.bits(),
                 coll.as_mut_ptr(),
             ))?;
@@ -43,7 +43,7 @@ impl Drop for DeviceCollection<'_> {
         };
         unsafe {
             // This drops the self.inner, do not interact with it past this point
-            let res = ffi::cubeb_device_collection_destroy(self.ctx.as_ptr(), &mut coll);
+            let res = ffi::cubeb_device_collection_destroy(self.ctx.0, &mut coll);
             debug_assert!(res == 0)
         }
     }

@@ -7,7 +7,8 @@ use ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::{ptr, str};
-use util::opt_bytes;
+use Error;
+
 use {
     DeviceCollection, DeviceId, DeviceType, InputProcessingParams, Result, Stream, StreamParamsRef,
 };
@@ -18,41 +19,31 @@ macro_rules! as_ptr {
     };
 }
 
-ffi_type_heap! {
-    type CType = ffi::cubeb;
-    fn drop = ffi::cubeb_destroy;
-    pub struct Context;
-    pub struct ContextRef;
-}
+#[derive(Debug)]
+pub struct Context(pub(crate) *mut ffi::cubeb);
 
 impl Context {
-    pub fn init(context_name: Option<&CStr>, backend_name: Option<&CStr>) -> Result<Context> {
+    pub fn init(context_name: Option<&CStr>, backend_name: Option<&CStr>) -> Result<Self> {
         let mut context: *mut ffi::cubeb = ptr::null_mut();
         let context_name = as_ptr!(context_name);
         let backend_name = as_ptr!(backend_name);
         unsafe {
-            call!(ffi::cubeb_init(&mut context, context_name, backend_name))?;
-            Ok(Context::from_ptr(context))
+            Error::wrap(ffi::cubeb_init(&mut context, context_name, backend_name))?;
+            Ok(Context(context))
         }
     }
-}
 
-impl ContextRef {
     pub fn backend_id(&self) -> &str {
-        str::from_utf8(self.backend_id_bytes()).unwrap()
-    }
-
-    pub fn backend_id_bytes(&self) -> &[u8] {
-        unsafe { opt_bytes(ffi::cubeb_get_backend_id(self.as_ptr())).unwrap() }
+        // SAFETY: The returned pointer is guaranted to be a valid, read-only C string
+        unsafe { CStr::from_ptr(ffi::cubeb_get_backend_id(self.0)) }
+            .to_str()
+            .expect("Backend ID is not a valid UTF-8 string.")
     }
 
     pub fn max_channel_count(&self) -> Result<u32> {
         let mut channel_count = 0u32;
         unsafe {
-            call!(ffi::cubeb_get_max_channel_count(
-                self.as_ptr(),
-                &mut channel_count
-            ))?;
+            Error::wrap(ffi::cubeb_get_max_channel_count(self.0, &mut channel_count))?;
         }
         Ok(channel_count)
     }
@@ -60,10 +51,10 @@ impl ContextRef {
     pub fn min_latency(&self, params: &StreamParamsRef) -> Result<u32> {
         let mut latency = 0u32;
         unsafe {
-            call!(ffi::cubeb_get_min_latency(
-                self.as_ptr(),
+            Error::wrap(ffi::cubeb_get_min_latency(
+                self.0,
                 params.as_ptr(),
-                &mut latency
+                &mut latency,
             ))?;
         }
         Ok(latency)
@@ -72,10 +63,7 @@ impl ContextRef {
     pub fn preferred_sample_rate(&self) -> Result<u32> {
         let mut rate = 0u32;
         unsafe {
-            call!(ffi::cubeb_get_preferred_sample_rate(
-                self.as_ptr(),
-                &mut rate
-            ))?;
+            Error::wrap(ffi::cubeb_get_preferred_sample_rate(self.0, &mut rate))?;
         }
         Ok(rate)
     }
@@ -83,9 +71,9 @@ impl ContextRef {
     pub fn supported_input_processing_params(&self) -> Result<InputProcessingParams> {
         let mut params = ffi::CUBEB_INPUT_PROCESSING_PARAM_NONE;
         unsafe {
-            call!(ffi::cubeb_get_supported_input_processing_params(
-                self.as_ptr(),
-                &mut params
+            Error::wrap(ffi::cubeb_get_supported_input_processing_params(
+                self.0,
+                &mut params,
             ))?;
         };
         Ok(InputProcessingParams::from_bits_truncate(params))
@@ -114,8 +102,8 @@ impl ContextRef {
         let input_stream_params = as_ptr!(input_stream_params);
         let output_stream_params = as_ptr!(output_stream_params);
 
-        call!(ffi::cubeb_stream_init(
-            self.as_ptr(),
+        Error::wrap(ffi::cubeb_stream_init(
+            self.0,
             &mut stm,
             stream_name,
             input_device,
@@ -125,7 +113,7 @@ impl ContextRef {
             latency_frames,
             data_callback,
             state_callback,
-            user_ptr
+            user_ptr,
         ))?;
         Ok(Stream::from_ptr(stm))
     }
@@ -144,13 +132,17 @@ impl ContextRef {
         callback: ffi::cubeb_device_collection_changed_callback,
         user_ptr: *mut c_void,
     ) -> Result<()> {
-        call!(ffi::cubeb_register_device_collection_changed(
-            self.as_ptr(),
+        Error::wrap(ffi::cubeb_register_device_collection_changed(
+            self.0,
             devtype.bits(),
             callback,
-            user_ptr
-        ))?;
+            user_ptr,
+        ))
+    }
+}
 
-        Ok(())
+impl Drop for Context {
+    fn drop(&mut self) {
+        unsafe { ffi::cubeb_destroy(self.0) }
     }
 }

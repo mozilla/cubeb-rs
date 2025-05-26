@@ -22,12 +22,12 @@
 
 extern crate cubeb_core;
 
-mod context;
+mod entry;
 mod frame;
 mod sample;
 mod stream;
 
-pub use context::*;
+pub use entry::init;
 // Re-export cubeb_core types
 pub use cubeb_core::{
     ffi, ChannelLayout, Context, Device, DeviceCollection, DeviceFormat, DeviceId, DeviceInfo,

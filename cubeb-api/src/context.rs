@@ -3,15 +3,14 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use cubeb_core::{InputProcessingParams, Stream};
 use ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::{ptr, str};
 use Error;
 
-use {
-    DeviceCollection, DeviceId, DeviceType, InputProcessingParams, Result, Stream, StreamParamsRef,
-};
+use {DeviceCollection, DeviceId, DeviceType, Result, StreamParamsRef};
 
 macro_rules! as_ptr {
     ($e:expr) => {

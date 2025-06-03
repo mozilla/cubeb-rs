@@ -14,20 +14,16 @@ mod call;
 
 mod builders;
 mod channel;
-mod context;
 mod device;
-mod device_collection;
 mod error;
 mod format;
 mod log;
 mod stream;
-mod util;
+pub mod util;
 
 pub use builders::*;
 pub use channel::*;
-pub use context::*;
 pub use device::*;
-pub use device_collection::*;
 pub use error::*;
 pub use format::*;
 pub use log::*;

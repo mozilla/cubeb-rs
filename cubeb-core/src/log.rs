@@ -73,7 +73,7 @@ pub fn set_logging(level: LogLevel, f: Option<fn(s: &CStr)>) -> Result<()> {
         Ok(mut guard) => {
             *guard = f;
         }
-        Err(_) => return Err(Error::error()),
+        Err(_) => return Err(Error::Error),
     }
     unsafe {
         call!(ffi::cubeb_set_log_callback(

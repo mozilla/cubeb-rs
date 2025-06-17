@@ -16,7 +16,7 @@ jobs:
           - os: ubuntu-24.04
             rust: nightly
             experimental: true
-          - os: windows-2019
+          - os: windows-2025
             rust: nightly
             experimental: true
           - os: macos-14

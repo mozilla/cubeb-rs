@@ -15,7 +15,7 @@ type CType = ffi::cubeb_device_collection;
 pub struct DeviceCollection<'ctx>(CType, &'ctx ContextRef);
 
 impl DeviceCollection<'_> {
-    pub(crate) fn init_with_ctx(ctx: &ContextRef, coll: CType) -> DeviceCollection {
+    pub(crate) fn init_with_ctx(ctx: &ContextRef, coll: CType) -> DeviceCollection<'_> {
         DeviceCollection(coll, ctx)
     }
 

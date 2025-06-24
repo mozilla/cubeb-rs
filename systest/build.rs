@@ -1,4 +1,4 @@
-extern crate ctest2;
+extern crate ctest;
 
 use std::env;
 use std::path::PathBuf;
@@ -14,7 +14,7 @@ fn main() {
         println!("cargo:rustc-link-lib=msvcrtd");
     }
 
-    let mut cfg = ctest2::TestGenerator::new();
+    let mut cfg = ctest::TestGenerator::new();
 
     // Include the header files where the C APIs are defined
     cfg.header("cubeb.h")

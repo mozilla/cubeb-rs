@@ -17,4 +17,4 @@ cubeb-sys = { path = "../cubeb-sys" }
 libc = "0.2"
 
 [build-dependencies]
-ctest2 = "0.4"
+ctest = "0.4"

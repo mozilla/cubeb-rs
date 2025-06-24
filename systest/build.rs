@@ -16,6 +16,11 @@ fn main() {
 
     let mut cfg = ctest::TestGenerator::new();
 
+    if windows {
+        // Ignore warnings when declaring CUBEB_LAYOUT_* enum.
+        cfg.flag("/wd5287");
+    }
+
     // Include the header files where the C APIs are defined
     cfg.header("cubeb.h")
         .header("cubeb_mixer.h")

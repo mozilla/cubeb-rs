@@ -18,7 +18,7 @@ use {ContextOps, StreamOps};
 macro_rules! _try(
     ($e:expr) => (match $e {
         Ok(e) => e,
-        Err(e) => return e.raw_code()
+        Err(e) => return e as c_int
     })
 );
 

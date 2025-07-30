@@ -102,7 +102,6 @@ impl DeviceRef {
 /// returns these structures via `device_collection` and must be
 /// destroyed via `device_collection_destroy`.
 #[repr(transparent)]
-#[derive(Default, Debug)]
 pub struct DeviceInfo(ffi::cubeb_device_info);
 
 impl DeviceInfo {
@@ -206,6 +205,29 @@ impl DeviceInfo {
     /// Higest possible latency in frames.
     pub fn latency_hi(&self) -> u32 {
         self.0.latency_hi
+    }
+}
+
+impl std::fmt::Debug for DeviceInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DeviceInfo")
+            .field("devid", &self.devid())
+            .field("device_id", &self.device_id())
+            .field("friendly_name", &self.friendly_name())
+            .field("group_id", &self.group_id())
+            .field("vendor_name", &self.vendor_name())
+            .field("device_type", &self.device_type())
+            .field("state", &self.state())
+            .field("preferred", &self.preferred())
+            .field("format", &self.format())
+            .field("default_format", &self.default_format())
+            .field("max_channels", &self.max_channels())
+            .field("default_rate", &self.default_rate())
+            .field("max_rate", &self.max_rate())
+            .field("min_rate", &self.min_rate())
+            .field("latency_lo", &self.latency_lo())
+            .field("latency_hi", &self.latency_hi())
+            .finish()
     }
 }
 

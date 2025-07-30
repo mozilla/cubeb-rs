@@ -48,6 +48,7 @@ impl From<State> for ffi::cubeb_state {
 
 bitflags! {
     /// Miscellaneous stream preferences.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct StreamPrefs: ffi::cubeb_stream_prefs {
         const LOOPBACK = ffi::CUBEB_STREAM_PREF_LOOPBACK;
         const DISABLE_DEVICE_SWITCHING = ffi::CUBEB_STREAM_PREF_DISABLE_DEVICE_SWITCHING;
@@ -61,6 +62,7 @@ impl StreamPrefs {
 
 bitflags! {
     /// Input stream processing parameters.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct InputProcessingParams: ffi::cubeb_input_processing_params {
         const ECHO_CANCELLATION = ffi::CUBEB_INPUT_PROCESSING_PARAM_ECHO_CANCELLATION;
         const NOISE_SUPPRESSION = ffi::CUBEB_INPUT_PROCESSING_PARAM_NOISE_SUPPRESSION;

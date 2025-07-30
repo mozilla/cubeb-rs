@@ -7,6 +7,7 @@ use ffi;
 
 bitflags! {
     /// Some common layout definitions
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct ChannelLayout: ffi::cubeb_channel_layout {
         const FRONT_LEFT = ffi::CHANNEL_FRONT_LEFT;
         const FRONT_RIGHT = ffi::CHANNEL_FRONT_RIGHT;

@@ -20,6 +20,7 @@ pub enum DeviceState {
 
 bitflags! {
     /// Architecture specific sample type.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DeviceFormat: ffi::cubeb_device_fmt {
         const S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
         const S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;
@@ -32,11 +33,12 @@ bitflags! {
     /// Channel type for a `cubeb_stream`. Depending on the backend and platform
     /// used, this can control inter-stream interruption, ducking, and volume
     /// control.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DevicePref: ffi::cubeb_device_pref {
         const MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
         const VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
         const NOTIFICATION = ffi::CUBEB_DEVICE_PREF_NOTIFICATION;
-        const ALL = ffi::CUBEB_DEVICE_PREF_ALL;
+        const _ = 0x08;
     }
 }
 
@@ -47,6 +49,7 @@ impl DevicePref {
 bitflags! {
     /// Whether a particular device is an input device (e.g. a microphone), or an
     /// output device (e.g. headphones).
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DeviceType: ffi::cubeb_device_type {
         const INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as _;
         const OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as _;
@@ -226,8 +229,8 @@ impl DeviceInfoRef {
 
 #[cfg(test)]
 mod tests {
-    use ffi::cubeb_device;
-    use Device;
+    use ffi::{cubeb_device, CUBEB_DEVICE_PREF_ALL};
+    use {Device, DevicePref};
 
     #[test]
     fn device_device_ref_same_ptr() {
@@ -235,5 +238,13 @@ mod tests {
         let device = unsafe { Device::from_ptr(ptr) };
         assert_eq!(device.as_ptr(), ptr);
         assert_eq!(device.as_ptr(), device.as_ref().as_ptr());
+    }
+
+    #[test]
+    fn device_pref_all_same_as_the_constant() {
+        assert_eq!(
+            DevicePref::all(),
+            DevicePref::from_bits_retain(CUBEB_DEVICE_PREF_ALL)
+        );
     }
 }

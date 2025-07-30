@@ -5,7 +5,7 @@
 
 use ffi;
 use std::str;
-use util::opt_bytes;
+use util::{opt_bytes, opt_string};
 
 /// The state of a device.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -124,41 +124,28 @@ impl DeviceInfo {
 
     /// Device identifier which might be presented in a UI.
     pub fn device_id(&self) -> Option<&str> {
-        self.device_id_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn device_id_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.0.device_id) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.device_id) }
     }
 
     /// Friendly device name which might be presented in a UI.
     pub fn friendly_name(&self) -> Option<&str> {
-        self.friendly_name_bytes()
-            .map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn friendly_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.0.friendly_name) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.friendly_name) }
     }
 
     /// Two devices have the same group identifier if they belong to
     /// the same physical device; for example a headset and
     /// microphone.
     pub fn group_id(&self) -> Option<&str> {
-        self.group_id_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn group_id_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.0.group_id) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.group_id) }
     }
 
     /// Optional vendor name, may be None.
     pub fn vendor_name(&self) -> Option<&str> {
-        self.vendor_name_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn vendor_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.0.vendor_name) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.vendor_name) }
     }
 
     /// Type of device (Input/Output).

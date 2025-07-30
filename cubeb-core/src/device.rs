@@ -38,7 +38,7 @@ bitflags! {
         const MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
         const VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
         const NOTIFICATION = ffi::CUBEB_DEVICE_PREF_NOTIFICATION;
-        const ALL = ffi::CUBEB_DEVICE_PREF_ALL;
+        const _ = 0x08;
     }
 }
 
@@ -229,8 +229,8 @@ impl DeviceInfoRef {
 
 #[cfg(test)]
 mod tests {
-    use ffi::cubeb_device;
-    use Device;
+    use ffi::{cubeb_device, CUBEB_DEVICE_PREF_ALL};
+    use {Device, DevicePref};
 
     #[test]
     fn device_device_ref_same_ptr() {
@@ -238,5 +238,13 @@ mod tests {
         let device = unsafe { Device::from_ptr(ptr) };
         assert_eq!(device.as_ptr(), ptr);
         assert_eq!(device.as_ptr(), device.as_ref().as_ptr());
+    }
+
+    #[test]
+    fn device_pref_all_same_as_the_constant() {
+        assert_eq!(
+            DevicePref::all(),
+            DevicePref::from_bits_retain(CUBEB_DEVICE_PREF_ALL)
+        );
     }
 }

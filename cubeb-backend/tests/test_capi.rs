@@ -48,11 +48,10 @@ impl ContextOps for TestContext {
         Ok(InputProcessingParams::NONE)
     }
     fn enumerate_devices(&mut self, _devtype: DeviceType) -> Result<Box<[DeviceInfo]>> {
-        Ok(vec![DeviceInfo::default()].into_boxed_slice())
+        Ok(vec![unsafe { DeviceInfo::from_raw(std::mem::zeroed()) }].into_boxed_slice())
     }
     fn device_collection_destroy(&mut self, collection: Box<[DeviceInfo]>) -> Result<()> {
         assert_eq!(collection.len(), 1);
-        assert_ne!(collection[0].as_ptr(), std::ptr::null_mut());
         Ok(())
     }
     fn stream_init(
@@ -202,7 +201,7 @@ fn test_ops_context_enumerate_devices() {
 #[test]
 fn test_ops_context_device_collection_destroy() {
     let c: *mut ffi::cubeb = get_ctx();
-    let mut device_infos = ManuallyDrop::new(Box::new([DeviceInfo::default().into()]));
+    let mut device_infos = ManuallyDrop::new(Box::new([unsafe { std::mem::zeroed() }]));
 
     let mut coll = ffi::cubeb_device_collection {
         device: device_infos.as_mut_ptr(),

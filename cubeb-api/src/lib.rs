@@ -34,9 +34,9 @@ pub use device_collection::DeviceCollection;
 pub use entry::init;
 // Re-export cubeb_core types
 pub use cubeb_core::{
-    ffi, ChannelLayout, Device, DeviceFormat, DeviceId, DeviceInfo, DeviceInfoRef, DeviceRef,
-    DeviceState, DeviceType, Error, LogLevel, Result, SampleFormat, State, StreamParams,
-    StreamParamsBuilder, StreamParamsRef, StreamPrefs, StreamRef,
+    ffi, ChannelLayout, Device, DeviceFormat, DeviceId, DeviceInfo, DeviceRef, DeviceState,
+    DeviceType, Error, LogLevel, Result, SampleFormat, State, StreamParams, StreamParamsBuilder,
+    StreamParamsRef, StreamPrefs, StreamRef,
 };
 pub use frame::*;
 pub use sample::*;

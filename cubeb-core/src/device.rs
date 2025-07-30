@@ -20,6 +20,7 @@ pub enum DeviceState {
 
 bitflags! {
     /// Architecture specific sample type.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DeviceFormat: ffi::cubeb_device_fmt {
         const S16LE = ffi::CUBEB_DEVICE_FMT_S16LE;
         const S16BE = ffi::CUBEB_DEVICE_FMT_S16BE;
@@ -32,6 +33,7 @@ bitflags! {
     /// Channel type for a `cubeb_stream`. Depending on the backend and platform
     /// used, this can control inter-stream interruption, ducking, and volume
     /// control.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DevicePref: ffi::cubeb_device_pref {
         const MULTIMEDIA = ffi::CUBEB_DEVICE_PREF_MULTIMEDIA;
         const VOICE = ffi::CUBEB_DEVICE_PREF_VOICE;
@@ -47,6 +49,7 @@ impl DevicePref {
 bitflags! {
     /// Whether a particular device is an input device (e.g. a microphone), or an
     /// output device (e.g. headphones).
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
     pub struct DeviceType: ffi::cubeb_device_type {
         const INPUT = ffi::CUBEB_DEVICE_TYPE_INPUT as _;
         const OUTPUT = ffi::CUBEB_DEVICE_TYPE_OUTPUT as _;

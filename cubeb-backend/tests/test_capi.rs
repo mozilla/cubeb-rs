@@ -9,8 +9,8 @@
 extern crate cubeb_backend;
 
 use cubeb_backend::{
-    ffi, ContextOps, DeviceId, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, Ops,
-    Result, Stream, StreamOps, StreamParams, StreamParamsRef,
+    ffi, ContextOps, DeviceId, DeviceInfo, DeviceType, InputProcessingParams, Ops, Result, Stream,
+    StreamOps, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
 use std::mem::ManuallyDrop;
@@ -105,19 +105,12 @@ impl StreamOps for TestStream {
         assert_eq!(name, CStr::from_bytes_with_nul(b"test\0").unwrap());
         Ok(())
     }
-    fn current_device(&mut self) -> Result<&DeviceRef> {
-        Ok(unsafe { DeviceRef::from_ptr(0xDEAD_BEEF as *mut _) })
-    }
     fn set_input_mute(&mut self, mute: bool) -> Result<()> {
         assert_eq!(mute, true);
         Ok(())
     }
     fn set_input_processing_params(&mut self, params: InputProcessingParams) -> Result<()> {
         assert_eq!(params, InputProcessingParams::ECHO_CANCELLATION);
-        Ok(())
-    }
-    fn device_destroy(&mut self, device: &DeviceRef) -> Result<()> {
-        assert_eq!(device.as_ptr(), 0xDEAD_BEEF as *mut _);
         Ok(())
     }
     fn register_device_changed_callback(
@@ -247,17 +240,6 @@ fn test_ops_stream_set_name() {
     unsafe {
         OPS.stream_set_name.unwrap()(s, CStr::from_bytes_with_nul(b"test\0").unwrap().as_ptr());
     }
-}
-
-#[test]
-fn test_ops_stream_current_device() {
-    let s: *mut ffi::cubeb_stream = get_stream();
-    let mut device: *mut ffi::cubeb_device = ptr::null_mut();
-    assert_eq!(
-        unsafe { OPS.stream_get_current_device.unwrap()(s, &mut device) },
-        ffi::CUBEB_OK
-    );
-    assert_eq!(device, 0xDEAD_BEEF as *mut _);
 }
 
 #[test]

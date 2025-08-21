@@ -15,8 +15,9 @@ fn main() {
 
 fn try_main() -> Result<(), DynError> {
     let task = env::args().nth(1);
+    let version = env::args().nth(2);
     match task.as_deref() {
-        Some("release") => release()?,
+        Some("release") => release(version.as_deref().unwrap_or("minor"))?,
         _ => print_help(),
     }
     Ok(())
@@ -26,7 +27,8 @@ fn print_help() {
     eprintln!(
         "Tasks:
 
-release         runs 'cargo release' after preparing the source directory
+release [VERSION]    runs 'cargo release [VERSION]' after preparing the source directory
+                     [VERSION] can be 'major', 'minor', or 'patch'. If not specified, 'minor' is used.
 "
     )
 }
@@ -46,12 +48,12 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&fs::DirEntry)) -> std::io::Result<()> {
     Ok(())
 }
 
-fn release() -> Result<(), DynError> {
+fn release(version: &str) -> Result<(), DynError> {
     let cargo = env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
 
     let status = Command::new(&cargo)
         .current_dir(project_root())
-        .args(["release", "--workspace", "minor", "-x", "--no-publish"])
+        .args(["release", "--workspace", version, "-x", "--no-publish"])
         .status()?;
 
     if !status.success() {

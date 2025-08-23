@@ -61,42 +61,6 @@ impl DeviceType {
 /// across calls.
 pub type DeviceId = ffi::cubeb_devid;
 
-ffi_type_heap! {
-    /// Audio device description
-    type CType = ffi::cubeb_device;
-    #[derive(Debug)]
-    pub struct Device;
-    pub struct DeviceRef;
-}
-
-impl DeviceRef {
-    fn get_ref(&self) -> &ffi::cubeb_device {
-        unsafe { &*self.as_ptr() }
-    }
-
-    /// Gets the output device name.
-    ///
-    /// May return `None` if there is no output device.
-    pub fn output_name(&self) -> Option<&str> {
-        self.output_name_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn output_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().output_name) }
-    }
-
-    /// Gets the input device name.
-    ///
-    /// May return `None` if there is no input device.
-    pub fn input_name(&self) -> Option<&str> {
-        self.input_name_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn input_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().input_name) }
-    }
-}
-
 ffi_type_stack! {
     /// This structure holds the characteristics of an input or output
     /// audio device. It is obtained using `enumerate_devices`, which
@@ -221,19 +185,5 @@ impl DeviceInfoRef {
     /// Higest possible latency in frames.
     pub fn latency_hi(&self) -> u32 {
         self.get_ref().latency_hi
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use ffi::cubeb_device;
-    use Device;
-
-    #[test]
-    fn device_device_ref_same_ptr() {
-        let ptr: *mut cubeb_device = 0xDEAD_BEEF as *mut _;
-        let device = unsafe { Device::from_ptr(ptr) };
-        assert_eq!(device.as_ptr(), ptr);
-        assert_eq!(device.as_ptr(), device.as_ref().as_ptr());
     }
 }

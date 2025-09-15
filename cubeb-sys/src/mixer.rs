@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use channel::cubeb_channel_layout;
-use format::cubeb_sample_format;
+use crate::channel::cubeb_channel_layout;
+use crate::format::cubeb_sample_format;
 use std::os::raw::{c_int, c_uint, c_void};
 
 pub enum cubeb_mixer {}

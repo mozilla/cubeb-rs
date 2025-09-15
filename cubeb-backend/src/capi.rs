@@ -3,13 +3,13 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details
 
+use crate::{ContextOps, StreamOps};
 use cubeb_core::{
     ffi, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
 use std::mem;
 use std::os::raw::{c_char, c_int, c_void};
-use {ContextOps, StreamOps};
 
 // Helper macro for unwrapping `Result` values from rust-api calls
 // while returning early with a c-api error code if the value of the

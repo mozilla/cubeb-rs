@@ -3,11 +3,11 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
+use crate::ffi;
+use crate::{ChannelLayout, DeviceRef, Result, SampleFormat};
 use std::ffi::CStr;
 use std::os::raw::{c_int, c_void};
 use std::ptr;
-use {ChannelLayout, DeviceRef, Result, SampleFormat};
 
 /// Stream states signaled via `state_callback`.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -24,7 +24,7 @@ pub enum State {
 
 impl From<ffi::cubeb_state> for State {
     fn from(x: ffi::cubeb_state) -> Self {
-        use State::*;
+        use crate::State::*;
         match x {
             ffi::CUBEB_STATE_STARTED => Started,
             ffi::CUBEB_STATE_STOPPED => Stopped,
@@ -36,7 +36,7 @@ impl From<ffi::cubeb_state> for State {
 
 impl From<State> for ffi::cubeb_state {
     fn from(x: State) -> Self {
-        use State::*;
+        use crate::State::*;
         match x {
             Started => ffi::CUBEB_STATE_STARTED,
             Stopped => ffi::CUBEB_STATE_STOPPED,
@@ -87,7 +87,7 @@ impl StreamParamsRef {
     }
 
     pub fn format(&self) -> SampleFormat {
-        use SampleFormat::*;
+        use crate::SampleFormat::*;
         match self.get_ref().format {
             ffi::CUBEB_SAMPLE_S16LE => S16LE,
             ffi::CUBEB_SAMPLE_S16BE => S16BE,
@@ -242,8 +242,8 @@ impl StreamRef {
 
 #[cfg(test)]
 mod tests {
+    use crate::{InputProcessingParams, StreamParams, StreamParamsRef, StreamPrefs};
     use std::mem;
-    use {InputProcessingParams, StreamParams, StreamParamsRef, StreamPrefs};
 
     #[test]
     fn stream_params_default() {

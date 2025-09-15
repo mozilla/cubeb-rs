@@ -3,15 +3,15 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use crate::ffi;
+use crate::{ContextRef, DeviceId, Error, Result, State, StreamParamsRef};
 use cubeb_core;
-use ffi;
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::os::raw::{c_long, c_void};
 use std::slice::{from_raw_parts, from_raw_parts_mut};
 use std::{ops, panic, ptr};
-use {ContextRef, DeviceId, Error, Result, State, StreamParamsRef};
 
 /// User supplied data callback.
 ///

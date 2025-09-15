@@ -5,7 +5,7 @@
 
 #![allow(non_camel_case_types)]
 
-use ffi;
+use crate::ffi;
 use std::os::raw::{c_char, c_float, c_int, c_uint, c_void};
 
 #[repr(C)]

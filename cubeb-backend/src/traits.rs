@@ -3,11 +3,11 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use crate::ffi;
 use cubeb_core::{
     DeviceId, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, Result, Stream,
     StreamParams, StreamParamsRef,
 };
-use ffi;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 

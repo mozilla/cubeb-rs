@@ -3,10 +3,10 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use callbacks::{cubeb_data_callback, cubeb_state_callback};
-use device::cubeb_devid;
+use crate::callbacks::{cubeb_data_callback, cubeb_state_callback};
+use crate::device::cubeb_devid;
+use crate::stream::{cubeb_input_processing_params, cubeb_stream, cubeb_stream_params};
 use std::os::raw::{c_char, c_int, c_uint, c_void};
-use stream::{cubeb_input_processing_params, cubeb_stream, cubeb_stream_params};
 
 pub enum cubeb {}
 

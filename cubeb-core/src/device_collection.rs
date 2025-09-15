@@ -3,10 +3,10 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
-use ffi_types;
+use crate::ffi;
+use crate::ffi_types;
+use crate::{ContextRef, DeviceInfo};
 use std::{ops, slice};
-use {ContextRef, DeviceInfo};
 
 /// A collection of `DeviceInfo` used by libcubeb
 type CType = ffi::cubeb_device_collection;

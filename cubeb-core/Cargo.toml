@@ -1,5 +1,6 @@
 [package]
 name = "cubeb-core"
+edition = "2021"
 version = "0.31.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 license = "ISC"

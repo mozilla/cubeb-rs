@@ -4,8 +4,8 @@
 // accompanying file LICENSE for details.
 #![macro_use]
 
+use crate::Error;
 use std::os::raw::c_int;
-use Error;
 
 pub fn cvt_r(ret: c_int) -> Result<(), Error> {
     Error::wrap(ret)
@@ -13,6 +13,6 @@ pub fn cvt_r(ret: c_int) -> Result<(), Error> {
 
 macro_rules! call {
     (ffi::$p:ident ($($e:expr),*)) => ({
-        ::call::cvt_r(ffi::$p($($e),*))
+        crate::call::cvt_r(ffi::$p($($e),*))
     })
 }

@@ -12,6 +12,6 @@ mod ops;
 mod traits;
 
 // Re-export cubeb_core types
+pub use crate::ops::Ops;
+pub use crate::traits::{ContextOps, StreamOps};
 pub use cubeb_core::*;
-pub use ops::Ops;
-pub use traits::{ContextOps, StreamOps};

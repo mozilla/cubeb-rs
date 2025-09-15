@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
+use crate::ffi;
 
 bitflags! {
     /// Some common layout definitions
@@ -80,7 +80,7 @@ impl ChannelLayout {
 
 #[cfg(test)]
 mod test {
-    use ffi;
+    use crate::ffi;
 
     #[test]
     fn channel_layout_from_raw() {

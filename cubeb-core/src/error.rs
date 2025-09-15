@@ -1,4 +1,4 @@
-use ffi;
+use crate::ffi;
 use std::ffi::NulError;
 use std::os::raw::c_int;
 use std::{error, fmt};
@@ -66,7 +66,7 @@ impl From<NulError> for Error {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ffi;
+    use crate::ffi;
 
     #[test]
     fn test_from_raw() {

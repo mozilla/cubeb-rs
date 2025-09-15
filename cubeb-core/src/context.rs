@@ -3,14 +3,14 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
+use crate::ffi;
+use crate::util::opt_bytes;
+use crate::{
+    DeviceCollection, DeviceId, DeviceType, InputProcessingParams, Result, Stream, StreamParamsRef,
+};
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::{ptr, str};
-use util::opt_bytes;
-use {
-    DeviceCollection, DeviceId, DeviceType, InputProcessingParams, Result, Stream, StreamParamsRef,
-};
 
 macro_rules! as_ptr {
     ($e:expr) => {

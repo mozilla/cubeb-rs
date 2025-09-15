@@ -3,9 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use context::cubeb;
+use crate::context::cubeb;
+use crate::stream::{cubeb_state, cubeb_stream};
 use std::os::raw::{c_long, c_void};
-use stream::{cubeb_state, cubeb_stream};
 
 pub type cubeb_data_callback = Option<
     unsafe extern "C" fn(

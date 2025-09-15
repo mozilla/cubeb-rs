@@ -3,9 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use crate::{ffi, Error, Result};
 use std::ffi::{c_char, CStr};
 use std::sync::RwLock;
-use {ffi, Error, Result};
 
 /// Level (verbosity) of logging for a particular cubeb context.
 #[derive(PartialEq, Eq, Clone, Debug, Copy, PartialOrd, Ord)]
@@ -20,7 +20,7 @@ pub enum LogLevel {
 
 impl From<ffi::cubeb_log_level> for LogLevel {
     fn from(x: ffi::cubeb_log_level) -> Self {
-        use LogLevel::*;
+        use crate::LogLevel::*;
         match x {
             ffi::CUBEB_LOG_NORMAL => Normal,
             ffi::CUBEB_LOG_VERBOSE => Verbose,
@@ -31,7 +31,7 @@ impl From<ffi::cubeb_log_level> for LogLevel {
 
 impl From<LogLevel> for ffi::cubeb_log_level {
     fn from(x: LogLevel) -> Self {
-        use LogLevel::*;
+        use crate::LogLevel::*;
         match x {
             Normal => ffi::CUBEB_LOG_NORMAL,
             Verbose => ffi::CUBEB_LOG_VERBOSE,

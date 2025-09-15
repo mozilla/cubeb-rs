@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use callbacks::cubeb_device_collection_changed_callback;
-use context::cubeb;
+use crate::callbacks::cubeb_device_collection_changed_callback;
+use crate::context::cubeb;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int, c_uint, c_void};
 use std::{fmt, mem, ptr};

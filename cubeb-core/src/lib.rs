@@ -23,15 +23,15 @@ mod log;
 mod stream;
 mod util;
 
-pub use builders::*;
-pub use channel::*;
-pub use context::*;
-pub use device::*;
-pub use device_collection::*;
-pub use error::*;
-pub use format::*;
-pub use log::*;
-pub use stream::*;
+pub use crate::builders::*;
+pub use crate::channel::*;
+pub use crate::context::*;
+pub use crate::device::*;
+pub use crate::device_collection::*;
+pub use crate::error::*;
+pub use crate::format::*;
+pub use crate::log::*;
+pub use crate::stream::*;
 
 pub mod ffi {
     pub use cubeb_sys::*;

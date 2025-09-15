@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
-use {ChannelLayout, InputProcessingParams, SampleFormat, StreamParams, StreamPrefs};
+use crate::ffi;
+use crate::{ChannelLayout, InputProcessingParams, SampleFormat, StreamParams, StreamPrefs};
 
 #[derive(Debug)]
 pub struct StreamParamsBuilder(ffi::cubeb_stream_params);
@@ -60,8 +60,8 @@ impl StreamParamsBuilder {
 
 #[cfg(test)]
 mod tests {
-    use SampleFormat;
-    use {ffi, InputProcessingParams, StreamParamsBuilder, StreamPrefs};
+    use crate::SampleFormat;
+    use crate::{ffi, InputProcessingParams, StreamParamsBuilder, StreamPrefs};
 
     #[test]
     fn stream_params_builder_channels() {

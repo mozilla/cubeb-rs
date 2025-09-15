@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
+use crate::ffi;
 
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
 pub enum SampleFormat {
@@ -31,7 +31,7 @@ impl From<ffi::cubeb_sample_format> for SampleFormat {
 
 impl From<SampleFormat> for ffi::cubeb_sample_format {
     fn from(x: SampleFormat) -> Self {
-        use SampleFormat::*;
+        use crate::SampleFormat::*;
         match x {
             S16LE => ffi::CUBEB_SAMPLE_S16LE,
             S16BE => ffi::CUBEB_SAMPLE_S16BE,

@@ -3,9 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use ffi;
+use crate::ffi;
+use crate::util::opt_bytes;
 use std::str;
-use util::opt_bytes;
 
 /// The state of a device.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -226,8 +226,8 @@ impl DeviceInfoRef {
 
 #[cfg(test)]
 mod tests {
-    use ffi::cubeb_device;
-    use Device;
+    use crate::ffi::cubeb_device;
+    use crate::Device;
 
     #[test]
     fn device_device_ref_same_ptr() {

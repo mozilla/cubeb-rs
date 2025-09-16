@@ -7,12 +7,9 @@ keywords = ["cubeb"]
 repository = "https://github.com/mozilla/cubeb-rs"
 homepage = "https://github.com/mozilla/cubeb-rs"
 description = """
-Common types and definitions for cubeb rust and C bindings. Not intended for direct use.
+Common types and definitions for cubeb Rust and C bindings. Not intended for direct use.
 """
 categories = ["api-bindings"]
-
-[badges]
-circle-ci = { repository = "mozilla/cubeb-rs" }
 
 [features]
 gecko-in-tree = ["cubeb-sys/gecko-in-tree"]

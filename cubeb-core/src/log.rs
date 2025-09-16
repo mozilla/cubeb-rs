@@ -3,9 +3,13 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use ffi;
+#[cfg(not(feature = "gecko-in-tree"))]
 use std::ffi::{c_char, CStr};
+#[cfg(not(feature = "gecko-in-tree"))]
 use std::sync::RwLock;
-use {ffi, Error, Result};
+#[cfg(not(feature = "gecko-in-tree"))]
+use {Error, Result};
 
 /// Level (verbosity) of logging for a particular cubeb context.
 #[derive(PartialEq, Eq, Clone, Debug, Copy, PartialOrd, Ord)]
@@ -44,8 +48,10 @@ pub fn log_enabled() -> bool {
     unsafe { ffi::cubeb_log_get_level() != LogLevel::Disabled as _ }
 }
 
+#[cfg(not(feature = "gecko-in-tree"))]
 static LOG_CALLBACK: RwLock<Option<fn(s: &CStr)>> = RwLock::new(None);
 
+#[cfg(not(feature = "gecko-in-tree"))]
 extern "C" {
     fn cubeb_write_log(fmt: *const c_char, ...);
 }
@@ -54,6 +60,7 @@ extern "C" {
 ///
 /// |s| must be null, or a pointer to a valid, nul-terminated, array of chars.
 #[no_mangle]
+#[cfg(not(feature = "gecko-in-tree"))]
 pub unsafe extern "C" fn rust_write_formatted_msg(s: *const c_char) {
     if s.is_null() {
         // Do nothing if the pointer is null.
@@ -68,6 +75,7 @@ pub unsafe extern "C" fn rust_write_formatted_msg(s: *const c_char) {
     // Silently fail if lock cannot be acquired.
 }
 
+#[cfg(not(feature = "gecko-in-tree"))]
 pub fn set_logging(level: LogLevel, f: Option<fn(s: &CStr)>) -> Result<()> {
     match LOG_CALLBACK.write() {
         Ok(mut guard) => {

@@ -21,6 +21,7 @@ fn main() {
         &dest_path,
         format!(
             r#"
+            #[allow(clippy::missing_safety_doc)]
             #[no_mangle]
             pub unsafe extern "C" fn {}(s: *const c_char) {{
                 rust_write_formatted_msg(s);

@@ -3,6 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 /// Maximum length in bytes for a log message.
@@ -70,7 +71,8 @@ pub fn cubeb_log_internal_buf_fmt(
     let mut buf = StaticCString::<LOG_LIMIT>::new();
     let _ = std::fmt::write(&mut buf, format_args!("{filename}:{line}: {msg}\n"));
     unsafe {
-        log_callback(buf.as_cstr().as_ptr());
+        // Don't process this as a format string in C
+        log_callback(CString::new("%s").unwrap().as_ptr(), buf.as_cstr().as_ptr());
     };
 }
 
@@ -128,6 +130,23 @@ mod tests {
         cubeb_log!("This is synchronous log output at normal level");
         cubeb_log!("{} Formatted log", 1);
         cubeb_log!("{} Formatted {} log {}", 1, 2, 3);
+    }
+
+    #[test]
+    fn test_normal_logging_sync_format_specififer() {
+        let _guard = LOG_MODIFIER.write();
+        set_logging(
+            LogLevel::Normal,
+            Some(|s| {
+                let s = s.to_str().unwrap().trim();
+                println!("{}", s);
+                let re = Regex::new(r"log.rs:\d+: This has a %s in it").unwrap();
+                assert!(re.is_match(s));
+            }),
+        )
+        .unwrap();
+        cubeb_log!("This has a %s in it");
+        set_logging(LogLevel::Disabled, None).unwrap();
     }
 
     #[test]

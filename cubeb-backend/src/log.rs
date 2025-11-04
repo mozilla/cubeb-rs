@@ -3,7 +3,7 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use std::ffi::CString;
+use std::ffi::CStr;
 use std::os::raw::c_char;
 
 /// Maximum length in bytes for a log message.
@@ -72,7 +72,10 @@ pub fn cubeb_log_internal_buf_fmt(
     let _ = std::fmt::write(&mut buf, format_args!("{filename}:{line}: {msg}\n"));
     unsafe {
         // Don't process this as a format string in C
-        log_callback(CString::new("%s").unwrap().as_ptr(), buf.as_cstr().as_ptr());
+        log_callback(
+            CStr::from_bytes_with_nul_unchecked(b"%s\0").as_ptr(),
+            buf.as_cstr().as_ptr(),
+        );
     };
 }
 

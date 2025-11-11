@@ -6,8 +6,7 @@
 use ffi;
 use std::ffi::CStr;
 use std::os::raw::{c_int, c_void};
-use std::ptr;
-use {ChannelLayout, DeviceRef, Result, SampleFormat};
+use {ChannelLayout, Result, SampleFormat};
 
 /// Stream states signaled via `state_callback`.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -184,18 +183,6 @@ impl StreamRef {
         unsafe { call!(ffi::cubeb_stream_set_name(self.as_ptr(), name.as_ptr())) }
     }
 
-    /// Get the current output device for this stream.
-    pub fn current_device(&self) -> Result<&DeviceRef> {
-        let mut device: *mut ffi::cubeb_device = ptr::null_mut();
-        unsafe {
-            call!(ffi::cubeb_stream_get_current_device(
-                self.as_ptr(),
-                &mut device
-            ))?;
-            Ok(DeviceRef::from_ptr(device))
-        }
-    }
-
     /// Set the mute state for an input stream.
     pub fn set_input_mute(&self, mute: bool) -> Result<()> {
         let mute: c_int = if mute { 1 } else { 0 };
@@ -208,16 +195,6 @@ impl StreamRef {
             call!(ffi::cubeb_stream_set_input_processing_params(
                 self.as_ptr(),
                 params.bits()
-            ))
-        }
-    }
-
-    /// Destroy a cubeb_device structure.
-    pub fn device_destroy(&self, device: DeviceRef) -> Result<()> {
-        unsafe {
-            call!(ffi::cubeb_stream_device_destroy(
-                self.as_ptr(),
-                device.as_ptr()
             ))
         }
     }

@@ -4,7 +4,7 @@
 // accompanying file LICENSE for details
 
 use cubeb_core::{
-    ffi, DeviceInfo, DeviceRef, DeviceType, InputProcessingParams, StreamParams, StreamParamsRef,
+    ffi, DeviceInfo, DeviceType, InputProcessingParams, StreamParams, StreamParamsRef,
 };
 use std::ffi::CStr;
 use std::mem;
@@ -54,11 +54,9 @@ macro_rules! capi_new(
             stream_get_input_latency: Some($crate::capi::capi_stream_get_input_latency::<$stm>),
             stream_set_volume: Some($crate::capi::capi_stream_set_volume::<$stm>),
             stream_set_name: Some($crate::capi::capi_stream_set_name::<$stm>),
-            stream_get_current_device: Some($crate::capi::capi_stream_get_current_device::<$stm>),
             stream_set_input_mute: Some($crate::capi::capi_stream_set_input_mute::<$stm>),
             stream_set_input_processing_params:
                 Some($crate::capi::capi_stream_set_input_processing_params::<$stm>),
-            stream_device_destroy: Some($crate::capi::capi_stream_device_destroy::<$stm>),
             stream_register_device_changed_callback:
                 Some($crate::capi::capi_stream_register_device_changed_callback::<$stm>),
             register_device_collection_changed:
@@ -385,22 +383,6 @@ pub unsafe extern "C" fn capi_stream_set_name<STM: StreamOps>(
 ///
 /// Entry point from C code.
 ///
-/// This function is unsafe because it dereferences the given `s` and `device` pointers.
-/// The caller should ensure those pointers are valid.
-pub unsafe extern "C" fn capi_stream_get_current_device<STM: StreamOps>(
-    s: *mut ffi::cubeb_stream,
-    device: *mut *mut ffi::cubeb_device,
-) -> i32 {
-    let stm = &mut *(s as *mut STM);
-
-    *device = _try!(stm.current_device()).as_ptr();
-    ffi::CUBEB_OK
-}
-
-/// # Safety
-///
-/// Entry point from C code.
-///
 /// This function is unsafe because it dereferences the given `s` pointer.
 /// The caller should ensure those pointers are valid.
 pub unsafe extern "C" fn capi_stream_set_input_mute<STM: StreamOps>(
@@ -424,25 +406,6 @@ pub unsafe extern "C" fn capi_stream_set_input_processing_params<STM: StreamOps>
 ) -> c_int {
     let stm = &mut *(s as *mut STM);
     _try!(stm.set_input_processing_params(InputProcessingParams::from_bits_truncate(params)));
-    ffi::CUBEB_OK
-}
-
-/// # Safety
-///
-/// Entry point from C code.
-///
-/// This function is unsafe because it dereferences the given `s` and `device` pointers.
-/// The caller should ensure those pointers are valid.
-pub unsafe extern "C" fn capi_stream_device_destroy<STM: StreamOps>(
-    s: *mut ffi::cubeb_stream,
-    device: *mut ffi::cubeb_device,
-) -> c_int {
-    let stm = &mut *(s as *mut STM);
-    if device.is_null() {
-        return ffi::CUBEB_ERROR_INVALID_PARAMETER;
-    }
-    let device = DeviceRef::from_ptr(device);
-    let _ = stm.device_destroy(device);
     ffi::CUBEB_OK
 }
 

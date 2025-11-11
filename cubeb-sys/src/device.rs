@@ -106,28 +106,6 @@ fn fmt_device_type(t: &cubeb_device_type) -> &'static str {
 pub type cubeb_devid = *const c_void;
 
 #[repr(C)]
-pub struct cubeb_device {
-    pub output_name: *mut c_char,
-    pub input_name: *mut c_char,
-}
-
-// Explicit Debug impl to work around bug in ctest
-impl Default for cubeb_device {
-    fn default() -> Self {
-        unsafe { mem::zeroed() }
-    }
-}
-
-impl fmt::Debug for cubeb_device {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("cubeb_device")
-            .field("output_name", &self.output_name)
-            .field("input_name", &self.input_name)
-            .finish()
-    }
-}
-
-#[repr(C)]
 pub struct cubeb_device_collection {
     pub device: *mut cubeb_device_info,
     pub count: usize,

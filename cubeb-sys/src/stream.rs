@@ -5,7 +5,6 @@
 
 use callbacks::cubeb_device_changed_callback;
 use channel::cubeb_channel_layout;
-use device::cubeb_device;
 use format::cubeb_sample_format;
 use std::os::raw::{c_char, c_float, c_int, c_uint, c_void};
 use std::{fmt, mem};
@@ -81,18 +80,10 @@ extern "C" {
         -> c_int;
     pub fn cubeb_stream_set_volume(stream: *mut cubeb_stream, volume: c_float) -> c_int;
     pub fn cubeb_stream_set_name(stream: *mut cubeb_stream, name: *const c_char) -> c_int;
-    pub fn cubeb_stream_get_current_device(
-        stream: *mut cubeb_stream,
-        device: *mut *mut cubeb_device,
-    ) -> c_int;
     pub fn cubeb_stream_set_input_mute(stream: *mut cubeb_stream, mute: c_int) -> c_int;
     pub fn cubeb_stream_set_input_processing_params(
         stream: *mut cubeb_stream,
         params: cubeb_input_processing_params,
-    ) -> c_int;
-    pub fn cubeb_stream_device_destroy(
-        stream: *mut cubeb_stream,
-        devices: *mut cubeb_device,
     ) -> c_int;
     pub fn cubeb_stream_register_device_changed_callback(
         stream: *mut cubeb_stream,

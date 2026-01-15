@@ -97,6 +97,11 @@ fn main() {
     let mut cfg = cmake::Config::new(&libcubeb_path);
 
     if darwin {
+        if !Path::new("libcubeb/src/cubeb-coreaudio-rs").exists() {
+            let _ = Command::new("git")
+                .args(["clone", "https://github.com/mozilla/cubeb-coreaudio-rs.git", "libcubeb/src/cubeb-coreaudio-rs"])
+                .status();
+        }
         let cmake_osx_arch = if target.contains("aarch64") {
             // Apple Silicon
             "arm64"
@@ -105,6 +110,7 @@ fn main() {
             "x86_64"
         };
         cfg.define("CMAKE_OSX_ARCHITECTURES", cmake_osx_arch);
+        cfg.define("BUILD_RUST_LIBS", "ON");
     }
 
     // Do not build the rust backends for tests: doing so causes duplicate

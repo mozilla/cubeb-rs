@@ -103,6 +103,7 @@ ffi_type_stack! {
     /// returns these structures via `device_collection` and must be
     /// destroyed via `device_collection_destroy`.
     type CType = ffi::cubeb_device_info;
+    #[derive(Debug)]
     pub struct DeviceInfo;
     pub struct DeviceInfoRef;
 }

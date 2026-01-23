@@ -11,7 +11,7 @@ use std::mem::ManuallyDrop;
 use std::os::raw::{c_long, c_void};
 use std::slice::{from_raw_parts, from_raw_parts_mut};
 use std::{ops, panic, ptr};
-use {ContextRef, DeviceId, Error, Result, State, StreamParamsRef};
+use {Context, DeviceId, Error, Result, State, StreamParamsRef};
 
 /// User supplied data callback.
 ///
@@ -271,7 +271,7 @@ impl<'a, F> StreamBuilder<'a, F> {
     }
 
     /// Build the stream
-    pub fn init(self, ctx: &ContextRef) -> Result<Stream<F>> {
+    pub fn init(self, ctx: &Context) -> Result<Stream<F>> {
         if self.data_cb.is_none() || self.state_cb.is_none() {
             return Err(Error::Error);
         }

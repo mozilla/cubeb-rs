@@ -13,3 +13,11 @@ pub unsafe fn opt_bytes<'a>(c: *const c_char) -> Option<&'a [u8]> {
         Some(CStr::from_ptr(c).to_bytes())
     }
 }
+
+pub unsafe fn opt_string<'a>(c: *const c_char) -> Option<&'a str> {
+    if c.is_null() {
+        None
+    } else {
+        Some(unsafe { CStr::from_ptr(c) }.to_str().unwrap())
+    }
+}

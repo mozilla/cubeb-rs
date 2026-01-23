@@ -23,17 +23,20 @@
 extern crate cubeb_core;
 
 mod context;
+mod device_collection;
+mod entry;
 mod frame;
 mod sample;
 mod stream;
 
-pub use context::*;
+pub use context::Context;
+pub use device_collection::DeviceCollection;
+pub use entry::init;
 // Re-export cubeb_core types
 pub use cubeb_core::{
-    ffi, ChannelLayout, Context, ContextRef, Device, DeviceCollection, DeviceCollectionRef,
-    DeviceFormat, DeviceId, DeviceInfo, DeviceInfoRef, DeviceRef, DeviceState, DeviceType, Error,
-    LogLevel, Result, SampleFormat, State, StreamParams, StreamParamsBuilder, StreamParamsRef,
-    StreamPrefs, StreamRef,
+    ffi, ChannelLayout, Device, DeviceFormat, DeviceId, DeviceInfo, DeviceRef, DeviceState,
+    DeviceType, Error, LogLevel, Result, SampleFormat, State, StreamParams, StreamParamsBuilder,
+    StreamParamsRef, StreamPrefs, StreamRef,
 };
 pub use frame::*;
 pub use sample::*;

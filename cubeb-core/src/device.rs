@@ -5,7 +5,7 @@
 
 use ffi;
 use std::str;
-use util::opt_bytes;
+use util::{opt_bytes, opt_string};
 
 /// The state of a device.
 #[derive(PartialEq, Eq, Clone, Debug, Copy)]
@@ -97,130 +97,137 @@ impl DeviceRef {
     }
 }
 
-ffi_type_stack! {
-    /// This structure holds the characteristics of an input or output
-    /// audio device. It is obtained using `enumerate_devices`, which
-    /// returns these structures via `device_collection` and must be
-    /// destroyed via `device_collection_destroy`.
-    type CType = ffi::cubeb_device_info;
-    pub struct DeviceInfo;
-    pub struct DeviceInfoRef;
-}
+/// This structure holds the characteristics of an input or output
+/// audio device. It is obtained using `enumerate_devices`, which
+/// returns these structures via `device_collection` and must be
+/// destroyed via `device_collection_destroy`.
+#[repr(transparent)]
+pub struct DeviceInfo(ffi::cubeb_device_info);
 
-impl DeviceInfoRef {
-    fn get_ref(&self) -> &ffi::cubeb_device_info {
-        unsafe { &*self.as_ptr() }
+impl DeviceInfo {
+    pub fn into_raw(self) -> ffi::cubeb_device_info {
+        self.0
+    }
+
+    /// # Safety
+    ///
+    /// The provided device info must be valid for the whole lifetime of the struct.
+    pub unsafe fn from_raw(raw: ffi::cubeb_device_info) -> Self {
+        Self(raw)
     }
 
     /// Device identifier handle.
     pub fn devid(&self) -> DeviceId {
-        self.get_ref().devid
+        self.0.devid
     }
 
     /// Device identifier which might be presented in a UI.
     pub fn device_id(&self) -> Option<&str> {
-        self.device_id_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn device_id_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().device_id) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.device_id) }
     }
 
     /// Friendly device name which might be presented in a UI.
     pub fn friendly_name(&self) -> Option<&str> {
-        self.friendly_name_bytes()
-            .map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn friendly_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().friendly_name) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.friendly_name) }
     }
 
     /// Two devices have the same group identifier if they belong to
     /// the same physical device; for example a headset and
     /// microphone.
     pub fn group_id(&self) -> Option<&str> {
-        self.group_id_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn group_id_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().group_id) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.group_id) }
     }
 
     /// Optional vendor name, may be None.
     pub fn vendor_name(&self) -> Option<&str> {
-        self.vendor_name_bytes().map(|b| str::from_utf8(b).unwrap())
-    }
-
-    pub fn vendor_name_bytes(&self) -> Option<&[u8]> {
-        unsafe { opt_bytes(self.get_ref().vendor_name) }
+        // SAFETY: The inner struct is valid
+        unsafe { opt_string(self.0.vendor_name) }
     }
 
     /// Type of device (Input/Output).
     pub fn device_type(&self) -> DeviceType {
-        DeviceType::from_bits_truncate(self.get_ref().device_type)
+        DeviceType::from_bits_truncate(self.0.device_type)
     }
 
     /// State of device disabled/enabled/unplugged.
     pub fn state(&self) -> DeviceState {
-        let state = self.get_ref().state;
-        macro_rules! check( ($($raw:ident => $real:ident),*) => (
-            $(if state == ffi::$raw {
-                DeviceState::$real
-            }) else *
-            else {
-                panic!("unknown device state: {}", state)
-            }
-        ));
-
-        check!(CUBEB_DEVICE_STATE_DISABLED => Disabled,
-               CUBEB_DEVICE_STATE_UNPLUGGED => Unplugged,
-               CUBEB_DEVICE_STATE_ENABLED => Enabled)
+        match self.0.state {
+            ffi::CUBEB_DEVICE_STATE_DISABLED => DeviceState::Disabled,
+            ffi::CUBEB_DEVICE_STATE_UNPLUGGED => DeviceState::Unplugged,
+            ffi::CUBEB_DEVICE_STATE_ENABLED => DeviceState::Enabled,
+            _ => panic!("unknown device state: {}", self.0.state),
+        }
     }
 
     /// Preferred device.
     pub fn preferred(&self) -> DevicePref {
-        DevicePref::from_bits(self.get_ref().preferred).unwrap()
+        DevicePref::from_bits(self.0.preferred).unwrap()
     }
 
     /// Sample format supported.
     pub fn format(&self) -> DeviceFormat {
-        DeviceFormat::from_bits(self.get_ref().format).unwrap()
+        DeviceFormat::from_bits(self.0.format).unwrap()
     }
 
     /// The default sample format for this device.
     pub fn default_format(&self) -> DeviceFormat {
-        DeviceFormat::from_bits(self.get_ref().default_format).unwrap()
+        DeviceFormat::from_bits(self.0.default_format).unwrap()
     }
 
     /// Channels.
     pub fn max_channels(&self) -> u32 {
-        self.get_ref().max_channels
+        self.0.max_channels
     }
 
     /// Default/Preferred sample rate.
     pub fn default_rate(&self) -> u32 {
-        self.get_ref().default_rate
+        self.0.default_rate
     }
 
     /// Maximum sample rate supported.
     pub fn max_rate(&self) -> u32 {
-        self.get_ref().max_rate
+        self.0.max_rate
     }
 
     /// Minimum sample rate supported.
     pub fn min_rate(&self) -> u32 {
-        self.get_ref().min_rate
+        self.0.min_rate
     }
 
     /// Lowest possible latency in frames.
     pub fn latency_lo(&self) -> u32 {
-        self.get_ref().latency_lo
+        self.0.latency_lo
     }
 
     /// Higest possible latency in frames.
     pub fn latency_hi(&self) -> u32 {
-        self.get_ref().latency_hi
+        self.0.latency_hi
+    }
+}
+
+impl std::fmt::Debug for DeviceInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DeviceInfo")
+            .field("devid", &self.devid())
+            .field("device_id", &self.device_id())
+            .field("friendly_name", &self.friendly_name())
+            .field("group_id", &self.group_id())
+            .field("vendor_name", &self.vendor_name())
+            .field("device_type", &self.device_type())
+            .field("state", &self.state())
+            .field("preferred", &self.preferred())
+            .field("format", &self.format())
+            .field("default_format", &self.default_format())
+            .field("max_channels", &self.max_channels())
+            .field("default_rate", &self.default_rate())
+            .field("max_rate", &self.max_rate())
+            .field("min_rate", &self.min_rate())
+            .field("latency_lo", &self.latency_lo())
+            .field("latency_hi", &self.latency_hi())
+            .finish()
     }
 }
 

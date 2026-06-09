@@ -16,6 +16,7 @@ circle-ci = { repository = "mozilla/cubeb-rs" }
 
 [features]
 gecko-in-tree = ["cubeb-sys/gecko-in-tree"]
+no-private-apis = ["cubeb-sys/no-private-apis"]
 
 [dependencies]
 bitflags = "1.2.0"

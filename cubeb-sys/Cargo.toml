@@ -16,6 +16,7 @@ circle-ci = { repository = "mozilla/cubeb-rs" }
 [features]
 gecko-in-tree = []
 unittest-build = []
+no-private-apis = []
 
 [build-dependencies]
 pkg-config = "0.3"

@@ -115,6 +115,8 @@ fn main() {
         cfg.define("CMAKE_OSX_ARCHITECTURES", cmake_osx_arch);
     }
 
+    let no_private_apis = cfg!(feature = "no-private-apis");
+
     // Do not build the rust backends for tests: doing so causes duplicate
     // symbol definitions.
     let build_rust_libs = cfg!(not(feature = "unittest-build")) && env::var("DOCS_RS").is_err();
@@ -127,6 +129,10 @@ fn main() {
             if build_rust_libs { "ON" } else { "OFF" },
         )
         .define("USE_STATIC_MSVC_RUNTIME", "ON")
+        .define(
+            "NO_PRIVATE_APIS_IN_COREAUDIO",
+            if no_private_apis { "ON" } else { "OFF" },
+        )
         // Force rust libs to include target triple when outputting,
         // for easier linking when cross-compiling.
         .env("CARGO_BUILD_TARGET", &target)

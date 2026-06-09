@@ -17,6 +17,7 @@ circle-ci = { repository = "mozilla/cubeb-rs" }
 
 [features]
 gecko-in-tree = ["cubeb-core/gecko-in-tree"]
+no-private-apis = ["cubeb-core/no-private-apis"]
 
 [dependencies]
 cubeb-core = { path = "../cubeb-core", version = "0.34.1" }

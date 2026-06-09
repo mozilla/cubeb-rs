@@ -1,4 +1,4 @@
-#![allow(bad_style, unused_macros)]
+#![allow(bad_style, unused_macros, unused_imports, clippy::all)]
 
 extern crate cubeb_sys;
 

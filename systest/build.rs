@@ -33,11 +33,10 @@ fn main() {
         .include(root.join("include/cubeb"))
         .include("../cubeb-sys/libcubeb/src");
 
-    cfg.type_name(|s, _, _| s.to_string())
-        .field_name(|_, f| match f {
-            "device_type" => "type".to_string(),
-            _ => f.to_string(),
-        });
+    cfg.rename_struct_field(|_, f| match f.ident() {
+        "device_type" => Some("type".to_string()),
+        _ => None,
+    });
 
     // Don't perform `((type_t) -1) < 0)` checks for pointers because
     // they are unsigned and always >= 0.
@@ -49,5 +48,6 @@ fn main() {
 
     // Generate the tests, passing the path to the `*-sys` library as well as
     // the module to generate.
-    cfg.generate("../cubeb-sys/src/lib.rs", "all.rs");
+    cfg.generate_files("../cubeb-sys/src/lib.rs", "all.rs")
+        .unwrap();
 }

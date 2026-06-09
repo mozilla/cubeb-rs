@@ -3,10 +3,10 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use callbacks::cubeb_device_changed_callback;
-use channel::cubeb_channel_layout;
-use device::cubeb_device;
-use format::cubeb_sample_format;
+use crate::callbacks::cubeb_device_changed_callback;
+use crate::channel::cubeb_channel_layout;
+use crate::device::cubeb_device;
+use crate::format::cubeb_sample_format;
 use std::os::raw::{c_char, c_float, c_int, c_uint, c_void};
 use std::{fmt, mem};
 

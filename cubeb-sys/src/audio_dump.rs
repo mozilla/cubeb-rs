@@ -3,8 +3,8 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
+use crate::stream::cubeb_stream_params;
 use std::os::raw::{c_char, c_int, c_void};
-use stream::cubeb_stream_params;
 
 pub enum cubeb_audio_dump_stream {}
 pub enum cubeb_audio_dump_session {}

@@ -33,6 +33,10 @@ fn main() {
         .include(root.join("include/cubeb"))
         .include("../cubeb-sys/libcubeb/src");
 
+    // The cubeb types are anonymous-struct typedefs, so drop the `struct`
+    // keyword ctest would otherwise emit.
+    cfg.rename_struct_ty(|ty| Some(ty.to_string()));
+
     cfg.rename_struct_field(|_, f| match f.ident() {
         "device_type" => Some("type".to_string()),
         _ => None,
@@ -47,7 +51,7 @@ fn main() {
     });
 
     // Generate the tests, passing the path to the `*-sys` library as well as
-    // the module to generate.
-    cfg.generate_files("../cubeb-sys/src/lib.rs", "all.rs")
-        .unwrap();
+    // the module to generate. This also compiles and links the C side of the
+    // tests; `generate_files` alone would leave the ctest_* symbols undefined.
+    ctest::generate_test(&mut cfg, "../cubeb-sys/src/lib.rs", "all.rs").unwrap();
 }

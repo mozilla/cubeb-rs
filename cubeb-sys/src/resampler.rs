@@ -3,9 +3,9 @@
 // This program is made available under an ISC-style license.  See the
 // accompanying file LICENSE for details.
 
-use callbacks::cubeb_data_callback;
+use crate::callbacks::cubeb_data_callback;
+use crate::stream::{cubeb_stream, cubeb_stream_params};
 use std::os::raw::{c_long, c_uint, c_void};
-use stream::{cubeb_stream, cubeb_stream_params};
 
 pub enum cubeb_resampler {}
 

@@ -45,6 +45,14 @@ fn main() {
 
     env::remove_var("DESTDIR");
 
+    // When this build script runs under `cargo clippy`, these variables leak
+    // into the nested cargo invocation that builds the vendored rust backends
+    // (via cmake), running clippy over code we don't control. Scrub them so
+    // the nested build is a plain `cargo build`.
+    env::remove_var("RUSTC_WRAPPER");
+    env::remove_var("RUSTC_WORKSPACE_WRAPPER");
+    env::remove_var("CLIPPY_ARGS");
+
     // Copy libcubeb to the output directory.
     let libcubeb_path = format!("{out_dir}/libcubeb");
 

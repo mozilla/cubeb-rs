@@ -73,6 +73,29 @@ fn rename_libcubeb_manifests(from: &str, to: &str) -> Result<(), DynError> {
     Ok(())
 }
 
+fn verify_package_contents(cargo: &str) -> Result<(), DynError> {
+    let output = Command::new(cargo)
+        .current_dir(project_root())
+        .args(["package", "--list", "--package", "cubeb-sys", "--allow-dirty"])
+        .output()?;
+    if !output.status.success() {
+        Err("cargo package --list failed")?;
+    }
+    let list = String::from_utf8(output.stdout)?;
+    let required = [
+        "libcubeb/src/cubeb-coreaudio-rs/Cargo.toml.in",
+        "libcubeb/src/cubeb-pulse-rs/Cargo.toml.in",
+    ];
+    for path in required {
+        if !list.lines().any(|l| l.contains(path)) {
+            Err(format!(
+                "package is missing {path} — nested submodule not checked out"
+            ))?;
+        }
+    }
+    Ok(())
+}
+
 fn publish(cargo: &str, package: &str, allow_dirty: bool) -> Result<(), DynError> {
     let mut args = vec!["publish", "--package", package];
     if allow_dirty {
@@ -109,6 +132,16 @@ fn release(version: &str) -> Result<(), DynError> {
     if package_version(&manifest)? == version_before {
         Err("cargo release did not bump any versions (release declined?)")?;
     }
+
+    let status = Command::new("git")
+        .current_dir(project_root())
+        .args(["submodule", "update", "--init", "--recursive"])
+        .status()?;
+    if !status.success() {
+        Err("git submodule update failed")?;
+    }
+
+    verify_package_contents(&cargo)?;
 
     rename_libcubeb_manifests("Cargo.toml", "Cargo.toml.in")?;
     let result = publish(&cargo, "cubeb-sys", true);

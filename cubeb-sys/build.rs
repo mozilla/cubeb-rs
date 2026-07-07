@@ -112,6 +112,14 @@ fn main() {
     let android = target.contains("android");
     let mut cfg = cmake::Config::new(&libcubeb_path);
 
+    // Pin the nested Rust backend cargo builds (cubeb-pulse-rs / cubeb-coreaudio-rs,
+    // invoked by CMake ExternalProject as plain `cargo build`) to a target dir we
+    // control. Without this they inherit an ambient CARGO_TARGET_DIR or a
+    // `target-dir` set in the user's cargo config, which relocates the produced
+    // static libs away from the rustc-link-search paths emitted below and breaks
+    // linking with "could not find native static library `cubeb_pulse`".
+    let rust_target_dir = format!("{out_dir}/rust-backend-target");
+
     if darwin {
         let cmake_osx_arch = if target.contains("aarch64") {
             // Apple Silicon
@@ -148,6 +156,7 @@ fn main() {
         // Force rust libs to include target triple when outputting,
         // for easier linking when cross-compiling.
         .env("CARGO_BUILD_TARGET", &target)
+        .env("CARGO_TARGET_DIR", &rust_target_dir)
         .build();
 
     let debug = env::var("PROFILE").unwrap() == "debug";
@@ -173,15 +182,12 @@ fn main() {
         // symbol definitions.
         if build_rust_libs {
             println!("cargo:rustc-link-lib=static=cubeb_coreaudio");
-            let mut search_path = std::env::current_dir().unwrap();
-            search_path.push(&(libcubeb_path + "/src/cubeb-coreaudio-rs/target"));
-            search_path.push(&target);
-            if debug {
-                search_path.push("debug");
-            } else {
-                search_path.push("release");
+            // The nested build's profile subdir (debug vs release) follows the
+            // CMake build type, which is derived from opt-level and can differ
+            // from this crate's PROFILE; search both so either one lands the lib.
+            for profile in ["debug", "release"] {
+                println!("cargo:rustc-link-search=native={rust_target_dir}/{target}/{profile}");
             }
-            println!("cargo:rustc-link-search=native={}", search_path.display());
         }
 
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
@@ -202,15 +208,12 @@ fn main() {
             // symbol definitions.
             if build_rust_libs {
                 println!("cargo:rustc-link-lib=static=cubeb_pulse");
-                let mut search_path = std::env::current_dir().unwrap();
-                search_path.push(&(libcubeb_path + "/src/cubeb-pulse-rs/target"));
-                search_path.push(&target);
-                if debug {
-                    search_path.push("debug");
-                } else {
-                    search_path.push("release");
+                // The nested build's profile subdir (debug vs release) follows the
+                // CMake build type, which is derived from opt-level and can differ
+                // from this crate's PROFILE; search both so either one lands the lib.
+                for profile in ["debug", "release"] {
+                    println!("cargo:rustc-link-search=native={rust_target_dir}/{target}/{profile}");
                 }
-                println!("cargo:rustc-link-search=native={}", search_path.display());
             }
         }
         let _ = pkg_config::find_library("jack");

@@ -88,7 +88,7 @@ macro_rules! cubeb_log_internal {
         }
     };
     ($log_callback: expr, $level: expr, $msg: expr) => {
-        cubeb_log_internal!($log_callback, $level, "{}", format_args!($msg));
+        cubeb_log_internal!($log_callback, $level, "{}", format_args!($msg))
     };
 }
 
@@ -189,5 +189,19 @@ mod tests {
         cubeb_alogv!("This is asynchronous log output at verbose level");
         cubeb_alogv!("{} Formatted log", 1);
         cubeb_alogv!("{} Formatted {} log {}", 1, 2, 3);
+    }
+
+    // Regression guard: the log macros must be usable in expression position
+    // (e.g. as the tail expression of a block) without tripping
+    // `semicolon_in_expressions_from_macros`. See rust-lang/rust#79813. This
+    // is purely a compile-time check; the single-argument arm is what used to
+    // expand with a trailing semicolon.
+    #[test]
+    fn test_logging_in_expression_position() {
+        let _guard = LOG_MODIFIER.read();
+        let _: () = { cubeb_log!("normal in expression position") };
+        let _: () = { cubeb_logv!("verbose in expression position") };
+        let _: () = { cubeb_alog!("async normal in expression position") };
+        let _: () = { cubeb_alogv!("async verbose in expression position") };
     }
 }

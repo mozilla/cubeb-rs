@@ -5,14 +5,11 @@ authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 edition = "2021"
 repository = "https://github.com/mozilla/cubeb-rs"
 license = "ISC"
-description = "Native bindings to the cubeb library"
+description = "Native bindings to the cubeb library."
 exclude = ["libcubeb/googletest"]
 
 links = "cubeb"
 build = "build.rs"
-
-[badges]
-circle-ci = { repository = "mozilla/cubeb-rs" }
 
 [features]
 gecko-in-tree = []

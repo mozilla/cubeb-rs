@@ -215,6 +215,8 @@ fn main() {
                     println!("cargo:rustc-link-search=native={rust_target_dir}/{target}/{profile}");
                 }
             }
+        } else if env::var("LIBCUBEB_SYS_REQUIRE_PULSE").is_ok() {
+            println!("cargo::error=Build is configured to require libpulse but it was not found");
         }
         let _ = pkg_config::find_library("jack");
         let _ = pkg_config::find_library("speexdsp");

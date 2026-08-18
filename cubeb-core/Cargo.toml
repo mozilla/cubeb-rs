@@ -1,6 +1,6 @@
 [package]
 name = "cubeb-core"
-version = "0.37.0"
+version = "0.38.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 edition = "2021"
 license = "ISC"
@@ -21,7 +21,7 @@ no-private-apis-in-coreaudio = ["cubeb-sys/no-private-apis-in-coreaudio"]
 
 [dependencies]
 bitflags = "1.2.0"
-cubeb-sys = { path = "../cubeb-sys", version = "0.37" }
+cubeb-sys = { path = "../cubeb-sys", version = "0.38" }
 
 [build-dependencies]
 cc = "1.1.30"

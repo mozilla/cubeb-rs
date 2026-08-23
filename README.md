@@ -1,4 +1,4 @@
-# cubeb-rs [![ISC License](https://img.shields.io/crates/l/cubeb.svg)](https://github.com/djg/cubeb-rs/blob/master/LICENSE)
+# cubeb-rs [![ISC License](https://img.shields.io/crates/l/cubeb.svg)](https://github.com/mozilla/cubeb-rs/blob/master/LICENSE)
 
 A cross-platform audio library in Rust.
 
@@ -28,7 +28,7 @@ supports backend implementations in both pure-Rust and via bindings to the C++
 implementation, allowing for progressive replacement. So far, pure-Rust
 implementations exist for:
 
-- CoreAudio https://github.com/mozilla/cubeb-coreaudio-rs
+- Core Audio https://github.com/mozilla/cubeb-coreaudio-rs
 - PulseAudio https://github.com/mozilla/cubeb-pulse-rs
 
 The plan is to consolidate all **cubeb**-related projects (including backend
@@ -42,9 +42,9 @@ use from projects outside of Gecko is very welcome.
 
 The following crates are included within this repository:
 
-| Crate | Links | Description |
-| --- | --- | --- |
-| `cubeb` | [![crates.io](https://img.shields.io/crates/v/cubeb.svg)](https://crates.io/crates/cubeb) [![docs.rs](https://docs.rs/cubeb/badge.svg)](https://docs.rs/cubeb) | The top-level user API for **cubeb-rs**. See the `cubeb-api` subdirectory. Depends on `cubeb-core`. |
-| `cubeb-core` | [![crates.io](https://img.shields.io/crates/v/cubeb-core.svg)](https://crates.io/crates/cubeb-core) [![docs.rs](https://docs.rs/cubeb-core/badge.svg)](https://docs.rs/cubeb-core) | Common types and definitions for cubeb rust and C bindings. Not intended for direct use. Depends on `cubeb-sys`. |
-| `cubeb-sys` | [![crates.io](https://img.shields.io/crates/v/cubeb-sys.svg)](https://crates.io/crates/cubeb-sys) [![docs.rs](https://docs.rs/cubeb-sys/badge.svg)](https://docs.rs/cubeb-sys) | Native bindings to the cubeb C++ library. Requires `pkg-config` and `cmake` |
-| `cubeb-backend` | [![crates.io](https://img.shields.io/crates/v/cubeb-backend.svg)](https://crates.io/crates/cubeb-backend) [![docs.rs](https://docs.rs/cubeb-backend/badge.svg)](https://docs.rs/cubeb-backend) | Bindings to libcubeb internals to facilitate implementing cubeb backends in Rust. Depends on `cubeb-core`. |
+| Crate           | Links                                                                                                                                                                                          | Description                                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `cubeb`         | [![crates.io](https://img.shields.io/crates/v/cubeb.svg)](https://crates.io/crates/cubeb) [![docs.rs](https://docs.rs/cubeb/badge.svg)](https://docs.rs/cubeb)                                 | The top-level user API for **cubeb-rs**. See the `cubeb-api` subdirectory. Depends on `cubeb-core`.              |
+| `cubeb-core`    | [![crates.io](https://img.shields.io/crates/v/cubeb-core.svg)](https://crates.io/crates/cubeb-core) [![docs.rs](https://docs.rs/cubeb-core/badge.svg)](https://docs.rs/cubeb-core)             | Common types and definitions for cubeb Rust and C bindings. Not intended for direct use. Depends on `cubeb-sys`. |
+| `cubeb-sys`     | [![crates.io](https://img.shields.io/crates/v/cubeb-sys.svg)](https://crates.io/crates/cubeb-sys) [![docs.rs](https://docs.rs/cubeb-sys/badge.svg)](https://docs.rs/cubeb-sys)                 | Native bindings to the cubeb C++ library. Requires `pkg-config` and `cmake`.                                     |
+| `cubeb-backend` | [![crates.io](https://img.shields.io/crates/v/cubeb-backend.svg)](https://crates.io/crates/cubeb-backend) [![docs.rs](https://docs.rs/cubeb-backend/badge.svg)](https://docs.rs/cubeb-backend) | Bindings to libcubeb internals to facilitate implementing cubeb backends in Rust. Depends on `cubeb-core`.       |

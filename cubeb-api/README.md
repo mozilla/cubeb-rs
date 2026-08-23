@@ -1,14 +1,14 @@
 # cubeb-rs
 
-[![Build Status](https://travis-ci.org/djg/cubeb-rs.svg?branch=master)](https://travis-ci.org/djg/cubeb-rs)
+[![Build Status](https://github.com/mozilla/cubeb-rs/actions/workflows/build.yml/badge.svg)](https://github.com/mozilla/cubeb-rs/actions)
 
 [Documentation](https://docs.rs/cubeb)
 
-cubeb bindings for Rust
+cubeb bindings for Rust.
 
 ```toml
 [dependencies]
-cubeb = "0.1"
+cubeb = "0.31"
 ```
 
 ## Building cubeb-rs
@@ -16,11 +16,11 @@ cubeb = "0.1"
 First, you'll need to install _CMake_. Afterwards, just run:
 
 ```sh
-$ git clone https://github.com/djg/cubeb-rs
+$ git clone https://github.com/mozilla/cubeb-rs
 $ cd cubeb-rs
 $ cargo build
 ```
 
 # License
 
-`cubeb-rs` is distributed under an ISC-style license.  See LICENSE for details.
+`cubeb-rs` is distributed under an ISC-style license. See LICENSE for details.

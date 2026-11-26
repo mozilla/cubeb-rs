@@ -11,3 +11,4 @@ pub const CUBEB_ERROR_INVALID_FORMAT: c_int = -2;
 pub const CUBEB_ERROR_INVALID_PARAMETER: c_int = -3;
 pub const CUBEB_ERROR_NOT_SUPPORTED: c_int = -4;
 pub const CUBEB_ERROR_DEVICE_UNAVAILABLE: c_int = -5;
+pub const CUBEB_ERROR_PERMISSION_DENIED: c_int = -6;

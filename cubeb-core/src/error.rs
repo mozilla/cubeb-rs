@@ -18,6 +18,8 @@ pub enum Error {
     NotSupported = ffi::CUBEB_ERROR_NOT_SUPPORTED as isize,
     /// Requested device is unavailable
     DeviceUnavailable = ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE as isize,
+    /// Permission to capture audio was denied
+    PermissionDenied = ffi::CUBEB_ERROR_PERMISSION_DENIED as isize,
 }
 
 impl Error {
@@ -28,6 +30,7 @@ impl Error {
             ffi::CUBEB_ERROR_INVALID_PARAMETER => Error::InvalidParameter,
             ffi::CUBEB_ERROR_NOT_SUPPORTED => Error::NotSupported,
             ffi::CUBEB_ERROR_DEVICE_UNAVAILABLE => Error::DeviceUnavailable,
+            ffi::CUBEB_ERROR_PERMISSION_DENIED => Error::PermissionDenied,
             // Everything else is just the generic error
             _ => {
                 debug_assert!(code == Error::Error as c_int);
@@ -47,6 +50,7 @@ impl error::Error for Error {
             Error::InvalidParameter => "Invalid parameter",
             Error::NotSupported => "Not supported",
             Error::DeviceUnavailable => "Device unavailable",
+            Error::PermissionDenied => "Permission denied",
         }
     }
 }
@@ -82,7 +86,8 @@ mod tests {
               CUBEB_ERROR_INVALID_FORMAT => InvalidFormat,
               CUBEB_ERROR_INVALID_PARAMETER => InvalidParameter,
               CUBEB_ERROR_NOT_SUPPORTED => NotSupported,
-              CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable
+              CUBEB_ERROR_DEVICE_UNAVAILABLE => DeviceUnavailable,
+              CUBEB_ERROR_PERMISSION_DENIED => PermissionDenied
         );
     }
 }

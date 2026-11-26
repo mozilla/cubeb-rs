@@ -1,6 +1,6 @@
 [package]
 name = "cubeb-sys"
-version = "0.38.0"
+version = "0.39.0"
 authors = ["Dan Glastonbury <dglastonbury@mozilla.com>"]
 edition = "2021"
 repository = "https://github.com/mozilla/cubeb-rs"

@@ -174,9 +174,12 @@ fn main() {
         }
     } else if darwin {
         println!("cargo:rustc-link-lib=framework=AudioUnit");
+        println!("cargo:rustc-link-lib=framework=AVFoundation");
         println!("cargo:rustc-link-lib=framework=CoreAudio");
         println!("cargo:rustc-link-lib=framework=CoreServices");
+        println!("cargo:rustc-link-lib=framework=Foundation");
         println!("cargo:rustc-link-lib=dylib=c++");
+        println!("cargo:rustc-link-lib=dylib=objc");
 
         // Do not link the rust backends for tests: doing so causes duplicate
         // symbol definitions.
